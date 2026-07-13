@@ -750,47 +750,36 @@
  if (routeBusy) return;
  routeBusy = true;
  try {
- const t0 = performance.now();
- const ex = findExample(text);
- document.querySelectorAll(".chip").forEach((c) => {
- c.classList.toggle("active", c.dataset.text === (ex && ex.text));
- });
+        const t0 = performance.now();
+        // Artifact hit when available; otherwise free-text offline router (any phrase).
+        const ex = findExample(text) || freeTextRoute(text);
+        document.querySelectorAll(".chip").forEach((c) => {
+          c.classList.toggle("active", c.dataset.text === (ex && ex.text));
+        });
 
- if (!ex) {
- document.getElementById("resultLine").textContent =
- "No artifact route for this exact phrase - use a chip (same set as streamlit_app.py).";
- document.getElementById("timing").textContent = "";
- return;
- }
+        let note = "";
+        if (ex.accepted) {
+          const result = applyLabel(ex.label);
+          if (result.blocked) note = " · at edge (no cell change)";
+          else if (ex.label === "RESET") note = " · board reset";
+        } else {
+          note = " · gate rejected (no state change)";
+        }
 
- // Probe decision from artifacts (label / probs / gate). State transition is live.
- let note = "";
- if (ex.accepted) {
- const result = applyLabel(ex.label);
- if (result.blocked) {
- note = " * at edge (no cell change)";
- } else if (ex.label === "RESET") {
- note = " * board reset";
- } else if (!result.moved && ex.label !== "ABSTAIN") {
- note = "";
- }
- } else {
- note = " * gate rejected (no state change)";
- }
+        renderGrid();
+        renderBars(ex.probs);
 
- renderGrid();
- // Force bar re-animation even when the same command is repeated.
- renderBars(ex.probs);
-
- const conf = (ex.confidence * 100).toFixed(1);
- const gate = ex.accepted ? "ACCEPTED -> kernel" : "ABSTAIN / rejected";
- document.getElementById("resultLine").textContent =
- `${ex.text} -> ${ex.label} * ${gate} * conf=${conf}%` +
- ` * pos=(${state.x},${state.y})` +
- note;
- const dt = ((performance.now() - t0) / 1000).toFixed(2);
- document.getElementById("timing").textContent =
- `Route applied in ${dt}s * step=${state.step_count} * trail=${(state.trail || []).length}`;
+        const conf = (ex.confidence * 100).toFixed(1);
+        const gate = ex.accepted ? "ACCEPTED -> kernel" : "ABSTAIN / rejected";
+        const src = ex.source && ex.source !== "artifact" ? ` · ${ex.source}` : "";
+        document.getElementById("resultLine").textContent =
+          `${ex.text || text} -> ${ex.label} · ${gate} · conf=${conf}%` +
+          ` · pos=(${state.x},${state.y})` +
+          note +
+          src;
+        const dt = ((performance.now() - t0) / 1000).toFixed(2);
+        document.getElementById("timing").textContent =
+          `Route applied in ${dt}s · step=${state.step_count} · trail=${(state.trail || []).length}`;
  } finally {
  // Release on next tick so a single user gesture can't double-apply.
  setTimeout(() => {
