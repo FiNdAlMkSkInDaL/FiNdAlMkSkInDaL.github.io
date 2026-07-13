@@ -317,11 +317,24 @@
       .lane.bad .badge {
         color: var(--rose);
         border-color: rgba(251, 113, 133, 0.4);
+        background: rgba(251, 113, 133, 0.08);
       }
       .lane.good .badge {
         color: var(--mint);
         border-color: rgba(52, 211, 153, 0.4);
+        background: rgba(52, 211, 153, 0.08);
       }
+      .lane.bad .title { font-weight: 700; }
+      .lane.good .title { font-weight: 700; }
+      .compare-note {
+        margin: 0;
+        font-size: 0.68rem;
+        color: var(--mute2);
+        line-height: 1.35;
+        flex-shrink: 0;
+      }
+      .compare-note em { color: var(--rose); font-style: normal; font-weight: 600; }
+      .compare-note strong { color: var(--mint); font-weight: 600; }
       .lane-body {
         flex: 1;
         min-height: 0;
@@ -500,7 +513,7 @@
           <span class="mark">.me</span>
           <div>
             <h1>Identity</h1>
-            <p>sealed vault · scoped handshake · naive dump comparison · safety gate</p>
+            <p>sealed vault · our scoped path · vs unprotected full dump · safety gate</p>
           </div>
         </div>
         <div class="top-links">
@@ -550,15 +563,19 @@
 
         <section class="panel">
           <div class="panel-h">
-            <h2>3 · What the agent receives</h2>
-            <span class="hint mono">naive dump vs Identity scope</span>
+            <h2>3 · What leaves the vault</h2>
+            <span class="hint mono">baseline problem vs our path</span>
           </div>
           <div class="panel-body">
+            <p class="compare-note">
+              <em>Left = baseline problem (not our product).</em>
+              <strong>Right = Identity .me (ours).</strong>
+            </p>
             <div class="compare">
               <div class="lane bad">
                 <div class="lane-h">
-                  <span class="title">Naive agent</span>
-                  <span class="badge">full dump</span>
+                  <span class="title">Without Identity (not us)</span>
+                  <span class="badge">not our product</span>
                 </div>
                 <div class="lane-body" id="naiveBody">
                   <div class="empty">Run handshake to compare.</div>
@@ -566,7 +583,7 @@
               </div>
               <div class="lane good">
                 <div class="lane-h">
-                  <span class="title">Identity .me</span>
+                  <span class="title">With Identity .me (ours)</span>
                   <span class="badge">scoped only</span>
                 </div>
                 <div class="lane-body" id="idBody">
@@ -575,7 +592,7 @@
               </div>
             </div>
             <div class="draft">
-              <h3>Draft produced from scoped facts only</h3>
+              <h3>Draft from Identity scope only (ours)</h3>
               <div class="draft-box" id="draftBox">
                 Waiting for handshake…
               </div>
@@ -616,9 +633,9 @@
 
     <aside class="blurb" aria-label="About Identity">
       <strong>What is this?</strong>
-      Identity keeps context in a local sealed vault. A naive agent gets everything
-      (including secrets). Identity only ships a ranked fact budget, then the agent
-      can still produce useful work — from allowed facts only.
+      Identity keeps context in a local sealed vault and only releases a ranked fact
+      budget. The red “without Identity” pane is a baseline anti-pattern for contrast
+      — not our system. The green pane and draft are what Identity enables.
     </aside>
 
     <script>
