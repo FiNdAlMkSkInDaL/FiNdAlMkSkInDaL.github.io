@@ -386,9 +386,6 @@
  whether to act or ABSTAIN.
  </div>
  </div>
- <p class="timing">
- The linear probe's softmax output - the model's current belief over every possible action.
- </p>
  </section>
 
  <section>
@@ -397,26 +394,6 @@
  <div class="grid-frame" id="grid"></div>
  </section>
  </div>
-
- <details class="replay">
- <summary>Replay log (optional)</summary>
- <div class="replay-body">
- <label for="replaySel" class="timing">Select replay entry</label>
- <select id="replaySel"></select>
- <button class="btn" id="loadReplay" type="button">Load this replay into grid</button>
- <pre class="json" id="replayJson">{}</pre>
- <p class="label-strong" style="margin-top:0.75rem">State after (replayed)</p>
- <pre class="ascii" id="replayAscii"></pre>
- </div>
- </details>
-
- <p class="foot">
- Core invariant: action is chosen exclusively from the activation vector + probe. Raw text is
- logged only for audit. The kernel never sees or parses natural language.
- * Source:
- <a href="https://github.com/FiNdAlMkSkInDaL/latent-control-lab">latent-control-lab</a>
- * file: <code>streamlit_app.py</code>
- </p>
  </main>
 
  <script>
@@ -830,73 +807,6 @@
         }
       }
 
- function asciiSnapshot() {
- const w = 5,
- h = 5;
- const lines = [
- `VectorBot | step=${state.step_count} | light=${state.light_on ? "ON" : "OFF"} | mode=${state.mode}`,
- "+" + Array(w).fill("---").join("+") + "+",
- ];
- for (let y = 0; y < h; y++) {
- const cells = [];
- for (let x = 0; x < w; x++) {
- if (x === state.x && y === state.y) cells.push(state.light_on ? " * " : " B ");
- else cells.push(" . ");
- }
- lines.push("|" + cells.join("|") + "|");
- lines.push("+" + Array(w).fill("---").join("+") + "+");
- }
- return lines.join("\n");
- }
-
- function fillReplay() {
- const sel = document.getElementById("replaySel");
- sel.innerHTML = "";
- const rows = DATA.routes && DATA.routes.length ? DATA.routes : DATA.examples.map((e, i) => ({
- input_text: e.text,
- predicted_label: e.label,
- accepted: e.accepted,
- confidence: e.confidence,
- state_after: e.state_after,
- _i: i,
- }));
- DATA._replayRows = rows;
- rows.forEach((r, i) => {
- const opt = document.createElement("option");
- opt.value = String(i);
- opt.textContent = `${i}: ${(r.input_text || r.text || "?").slice(0, 60)}`;
- sel.appendChild(opt);
- });
- sel.onchange = () => showReplay(Number(sel.value));
- if (rows.length) showReplay(0);
- }
-
- function showReplay(idx) {
- const row = DATA._replayRows[idx];
- if (!row) return;
- document.getElementById("replayJson").textContent = JSON.stringify(
- {
- input: row.input_text || row.text,
- predicted: row.predicted_label || row.label,
- accepted: row.accepted,
- confidence: row.confidence,
- },
- null,
- 2
- );
- // preview ascii without mutating live state until Load is clicked
- const snap = { ...state };
- if (row.state_after) {
- const s = row.state_after;
- document.getElementById("replayAscii").textContent =
- `VectorBot | step=${s.step_count ?? 0} | light=${s.light_on ? "ON" : "OFF"} | mode=${s.mode || "idle"}\n` +
- `(load into grid to apply full board + trail)`;
- } else {
- document.getElementById("replayAscii").textContent = asciiSnapshot();
- }
- state = snap;
- }
-
  async function boot() {
  // Cache-bust so Pages CDN never serves a stale data payload
  const res = await fetch("./vectorbot_data.json?v=route-fix-1");
@@ -936,20 +846,7 @@
  document.getElementById("cmd").addEventListener("keydown", (e) => {
  if (e.key === "Enter") route(e.target.value);
  });
- document.getElementById("loadReplay").onclick = () => {
- const idx = Number(document.getElementById("replaySel").value);
- const row = DATA._replayRows[idx];
- if (!row) return;
- // Replay load is the only path that snaps absolute state_after.
- if (row.state_after) applyStateAfter(row.state_after);
- else if (row.accepted) applyLabel(row.predicted_label || row.label);
- renderGrid();
- const probs = row.probs || row.top_probabilities;
- if (probs) renderBars(probs);
- document.getElementById("replayAscii").textContent = asciiSnapshot();
- };
 
- fillReplay();
  renderGrid();
  renderBars([]);
  // One initial demo step (single applyLabel via route - never double).
