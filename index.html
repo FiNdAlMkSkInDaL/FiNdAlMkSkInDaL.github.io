@@ -5,141 +5,143 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Portfolio — projects and live demos by Finlay."
+      content="A spring meadow portfolio — hover the flowers to explore projects."
     />
-    <title>Portfolio · Finlay</title>
+    <title>Finlay · Meadow</title>
     <link rel="stylesheet" href="./styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Outfit:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
   </head>
   <body>
-    <div class="bg" aria-hidden="true"></div>
-    <div class="bloom-field" aria-hidden="true">
-      <span class="bloom b1"></span>
-      <span class="bloom b2"></span>
-      <span class="bloom b3"></span>
-      <span class="bloom b4"></span>
-      <span class="stem s1"></span>
-      <span class="stem s2"></span>
+    <div class="sky" aria-hidden="true"></div>
+    <div class="haze" aria-hidden="true"></div>
+
+    <!-- Distant meadow (background layer) -->
+    <div class="meadow far" aria-hidden="true">
+      <div class="grass-strip g1"></div>
+      <div class="grass-strip g2"></div>
+      <div class="grass-strip g3"></div>
+      <!-- Soft background blooms (non-interactive) -->
+      <span class="wild w1"></span>
+      <span class="wild w2"></span>
+      <span class="wild w3"></span>
+      <span class="wild w4"></span>
+      <span class="wild w5"></span>
+      <span class="wild w6"></span>
+      <span class="wild w7"></span>
+      <span class="wild w8"></span>
+      <span class="wild w9"></span>
+      <span class="wild w10"></span>
+      <span class="wild w11"></span>
+      <span class="wild w12"></span>
     </div>
 
-    <main class="wrap">
-      <header class="hero">
-        <div class="avatar-wrap">
-          <img
-            class="avatar"
-            src="./assets/photo.jpg"
-            alt="Finlay"
-            width="128"
-            height="128"
-          />
-        </div>
-        <div class="hero-text">
-          <p class="eyebrow">Portfolio</p>
-          <h1>Finlay</h1>
-          <p class="tagline">
-            High-performance trading systems, market microstructure, and
-            research tooling — with live demos.
-          </p>
-          <div class="hero-links">
-            <a
-              class="link-quiet"
-              href="https://github.com/FiNdAlMkSkInDaL"
-              target="_blank"
-              rel="noopener noreferrer"
-              >GitHub</a
-            >
-          </div>
-        </div>
-      </header>
+    <!-- Mid grass -->
+    <div class="meadow mid" aria-hidden="true">
+      <div class="blade-layer b-a"></div>
+      <div class="blade-layer b-b"></div>
+      <span class="wild m1"></span>
+      <span class="wild m2"></span>
+      <span class="wild m3"></span>
+      <span class="wild m4"></span>
+      <span class="wild m5"></span>
+      <span class="wild m6"></span>
+      <span class="wild m7"></span>
+      <span class="wild m8"></span>
+    </div>
 
-      <section class="projects" aria-labelledby="projects-heading">
-        <h2 id="projects-heading">Selected work</h2>
+    <header class="identity">
+      <img class="avatar" src="./assets/photo.jpg" alt="Finlay" width="72" height="72" />
+      <div>
+        <p class="hello">Finlay</p>
+        <p class="hint">Hover a flower · click to open a project</p>
+      </div>
+    </header>
 
-        <article class="card">
-          <div class="card-top">
-            <h3>TickForge</h3>
-            <span class="pill live">Live demo</span>
-          </div>
-          <p>
-            C++ limit order book, matching engine, and Avellaneda–Stoikov market
-            maker — with an interactive Trading Engine Explorer.
-          </p>
-          <div class="card-actions">
-            <a
-              class="btn primary"
-              href="https://findalmkskindal.github.io/tickforge/explorer/"
-              target="_blank"
-              rel="noopener noreferrer"
-              >Open demo</a
-            >
-            <a
-              class="btn"
-              href="https://github.com/FiNdAlMkSkInDaL/tickforge"
-              target="_blank"
-              rel="noopener noreferrer"
-              >Source</a
-            >
-          </div>
-        </article>
+    <!-- Interactive project flowers (foreground) -->
+    <nav class="projects-field" aria-label="Projects">
+      <a
+        class="flower-link f-tickforge"
+        href="https://findalmkskindal.github.io/tickforge/explorer/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <span class="label">TickForge</span>
+        <span class="stem" aria-hidden="true"></span>
+        <span class="bloom" aria-hidden="true">
+          <span class="petal p1"></span>
+          <span class="petal p2"></span>
+          <span class="petal p3"></span>
+          <span class="petal p4"></span>
+          <span class="petal p5"></span>
+          <span class="petal p6"></span>
+          <span class="center"></span>
+        </span>
+        <span class="leaf l1" aria-hidden="true"></span>
+        <span class="leaf l2" aria-hidden="true"></span>
+      </a>
 
-        <article class="card">
-          <div class="card-top">
-            <h3>VectorBot</h3>
-            <span class="pill live">Live demo</span>
-          </div>
-          <p>
-            Tiny Latent Control Lab: frozen LM activations → linear probe → typed
-            grid actions. Interactive demo with real probe probabilities (no
-            text generation on the action path).
-          </p>
-          <div class="card-actions">
-            <a
-              class="btn primary"
-              href="./demos/vectorbot.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              >Open demo</a
-            >
-            <a
-              class="btn"
-              href="https://github.com/FiNdAlMkSkInDaL/Zero-Dimensional-API"
-              target="_blank"
-              rel="noopener noreferrer"
-              >Source</a
-            >
-          </div>
-        </article>
+      <a
+        class="flower-link f-vectorbot"
+        href="./demos/vectorbot.html"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <span class="label">VectorBot</span>
+        <span class="stem" aria-hidden="true"></span>
+        <span class="bloom" aria-hidden="true">
+          <span class="petal p1"></span>
+          <span class="petal p2"></span>
+          <span class="petal p3"></span>
+          <span class="petal p4"></span>
+          <span class="petal p5"></span>
+          <span class="petal p6"></span>
+          <span class="center"></span>
+        </span>
+        <span class="leaf l1" aria-hidden="true"></span>
+        <span class="leaf l2" aria-hidden="true"></span>
+      </a>
 
-        <article class="card muted-card">
-          <div class="card-top">
-            <h3>Macro Bias</h3>
-            <span class="pill">Coming soon</span>
-          </div>
-          <p>
-            Placeholder for Macro Bias — research / signals project card ready
-            for your demo URL.
-          </p>
-          <div class="card-actions">
-            <a class="btn disabled" href="#" aria-disabled="true">Demo soon</a>
-            <a
-              class="btn"
-              href="https://github.com/FiNdAlMkSkInDaL"
-              target="_blank"
-              rel="noopener noreferrer"
-              >GitHub</a
-            >
-          </div>
-        </article>
-      </section>
+      <a
+        class="flower-link f-macro"
+        href="https://github.com/FiNdAlMkSkInDaL"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <span class="label">Macro Bias</span>
+        <span class="stem" aria-hidden="true"></span>
+        <span class="bloom" aria-hidden="true">
+          <span class="petal p1"></span>
+          <span class="petal p2"></span>
+          <span class="petal p3"></span>
+          <span class="petal p4"></span>
+          <span class="petal p5"></span>
+          <span class="petal p6"></span>
+          <span class="center"></span>
+        </span>
+        <span class="leaf l1" aria-hidden="true"></span>
+        <span class="leaf l2" aria-hidden="true"></span>
+      </a>
+    </nav>
 
-      <footer class="foot">
-        <p>findalmkskindal.github.io</p>
-      </footer>
-    </main>
+    <!-- Foreground grass tufts (in front of stems slightly) -->
+    <div class="meadow front" aria-hidden="true">
+      <div class="blade-layer b-c"></div>
+      <div class="tuft t1"></div>
+      <div class="tuft t2"></div>
+      <div class="tuft t3"></div>
+      <div class="tuft t4"></div>
+      <div class="tuft t5"></div>
+    </div>
+
+    <footer class="foot">
+      <a href="https://github.com/FiNdAlMkSkInDaL" target="_blank" rel="noopener noreferrer"
+        >GitHub</a
+      >
+    </footer>
   </body>
 </html>
