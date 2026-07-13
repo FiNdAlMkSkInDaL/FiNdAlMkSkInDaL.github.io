@@ -603,7 +603,7 @@ body {
   transition: opacity 0.05s steps(1);
 }
 
-.b-mid .name-tag {
+.b-vector .name-tag {
   top: -32px;
   font-size: 9px;
 }
