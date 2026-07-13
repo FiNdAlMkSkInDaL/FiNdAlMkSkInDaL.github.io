@@ -1,451 +1,810 @@
 <!DOCTYPE html>
 <html lang="en">
- <head>
- <meta charset="utf-8" />
- <meta name="viewport" content="width=device-width, initial-scale=1" />
- <title>Polymarket · L2 Shadow Stack</title>
- <meta
- name="description"
- content="Interactive demo of a live L2 lake heartbeat and hourly shadow evaluation pipeline for Polymarket strategies."
- />
- <link rel="icon" href="./favicon-polymarket.svg" type="image/svg+xml" />
- <link rel="preconnect" href="https://fonts.googleapis.com" />
- <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
- <link
- href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"
- rel="stylesheet"
- />
- <style>
- :root {
- --bg: #05080f;
- --panel: #0c1220;
- --elev: #121a2b;
- --border: rgba(56, 189, 248, 0.18);
- --text: #e8eef7;
- --dim: #94a3b8;
- --mute: #64748b;
- --sky: #38bdf8;
- --sky2: #7dd3fc;
- --ok: #34d399;
- --warn: #fbbf24;
- --bad: #fb7185;
- --font: "DM Sans", system-ui, sans-serif;
- --mono: "IBM Plex Mono", ui-monospace, monospace;
- }
- * { box-sizing: border-box; }
- html, body { margin: 0; min-height: 100%; }
- body {
- font-family: var(--font);
- color: var(--text);
- background: var(--bg);
- background-image:
- radial-gradient(ellipse 60% 40% at 10% 0%, rgba(56, 189, 248, 0.1), transparent 50%),
- radial-gradient(ellipse 40% 30% at 90% 10%, rgba(52, 211, 153, 0.06), transparent 45%);
- }
- main { max-width: 1120px; margin: 0 auto; padding: 1.25rem 1.15rem 2.5rem; }
- .back { color: var(--mute); text-decoration: none; font-size: 0.85rem; }
- .back:hover { color: var(--sky2); }
- h1 { margin: 0.75rem 0 0.2rem; font-size: 1.55rem; }
- .sub { color: var(--mute); font-size: 0.9rem; margin: 0 0 1.1rem; line-height: 1.45; }
- .sub a { color: var(--sky2); }
- .panel {
- background: var(--panel);
- border: 1px solid var(--border);
- border-radius: 14px;
- padding: 1rem 1.05rem;
- margin-bottom: 0.9rem;
- }
- .panel h2 {
- margin: 0 0 0.75rem;
- font-size: 0.7rem;
- letter-spacing: 0.1em;
- text-transform: uppercase;
- color: var(--mute);
- }
- .row { display: grid; grid-template-columns: 1.35fr 1fr; gap: 0.9rem; }
- @media (max-width: 900px) { .row { grid-template-columns: 1fr; } }
- .hours {
- display: grid;
- grid-template-columns: repeat(12, 1fr);
- gap: 4px;
- }
- .hour {
- aspect-ratio: 1;
- border-radius: 4px;
- background: #1e293b;
- border: 1px solid #334155;
- cursor: pointer;
- position: relative;
- transition: 0.15s ease;
- }
- .hour.ok { background: rgba(52, 211, 153, 0.35); border-color: rgba(52, 211, 153, 0.55); }
- .hour.warn { background: rgba(251, 191, 36, 0.35); border-color: rgba(251, 191, 36, 0.55); }
- .hour.gap { background: rgba(251, 113, 133, 0.4); border-color: rgba(251, 113, 133, 0.7); animation: pulse 1.2s steps(2, end) infinite; }
- .hour.active { outline: 2px solid var(--sky2); outline-offset: 1px; }
- .hour:hover { filter: brightness(1.15); }
- @keyframes pulse {
- 0%, 100% { filter: brightness(1); }
- 50% { filter: brightness(1.35); }
- }
- .legend { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.65rem; font-size: 0.75rem; color: var(--dim); }
- .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
- .stats { font-family: var(--mono); font-size: 0.78rem; color: var(--dim); line-height: 1.55; }
- .stats strong { color: var(--sky2); font-weight: 600; }
- .pipe {
- display: flex;
- flex-direction: column;
- gap: 0.45rem;
- }
- .node {
- display: grid;
- grid-template-columns: 28px 1fr auto;
- gap: 0.55rem;
- align-items: center;
- padding: 0.55rem 0.65rem;
- border-radius: 10px;
- border: 1px solid var(--border);
- background: rgba(0,0,0,0.22);
- font-size: 0.85rem;
- opacity: 0.45;
- transition: 0.25s ease;
- }
- .node.on { opacity: 1; border-color: rgba(52, 211, 153, 0.45); box-shadow: 0 0 16px rgba(52, 211, 153, 0.12); }
- .node.warn { opacity: 1; border-color: rgba(251, 191, 36, 0.5); }
- .node.fail { opacity: 1; border-color: rgba(251, 113, 133, 0.55); }
- .node .idx {
- font-family: var(--mono);
- font-size: 0.72rem;
- color: var(--mute);
- width: 28px;
- height: 28px;
- display: grid;
- place-items: center;
- border-radius: 8px;
- background: var(--elev);
- }
- .node.on .idx { color: var(--ok); }
- .node .status { font-family: var(--mono); font-size: 0.72rem; color: var(--mute); }
- .node.on .status { color: var(--ok); }
- .node.warn .status { color: var(--warn); }
- .node.fail .status { color: var(--bad); }
- .actions { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 0.75rem; }
- .btn {
- font: inherit;
- font-weight: 600;
- font-size: 0.85rem;
- padding: 0.5rem 0.85rem;
- border-radius: 10px;
- border: 1px solid var(--border);
- background: var(--elev);
- color: var(--dim);
- cursor: pointer;
- }
- .btn.primary {
- background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(52, 211, 153, 0.15));
- border-color: rgba(56, 189, 248, 0.45);
- color: var(--sky2);
- }
- .btn:hover { filter: brightness(1.08); }
- .telegram {
- font-family: var(--mono);
- font-size: 0.75rem;
- background: #0a0f1a;
- border: 1px solid var(--border);
- border-radius: 10px;
- padding: 0.75rem;
- color: var(--dim);
- line-height: 1.5;
- min-height: 120px;
- white-space: pre-wrap;
- }
- .telegram .hdr { color: var(--sky2); margin-bottom: 0.35rem; }
- .ladder {
- display: grid;
- grid-template-columns: 1fr 1fr;
- gap: 0.35rem;
- font-family: var(--mono);
- font-size: 0.72rem;
- }
- .lvl {
- display: flex;
- justify-content: space-between;
- padding: 0.28rem 0.4rem;
- border-radius: 4px;
- }
- .lvl.bid { background: rgba(52, 211, 153, 0.12); color: var(--ok); }
- .lvl.ask { background: rgba(251, 113, 133, 0.12); color: var(--bad); }
- .badge {
- display: inline-block;
- margin-top: 0.55rem;
- font-family: var(--mono);
- font-size: 0.75rem;
- padding: 0.35rem 0.6rem;
- border-radius: 999px;
- border: 1px solid var(--border);
- color: var(--dim);
- }
- .badge.stand { border-color: var(--warn); color: var(--warn); }
- .badge.quote { border-color: var(--ok); color: var(--ok); }
- .foot { margin-top: 0.5rem; font-size: 0.78rem; color: var(--mute); line-height: 1.5; }
- .foot a { color: var(--sky2); }
- </style>
- </head>
- <body>
- <main>
- <a class="back" href="../">← Portfolio</a>
- <h1>Polymarket · L2 Shadow Stack</h1>
- <p class="sub">
- Production truth surface: continuous L2 lake → hourly shadow evaluation → operator summary.
- Not a live trading UI — a systems demo of data health + shadow cinema.
- <a href="https://github.com/FiNdAlMkSkInDaL/Polymarket_bot" target="_blank" rel="noopener">repo</a>
- </p>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <title>Polymarket · Shadow Stack</title>
+    <meta
+      name="description"
+      content="Plain-English demo of a Polymarket live L2 lake and hourly shadow evaluation (no live trading)."
+    />
+    <link rel="icon" href="./favicon-polymarket.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #05080f;
+        --panel: rgba(12, 18, 32, 0.94);
+        --border: rgba(56, 189, 248, 0.16);
+        --text: #e8eef7;
+        --muted: #94a3b8;
+        --mute2: #64748b;
+        --sky: #38bdf8;
+        --sky2: #7dd3fc;
+        --ok: #34d399;
+        --warn: #fbbf24;
+        --bad: #fb7185;
+        --font: Inter, system-ui, sans-serif;
+        --mono: "JetBrains Mono", ui-monospace, monospace;
+      }
+      *, *::before, *::after { box-sizing: border-box; }
+      html, body { height: 100%; height: 100dvh; margin: 0; overflow: hidden; }
+      body {
+        font-family: var(--font);
+        color: var(--text);
+        background: var(--bg);
+        -webkit-font-smoothing: antialiased;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(ellipse 70% 40% at 12% 0%, rgba(56, 189, 248, 0.09), transparent 50%),
+          radial-gradient(ellipse 45% 30% at 90% 12%, rgba(52, 211, 153, 0.05), transparent 45%);
+      }
+      * { scrollbar-width: none; }
+      *::-webkit-scrollbar { display: none; }
 
- <div class="actions">
- <button class="btn primary" id="playHour" type="button">▶ Play shadow hour</button>
- <button class="btn" id="injectGap" type="button">Inject temporal gap</button>
- <button class="btn" id="healLake" type="button">Heal lake</button>
- </div>
+      .app {
+        position: relative;
+        z-index: 1;
+        height: 100%;
+        height: 100dvh;
+        display: grid;
+        grid-template-rows: 48px minmax(0, 1fr);
+        overflow: hidden;
+      }
 
- <div class="row">
- <section class="panel">
- <h2>L2 lake heartbeat (24h · demo day)</h2>
- <div class="hours" id="hours"></div>
- <div class="legend">
- <span><i style="background:rgba(52,211,153,0.5)"></i>healthy shard</span>
- <span><i style="background:rgba(251,191,36,0.5)"></i>thin / stale</span>
- <span><i style="background:rgba(251,113,133,0.55)"></i>temporal gap</span>
- </div>
- <div class="stats" id="hourStats" style="margin-top:0.75rem"></div>
- </section>
- <section class="panel">
- <h2>Shadow pipeline</h2>
- <div class="pipe" id="pipe">
- <div class="node" data-i="0"><span class="idx">1</span><span>metadata preflight</span><span class="status">idle</span></div>
- <div class="node" data-i="1"><span class="idx">2</span><span>load L2 lake hour</span><span class="status">idle</span></div>
- <div class="node" data-i="2"><span class="idx">3</span><span>strategy wrappers</span><span class="status">idle</span></div>
- <div class="node" data-i="3"><span class="idx">4</span><span>scorecard / receipts</span><span class="status">idle</span></div>
- <div class="node" data-i="4"><span class="idx">5</span><span>Telegram summary</span><span class="status">idle</span></div>
- </div>
- </section>
- </div>
+      .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 0.85rem;
+        border-bottom: 1px solid var(--border);
+        background: rgba(5, 8, 15, 0.94);
+        backdrop-filter: blur(10px);
+        gap: 0.75rem;
+      }
+      .brand { display: flex; align-items: center; gap: 0.55rem; min-width: 0; }
+      .mark {
+        width: 28px; height: 28px; border-radius: 7px;
+        display: grid; place-items: center;
+        font-family: var(--mono); font-size: 0.62rem; font-weight: 700;
+        color: #041016;
+        background: linear-gradient(135deg, #38bdf8, #34d399);
+        flex-shrink: 0;
+      }
+      .brand h1 { margin: 0; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+      .brand p {
+        margin: 0; font-size: 0.62rem; color: var(--muted);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .top-links { display: flex; gap: 0.65rem; flex-shrink: 0; }
+      .top-links a {
+        font-family: var(--mono); font-size: 0.72rem;
+        color: var(--mute2); text-decoration: none;
+      }
+      .top-links a:hover { color: var(--sky2); }
 
- <div class="row">
- <section class="panel">
- <h2>Operator card (scrubbed)</h2>
- <div class="telegram" id="tg">
- <div class="hdr">shadow · hourly</div>
- Press “Play shadow hour” to run the cinema on the selected lake cell.
- </div>
- </section>
- <section class="panel">
- <h2>Sample L2 + shadow badge</h2>
- <div class="ladder" id="ladder"></div>
- <div class="badge stand" id="stratBadge">shadow: —</div>
- <p class="foot" style="margin-top:0.65rem">
- Sanitized toy book for one market. Live lake stays on the VPS; this page never holds secrets.
- </p>
- </section>
- </div>
+      .stage {
+        display: grid;
+        grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.15fr) minmax(0, 1.05fr);
+        gap: 0.6rem;
+        padding: 0.6rem 0.6rem 4.2rem;
+        min-height: 0;
+        overflow: hidden;
+        height: 100%;
+      }
+      @media (max-width: 980px) {
+        .stage {
+          grid-template-columns: 1fr;
+          overflow: auto;
+          height: auto;
+        }
+        .app { overflow: auto; }
+      }
 
- <p class="foot">
- Architecture demo of the Polymarket shadow stack (live L2 compressor + hourly sentinel).
- Source: <a href="https://github.com/FiNdAlMkSkInDaL/Polymarket_bot">Polymarket_bot</a>
- </p>
- </main>
- <script>
- // Synthetic 24h lake status for one demo day
- const lake = [];
- (function seed() {
- const rnd = (s) => {
- let x = s;
- return () => {
- x = (x * 48271) % 2147483647;
- return (x - 1) / 2147483646;
- };
- };
- const r = rnd(99);
- for (let h = 0; h < 24; h++) {
- let status = "ok";
- const u = r();
- if (u > 0.9) status = "warn";
- if (h === 3 || h === 14) status = "gap"; // known demo gaps
- lake.push({
- hour: h,
- status,
- markets: status === "gap" ? 0 : 40 + Math.floor(r() * 80),
- quotes: status === "gap" ? 0 : 8000 + Math.floor(r() * 12000),
- freshnessSec: status === "gap" ? 9999 : status === "warn" ? 120 + Math.floor(r() * 200) : Math.floor(r() * 25),
- bid: 0.42 + r() * 0.08,
- ask: 0.48 + r() * 0.08,
- imbalance: (r() - 0.5) * 0.4,
- });
- }
- })();
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.75rem 0.8rem;
+        min-height: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .panel-h {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.55rem;
+        flex-shrink: 0;
+      }
+      .panel-h h2 {
+        margin: 0;
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--mute2);
+      }
+      .panel-h .hint {
+        font-family: var(--mono);
+        font-size: 0.58rem;
+        color: var(--mute2);
+      }
+      .panel-body {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+      }
 
- let active = 12;
- let playing = false;
+      .story {
+        font-size: 0.8rem;
+        color: var(--muted);
+        line-height: 1.45;
+        margin: 0 0 0.35rem;
+      }
 
- function renderHours() {
- const box = document.getElementById("hours");
- box.innerHTML = "";
- lake.forEach((cell, i) => {
- const el = document.createElement("button");
- el.type = "button";
- el.className = "hour " + cell.status + (i === active ? " active" : "");
- el.title = `hour ${String(i).padStart(2, "0")}:00 UTC · ${cell.status}`;
- el.onclick = () => {
- active = i;
- renderHours();
- showStats();
- paintLadder();
- };
- box.appendChild(el);
- });
- }
+      /* Hour list */
+      .hours {
+        display: flex;
+        flex-direction: column;
+        gap: 0.28rem;
+      }
+      .hour-btn {
+        display: grid;
+        grid-template-columns: 72px 1fr auto;
+        gap: 0.45rem;
+        align-items: center;
+        text-align: left;
+        width: 100%;
+        padding: 0.48rem 0.55rem;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        background: rgba(0, 0, 0, 0.25);
+        color: var(--text);
+        font: inherit;
+        cursor: pointer;
+      }
+      .hour-btn:hover { border-color: rgba(56, 189, 248, 0.3); }
+      .hour-btn.active {
+        border-color: rgba(56, 189, 248, 0.5);
+        background: rgba(56, 189, 248, 0.08);
+      }
+      .hour-btn .t {
+        font-family: var(--mono);
+        font-size: 0.78rem;
+        font-weight: 600;
+      }
+      .hour-btn .d {
+        font-size: 0.72rem;
+        color: var(--muted);
+      }
+      .pill {
+        font-family: var(--mono);
+        font-size: 0.6rem;
+        padding: 0.18rem 0.4rem;
+        border-radius: 999px;
+        border: 1px solid;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .pill.ok { color: var(--ok); border-color: rgba(52, 211, 153, 0.45); }
+      .pill.warn { color: var(--warn); border-color: rgba(251, 191, 36, 0.45); }
+      .pill.gap { color: var(--bad); border-color: rgba(251, 113, 133, 0.5); }
 
- function showStats() {
- const c = lake[active];
- document.getElementById("hourStats").innerHTML =
- `<strong>hour ${String(c.hour).padStart(2, "0")}:00 UTC</strong><br/>` +
- `status: ${c.status}<br/>` +
- `markets: ${c.markets} · quotes: ${c.quotes.toLocaleString()}<br/>` +
- `freshness: ${c.freshnessSec}s · mid≈${((c.bid + c.ask) / 2).toFixed(3)}`;
- }
+      .actions {
+        display: grid;
+        grid-template-columns: 1.3fr 1fr 1fr;
+        gap: 0.35rem;
+        margin-top: auto;
+      }
+      .btn {
+        font: inherit;
+        font-weight: 600;
+        font-size: 0.78rem;
+        padding: 0.52rem 0.5rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.28);
+        color: var(--muted);
+        cursor: pointer;
+      }
+      .btn.primary {
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.28), rgba(52, 211, 153, 0.15));
+        border-color: rgba(56, 189, 248, 0.45);
+        color: var(--sky2);
+      }
+      .btn:hover { filter: brightness(1.08); }
 
- function paintLadder() {
- const c = lake[active];
- const box = document.getElementById("ladder");
- box.innerHTML = "";
- if (c.status === "gap") {
- box.innerHTML = '<div style="grid-column:1/-1;color:var(--bad);font-family:var(--mono)">no shard — temporal gap</div>';
- document.getElementById("stratBadge").className = "badge stand";
- document.getElementById("stratBadge").textContent = "shadow: STAND DOWN (no data)";
- return;
- }
- const mid = (c.bid + c.ask) / 2;
- for (let i = 3; i >= 1; i--) {
- const px = (c.ask + i * 0.01).toFixed(3);
- const sz = Math.floor(80 + i * 40 + c.markets);
- const row = document.createElement("div");
- row.className = "lvl ask";
- row.innerHTML = `<span>${px}</span><span>${sz}</span>`;
- box.appendChild(row);
- }
- for (let i = 1; i <= 3; i++) {
- const px = (c.bid - i * 0.01).toFixed(3);
- const sz = Math.floor(90 + i * 35 + c.markets * 0.5);
- const row = document.createElement("div");
- row.className = "lvl bid";
- row.innerHTML = `<span>${px}</span><span>${sz}</span>`;
- box.appendChild(row);
- }
- const badge = document.getElementById("stratBadge");
- if (c.status === "warn" || Math.abs(c.imbalance) > 0.15 || c.ask - c.bid > 0.08) {
- badge.className = "badge stand";
- badge.textContent = "shadow: STAND DOWN (wide / toxic)";
- } else {
- badge.className = "badge quote";
- badge.textContent = `shadow: would quote mid ${mid.toFixed(3)} ± 0.02`;
- }
- }
+      /* Pipeline */
+      .pipe {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        flex: 1;
+      }
+      .step {
+        display: grid;
+        grid-template-columns: 32px 1fr auto;
+        gap: 0.5rem;
+        align-items: center;
+        padding: 0.65rem 0.7rem;
+        border-radius: 9px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.22);
+        opacity: 0.4;
+        transition: 0.2s ease;
+      }
+      .step.on { opacity: 1; border-color: rgba(52, 211, 153, 0.45); box-shadow: 0 0 16px rgba(52, 211, 153, 0.08); }
+      .step.warn { opacity: 1; border-color: rgba(251, 191, 36, 0.5); }
+      .step.fail { opacity: 1; border-color: rgba(251, 113, 133, 0.55); }
+      .step .num {
+        width: 28px; height: 28px;
+        border-radius: 7px;
+        display: grid; place-items: center;
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        background: rgba(56, 189, 248, 0.1);
+        color: var(--sky2);
+      }
+      .step .label { font-size: 0.84rem; font-weight: 600; }
+      .step .sub {
+        display: block;
+        font-size: 0.7rem;
+        color: var(--mute2);
+        font-weight: 400;
+        margin-top: 0.1rem;
+      }
+      .step .st {
+        font-family: var(--mono);
+        font-size: 0.68rem;
+        color: var(--mute2);
+      }
+      .step.on .st { color: var(--ok); }
+      .step.warn .st { color: var(--warn); }
+      .step.fail .st { color: var(--bad); }
 
- function resetPipe() {
- document.querySelectorAll(".node").forEach((n) => {
- n.classList.remove("on", "warn", "fail");
- n.querySelector(".status").textContent = "idle";
- });
- }
+      /* Result */
+      .result-hero {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.85rem;
+        background: rgba(0, 0, 0, 0.28);
+        text-align: center;
+      }
+      .result-hero .status {
+        font-family: var(--mono);
+        font-size: 1.35rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.35rem;
+      }
+      .result-hero .status.ok { color: var(--ok); }
+      .result-hero .status.warn { color: var(--warn); }
+      .result-hero .status.gap { color: var(--bad); }
+      .result-hero .plain {
+        margin: 0;
+        font-size: 0.84rem;
+        color: var(--muted);
+        line-height: 1.45;
+      }
 
- async function playHour() {
- if (playing) return;
- playing = true;
- resetPipe();
- const c = lake[active];
- const tg = document.getElementById("tg");
- const nodes = [...document.querySelectorAll(".node")];
- const steps = [
- { ok: true, label: "ok", detail: "metadata cache fresh" },
- {
- ok: c.status !== "gap",
- warn: c.status === "warn",
- label: c.status === "gap" ? "FAIL" : c.status === "warn" ? "degraded" : "ok",
- detail:
- c.status === "gap"
- ? "missing hour shard"
- : `${c.markets} markets · ${c.quotes} quotes`,
- },
- {
- ok: c.status !== "gap",
- label: c.status === "gap" ? "skip" : "ok",
- detail: c.status === "gap" ? "wrappers not run" : "wrappers evaluated",
- },
- {
- ok: c.status !== "gap",
- label: c.status === "gap" ? "empty" : "ok",
- detail: c.status === "gap" ? "no receipts" : "scorecard written",
- },
- { ok: true, label: "sent", detail: "operator notified" },
- ];
+      .kv {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.4rem;
+      }
+      .kv .cell {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.55rem 0.5rem;
+        background: rgba(0, 0, 0, 0.22);
+      }
+      .kv .k {
+        font-size: 0.6rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--mute2);
+        margin-bottom: 0.2rem;
+      }
+      .kv .v {
+        font-family: var(--mono);
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--sky2);
+      }
 
- for (let i = 0; i < nodes.length; i++) {
- await new Promise((r) => setTimeout(r, 380));
- const n = nodes[i];
- const s = steps[i];
- n.querySelector(".status").textContent = s.label;
- if (!s.ok && s.label === "FAIL") n.classList.add("fail");
- else if (s.warn || s.label === "degraded" || s.label === "skip" || s.label === "empty") n.classList.add("warn");
- else n.classList.add("on");
- }
+      .ladder {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.3rem;
+        font-family: var(--mono);
+        font-size: 0.72rem;
+      }
+      .lvl {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.32rem 0.4rem;
+        border-radius: 5px;
+      }
+      .lvl.bid { background: rgba(52, 211, 153, 0.12); color: var(--ok); }
+      .lvl.ask { background: rgba(251, 113, 133, 0.12); color: var(--bad); }
+      .badge {
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        padding: 0.4rem 0.55rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        text-align: center;
+      }
+      .badge.quote { color: var(--ok); border-color: rgba(52, 211, 153, 0.4); }
+      .badge.stand { color: var(--warn); border-color: rgba(251, 191, 36, 0.45); }
+      .badge.none { color: var(--bad); border-color: rgba(251, 113, 133, 0.45); }
 
- const stamp = `2026-07-13T${String(c.hour).padStart(2, "0")}:05:00Z`;
- if (c.status === "gap") {
- tg.innerHTML =
- `<div class="hdr">shadow · ${stamp}</div>` +
- `status: DEGRADED\n` +
- `hour: ${String(c.hour).padStart(2, "0")}:00 UTC\n` +
- `lake: TEMPORAL GAP (no shard)\n` +
- `wrappers: skipped\n` +
- `action: page operator · do not promote strategy`;
- } else {
- tg.innerHTML =
- `<div class="hdr">shadow · ${stamp}</div>` +
- `status: ${c.status === "warn" ? "DEGRADED" : "OK"}\n` +
- `hour: ${String(c.hour).padStart(2, "0")}:00 UTC\n` +
- `markets: ${c.markets} · quotes: ${c.quotes}\n` +
- `freshness: ${c.freshnessSec}s\n` +
- `badge: ${document.getElementById("stratBadge").textContent}\n` +
- `note: paper shadow only · no live orders`;
- }
- playing = false;
- }
+      .report {
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        line-height: 1.5;
+        color: var(--muted);
+        background: rgba(0, 0, 0, 0.28);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.55rem 0.6rem;
+        white-space: pre-wrap;
+        min-height: 5.5em;
+      }
+      .report .hdr { color: var(--sky2); }
 
- document.getElementById("playHour").onclick = playHour;
- document.getElementById("injectGap").onclick = () => {
- lake[active].status = "gap";
- lake[active].markets = 0;
- lake[active].quotes = 0;
- lake[active].freshnessSec = 9999;
- renderHours();
- showStats();
- paintLadder();
- };
- document.getElementById("healLake").onclick = () => {
- lake.forEach((c, i) => {
- if (c.status === "gap") {
- c.status = "ok";
- c.markets = 60 + (i * 7) % 40;
- c.quotes = 9000 + i * 100;
- c.freshnessSec = 12;
- }
- });
- renderHours();
- showStats();
- paintLadder();
- };
+      .blurb {
+        position: fixed;
+        right: 12px;
+        bottom: 12px;
+        z-index: 30;
+        max-width: min(340px, calc(100vw - 24px));
+        padding: 0.65rem 0.75rem;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(5, 8, 15, 0.95);
+        color: var(--muted);
+        font-size: 0.68rem;
+        line-height: 1.45;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header class="top">
+        <div class="brand">
+          <span class="mark">PM</span>
+          <div>
+            <h1>Polymarket shadow stack</h1>
+            <p>save live quotes each hour · evaluate strategies offline · report health</p>
+          </div>
+        </div>
+        <div class="top-links">
+          <a href="https://github.com/FiNdAlMkSkInDaL/Polymarket_bot" target="_blank" rel="noopener">repo</a>
+          <a href="../">portfolio</a>
+        </div>
+      </header>
 
- renderHours();
- showStats();
- paintLadder();
- </script>
- </body>
+      <main class="stage">
+        <!-- 1 pick hour -->
+        <section class="panel">
+          <div class="panel-h">
+            <h2>1 · Pick an hour</h2>
+            <span class="hint mono">demo day · UTC</span>
+          </div>
+          <div class="panel-body">
+            <p class="story">
+              Every hour the system saves Polymarket best bid/ask quotes into a data lake.
+              Green = healthy file, amber = thin/stale, red = missing hour (a “temporal gap”).
+            </p>
+            <div class="hours" id="hours"></div>
+            <div class="actions">
+              <button class="btn primary" id="play" type="button">Run this hour</button>
+              <button class="btn" id="gap" type="button">Break hour</button>
+              <button class="btn" id="heal" type="button">Heal all</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2 pipeline -->
+        <section class="panel">
+          <div class="panel-h">
+            <h2>2 · Shadow pipeline</h2>
+            <span class="hint mono">no live orders — paper only</span>
+          </div>
+          <div class="panel-body">
+            <p class="story">
+              At minute :05 the shadow job runs on that hour’s file. It never places trades —
+              it only asks: “did we have clean data, and what would a strategy have done?”
+            </p>
+            <div class="pipe" id="pipe">
+              <div class="step" data-i="0">
+                <span class="num">1</span>
+                <div>
+                  <div class="label">Check market list</div>
+                  <span class="sub">Is metadata / universe cache fresh?</span>
+                </div>
+                <span class="st">idle</span>
+              </div>
+              <div class="step" data-i="1">
+                <span class="num">2</span>
+                <div>
+                  <div class="label">Load this hour’s quotes</div>
+                  <span class="sub">Open the lake shard for the selected hour</span>
+                </div>
+                <span class="st">idle</span>
+              </div>
+              <div class="step" data-i="2">
+                <span class="num">3</span>
+                <div>
+                  <div class="label">Run strategy wrappers</div>
+                  <span class="sub">Paper-evaluate signals on that hour</span>
+                </div>
+                <span class="st">idle</span>
+              </div>
+              <div class="step" data-i="3">
+                <span class="num">4</span>
+                <div>
+                  <div class="label">Write scorecard</div>
+                  <span class="sub">Receipts for the operator log</span>
+                </div>
+                <span class="st">idle</span>
+              </div>
+              <div class="step" data-i="4">
+                <span class="num">5</span>
+                <div>
+                  <div class="label">Send summary</div>
+                  <span class="sub">Operator card (Telegram-style)</span>
+                </div>
+                <span class="st">idle</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3 result -->
+        <section class="panel">
+          <div class="panel-h">
+            <h2>3 · Hour result</h2>
+            <span class="hint mono" id="hourLabel">—</span>
+          </div>
+          <div class="panel-body">
+            <div class="result-hero">
+              <div class="status ok" id="heroStatus">READY</div>
+              <p class="plain" id="heroText">Pick an hour and press Run this hour.</p>
+            </div>
+            <div class="kv">
+              <div class="cell">
+                <div class="k">Markets in file</div>
+                <div class="v" id="kvMarkets">—</div>
+              </div>
+              <div class="cell">
+                <div class="k">Quotes written</div>
+                <div class="v" id="kvQuotes">—</div>
+              </div>
+              <div class="cell">
+                <div class="k">Data age</div>
+                <div class="v" id="kvFresh">—</div>
+              </div>
+              <div class="cell">
+                <div class="k">Mid (sample)</div>
+                <div class="v" id="kvMid">—</div>
+              </div>
+            </div>
+            <div>
+              <div class="panel-h" style="margin:0 0 0.35rem">
+                <h2 style="margin:0">Sample book + paper decision</h2>
+              </div>
+              <div class="ladder" id="ladder"></div>
+              <div class="badge stand" id="badge" style="margin-top:0.45rem">paper: —</div>
+            </div>
+            <div class="report" id="report">
+              <span class="hdr">operator card</span>
+              Waiting to run…
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <aside class="blurb" aria-label="About">
+      Polymarket bot is a live-data shadow stack: it continuously records L2 quotes,
+      then every hour evaluates strategy wrappers on that hour without placing real
+      orders — and surfaces data gaps so decisions are not made on stale history.
+      This page is an interactive sketch of the shadow pipeline for demonstration purposes.
+    </aside>
+
+    <script>
+      const lake = [];
+      (function seed() {
+        let x = 99;
+        const r = () => {
+          x = (x * 48271) % 2147483647;
+          return (x - 1) / 2147483646;
+        };
+        for (let h = 0; h < 24; h++) {
+          let status = "ok";
+          const u = r();
+          if (u > 0.88) status = "warn";
+          if (h === 3 || h === 14) status = "gap";
+          lake.push({
+            hour: h,
+            status,
+            markets: status === "gap" ? 0 : 45 + Math.floor(r() * 70),
+            quotes: status === "gap" ? 0 : 9000 + Math.floor(r() * 11000),
+            freshnessSec:
+              status === "gap"
+                ? 9999
+                : status === "warn"
+                  ? 90 + Math.floor(r() * 180)
+                  : Math.floor(r() * 20),
+            bid: 0.41 + r() * 0.08,
+            ask: 0.49 + r() * 0.08,
+            imbalance: (r() - 0.5) * 0.45,
+          });
+        }
+      })();
+
+      let active = 12;
+      let playing = false;
+
+      function statusWord(s) {
+        if (s === "ok") return "healthy";
+        if (s === "warn") return "thin / stale";
+        return "missing";
+      }
+
+      function renderHours() {
+        const box = document.getElementById("hours");
+        box.innerHTML = "";
+        // show a readable subset: every hour but compact — all 24 in scroll
+        lake.forEach((c, i) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "hour-btn" + (i === active ? " active" : "");
+          const hh = String(c.hour).padStart(2, "0") + ":00";
+          b.innerHTML =
+            '<span class="t">' +
+            hh +
+            '</span><span class="d">' +
+            (c.status === "gap"
+              ? "No quote file for this hour"
+              : c.markets + " markets · " + c.quotes.toLocaleString() + " quotes") +
+            '</span><span class="pill ' +
+            c.status +
+            '">' +
+            statusWord(c.status) +
+            "</span>";
+          b.onclick = () => {
+            active = i;
+            renderHours();
+            paintResult(false);
+          };
+          box.appendChild(b);
+        });
+      }
+
+      function paintLadder(c) {
+        const box = document.getElementById("ladder");
+        const badge = document.getElementById("badge");
+        box.innerHTML = "";
+        if (c.status === "gap") {
+          box.innerHTML =
+            '<div style="grid-column:1/-1;color:var(--bad);font-family:var(--mono);font-size:0.75rem">No book — hour file missing</div>';
+          badge.className = "badge none";
+          badge.textContent = "paper: STAND DOWN (no data)";
+          return;
+        }
+        for (let i = 2; i >= 1; i--) {
+          const row = document.createElement("div");
+          row.className = "lvl ask";
+          row.innerHTML =
+            "<span>" +
+            (c.ask + i * 0.01).toFixed(3) +
+            "</span><span>" +
+            Math.floor(60 + i * 40) +
+            "</span>";
+          box.appendChild(row);
+        }
+        for (let i = 1; i <= 2; i++) {
+          const row = document.createElement("div");
+          row.className = "lvl bid";
+          row.innerHTML =
+            "<span>" +
+            (c.bid - i * 0.01).toFixed(3) +
+            "</span><span>" +
+            Math.floor(70 + i * 35) +
+            "</span>";
+          box.appendChild(row);
+        }
+        const mid = (c.bid + c.ask) / 2;
+        if (c.status === "warn" || Math.abs(c.imbalance) > 0.15 || c.ask - c.bid > 0.08) {
+          badge.className = "badge stand";
+          badge.textContent = "paper: STAND DOWN (wide/toxic book)";
+        } else {
+          badge.className = "badge quote";
+          badge.textContent = "paper: would quote mid " + mid.toFixed(3) + " ± 0.02";
+        }
+      }
+
+      function paintResult(ran) {
+        const c = lake[active];
+        const hh = String(c.hour).padStart(2, "0") + ":00 UTC";
+        document.getElementById("hourLabel").textContent = hh;
+
+        const hero = document.getElementById("heroStatus");
+        const text = document.getElementById("heroText");
+        hero.className = "status " + c.status;
+        if (!ran) {
+          hero.textContent = c.status === "gap" ? "GAP" : c.status === "warn" ? "THIN" : "OK FILE";
+          text.textContent =
+            c.status === "gap"
+              ? "This hour has no lake file. Press Run to see the pipeline skip trading logic."
+              : "Quote file present. Press Run this hour to walk the shadow pipeline.";
+        }
+
+        document.getElementById("kvMarkets").textContent =
+          c.status === "gap" ? "0" : String(c.markets);
+        document.getElementById("kvQuotes").textContent =
+          c.status === "gap" ? "0" : c.quotes.toLocaleString();
+        document.getElementById("kvFresh").textContent =
+          c.status === "gap" ? "n/a" : c.freshnessSec + "s";
+        document.getElementById("kvMid").textContent =
+          c.status === "gap" ? "—" : ((c.bid + c.ask) / 2).toFixed(3);
+
+        paintLadder(c);
+      }
+
+      function resetPipe() {
+        document.querySelectorAll(".step").forEach((s) => {
+          s.classList.remove("on", "warn", "fail");
+          s.querySelector(".st").textContent = "idle";
+        });
+      }
+
+      async function play() {
+        if (playing) return;
+        playing = true;
+        resetPipe();
+        const c = lake[active];
+        const steps = [
+          { ok: true, label: "ok", cls: "on" },
+          {
+            ok: c.status !== "gap",
+            label: c.status === "gap" ? "FAIL" : c.status === "warn" ? "thin" : "ok",
+            cls: c.status === "gap" ? "fail" : c.status === "warn" ? "warn" : "on",
+          },
+          {
+            ok: c.status !== "gap",
+            label: c.status === "gap" ? "skip" : "ok",
+            cls: c.status === "gap" ? "warn" : "on",
+          },
+          {
+            ok: c.status !== "gap",
+            label: c.status === "gap" ? "empty" : "ok",
+            cls: c.status === "gap" ? "warn" : "on",
+          },
+          { ok: true, label: "sent", cls: "on" },
+        ];
+        const nodes = [...document.querySelectorAll(".step")];
+        for (let i = 0; i < nodes.length; i++) {
+          await new Promise((r) => setTimeout(r, 340));
+          nodes[i].classList.add(steps[i].cls);
+          nodes[i].querySelector(".st").textContent = steps[i].label;
+        }
+
+        const hero = document.getElementById("heroStatus");
+        const text = document.getElementById("heroText");
+        const report = document.getElementById("report");
+        const stamp = "2026-07-13T" + String(c.hour).padStart(2, "0") + ":05:00Z";
+
+        if (c.status === "gap") {
+          hero.className = "status gap";
+          hero.textContent = "DEGRADED";
+          text.textContent =
+            "No quote file for this hour. Strategies were not evaluated. Operator is paged so nobody trusts a silent hole in the lake.";
+          report.innerHTML =
+            '<span class="hdr">operator card · ' +
+            stamp +
+            "</span>\n" +
+            "status: DEGRADED\n" +
+            "reason: temporal gap (missing hour shard)\n" +
+            "strategies: skipped\n" +
+            "action: investigate data plane — do not promote";
+        } else if (c.status === "warn") {
+          hero.className = "status warn";
+          hero.textContent = "DEGRADED";
+          text.textContent =
+            "File exists but looks thin/stale. Pipeline ran; paper decision is cautious (stand down on toxic/wide book).";
+          report.innerHTML =
+            '<span class="hdr">operator card · ' +
+            stamp +
+            "</span>\n" +
+            "status: DEGRADED\n" +
+            "markets: " +
+            c.markets +
+            " · quotes: " +
+            c.quotes +
+            "\n" +
+            "freshness: " +
+            c.freshnessSec +
+            "s\n" +
+            "paper: " +
+            document.getElementById("badge").textContent +
+            "\n" +
+            "note: paper shadow only · no live orders";
+        } else {
+          hero.className = "status ok";
+          hero.textContent = "OK";
+          text.textContent =
+            "Healthy hour file. Shadow strategies evaluated on paper; summary sent to the operator.";
+          report.innerHTML =
+            '<span class="hdr">operator card · ' +
+            stamp +
+            "</span>\n" +
+            "status: OK\n" +
+            "markets: " +
+            c.markets +
+            " · quotes: " +
+            c.quotes +
+            "\n" +
+            "freshness: " +
+            c.freshnessSec +
+            "s\n" +
+            "paper: " +
+            document.getElementById("badge").textContent +
+            "\n" +
+            "note: paper shadow only · no live orders";
+        }
+        paintLadder(c);
+        playing = false;
+      }
+
+      document.getElementById("play").onclick = play;
+      document.getElementById("gap").onclick = () => {
+        lake[active].status = "gap";
+        lake[active].markets = 0;
+        lake[active].quotes = 0;
+        lake[active].freshnessSec = 9999;
+        renderHours();
+        paintResult(false);
+        resetPipe();
+      };
+      document.getElementById("heal").onclick = () => {
+        lake.forEach((c, i) => {
+          if (c.status === "gap" || c.status === "warn") {
+            c.status = "ok";
+            c.markets = 55 + (i * 5) % 40;
+            c.quotes = 10000 + i * 120;
+            c.freshnessSec = 8 + (i % 10);
+          }
+        });
+        renderHours();
+        paintResult(false);
+        resetPipe();
+      };
+
+      renderHours();
+      paintResult(false);
+    </script>
+  </body>
 </html>
