@@ -127,14 +127,32 @@ if steering_path.exists():
     sraw = json.loads(steering_path.read_text(encoding="utf-8"))
     steering = sraw.get("steering_results", [])
 
+# Slim route log for the Streamlit "Replay log" expander
+routes = []
+for r in rows:
+    routes.append(
+        {
+            "input_text": r.get("input_text"),
+            "predicted_label": r.get("predicted_label"),
+            "accepted": r.get("accepted"),
+            "confidence": r.get("confidence"),
+            "margin": r.get("margin"),
+            "top_probabilities": r.get("top_probabilities"),
+            "state_after": r.get("state_after"),
+            "state_before": r.get("state_before"),
+        }
+    )
+
 payload = {
     "examples": examples,
+    "routes": routes,
     "projection": proj,
     "labels": labels,
     "metrics": metrics,
     "steering": steering,
     "pipeline": "text → tokenizer → frozen LM forward → pre-lm_head hook → vector → probe + OOD gate → typed enum → kernel",
     "source": "https://github.com/FiNdAlMkSkInDaL/latent-control-lab",
+    "streamlit_commit": "3c0a996",
 }
 
 (out / "vectorbot_data.json").write_text(json.dumps(payload), encoding="utf-8")
