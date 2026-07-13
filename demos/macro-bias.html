@@ -130,9 +130,9 @@
       /* ── Stage ── */
       .stage {
         display: grid;
-        grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr) minmax(0, 1.05fr);
-        gap: 0.55rem;
-        padding: 0.55rem;
+        grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.15fr) minmax(0, 1.2fr);
+        gap: 0.65rem;
+        padding: 0.65rem 0.65rem 4.5rem;
         min-height: 0;
         overflow: hidden;
         height: 100%;
@@ -153,7 +153,7 @@
         background: var(--panel);
         border: 1px solid var(--border);
         border-radius: 10px;
-        padding: 0.65rem 0.7rem;
+        padding: 0.8rem 0.85rem;
         min-height: 0;
         overflow: hidden;
         display: flex;
@@ -284,12 +284,12 @@
       }
       .pill {
         font-family: var(--mono);
-        font-size: clamp(1.35rem, 3.2vw, 1.85rem);
+        font-size: clamp(1.75rem, 4vw, 2.35rem);
         font-weight: 700;
         letter-spacing: 0.08em;
         text-align: center;
-        padding: 0.85rem 0.75rem;
-        border-radius: 10px;
+        padding: 1.25rem 1rem;
+        border-radius: 12px;
         border: 1px solid;
         flex-shrink: 0;
       }
@@ -318,44 +318,44 @@
       }
       .meaning {
         margin: 0;
-        font-size: 0.78rem;
+        font-size: 0.88rem;
         color: var(--muted);
-        line-height: 1.45;
+        line-height: 1.5;
       }
       .metrics {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 0.35rem;
+        gap: 0.45rem;
         flex-shrink: 0;
       }
       .metric {
         border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 0.45rem 0.35rem;
+        border-radius: 10px;
+        padding: 0.7rem 0.45rem;
         background: rgba(0, 0, 0, 0.25);
         text-align: center;
       }
       .metric .k {
-        font-size: 0.58rem;
+        font-size: 0.62rem;
         letter-spacing: 0.06em;
         text-transform: uppercase;
         color: var(--mute2);
-        margin-bottom: 0.15rem;
+        margin-bottom: 0.25rem;
       }
       .metric .v {
         font-family: var(--mono);
-        font-size: 0.82rem;
+        font-size: 1.05rem;
         font-weight: 600;
         color: var(--gold2);
       }
       .flow {
         margin-top: auto;
         border-top: 1px solid var(--border);
-        padding-top: 0.55rem;
+        padding-top: 0.7rem;
         display: grid;
-        gap: 0.3rem;
+        gap: 0.4rem;
         font-family: var(--mono);
-        font-size: 0.62rem;
+        font-size: 0.7rem;
         color: var(--mute2);
       }
       .flow span { color: var(--gold); }
@@ -364,46 +364,46 @@
       .nb-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 0.72rem;
+        font-size: 0.8rem;
       }
       .nb-table th {
         text-align: left;
         font-family: var(--mono);
-        font-size: 0.58rem;
+        font-size: 0.62rem;
         font-weight: 600;
         letter-spacing: 0.06em;
         text-transform: uppercase;
         color: var(--mute2);
-        padding: 0.25rem 0.35rem 0.45rem;
+        padding: 0.35rem 0.45rem 0.55rem;
         border-bottom: 1px solid var(--border);
       }
       .nb-table th:last-child,
       .nb-table td:last-child { text-align: right; }
       .nb-table td {
-        padding: 0.4rem 0.35rem;
+        padding: 0.55rem 0.45rem;
         border-bottom: 1px solid rgba(251, 191, 36, 0.06);
         vertical-align: middle;
       }
       .nb-table tr:hover td { background: rgba(251, 191, 36, 0.04); }
       .nb-date {
         font-family: var(--mono);
-        font-size: 0.72rem;
+        font-size: 0.8rem;
         color: var(--text);
         white-space: nowrap;
       }
       .nb-dow {
         display: block;
-        font-size: 0.58rem;
+        font-size: 0.62rem;
         color: var(--mute2);
-        margin-top: 0.08rem;
+        margin-top: 0.1rem;
       }
       .nb-bar-wrap {
-        height: 7px;
+        height: 9px;
         background: #1c1917;
         border: 1px solid rgba(251, 191, 36, 0.1);
         border-radius: 3px;
         overflow: hidden;
-        min-width: 64px;
+        min-width: 88px;
       }
       .nb-bar-wrap > i {
         display: block;
@@ -414,6 +414,7 @@
       }
       .nb-ret {
         font-family: var(--mono);
+        font-size: 0.82rem;
         font-feature-settings: "tnum";
         white-space: nowrap;
       }
@@ -421,31 +422,32 @@
       .nb-ret.neg { color: var(--short); }
       .nb-w {
         font-family: var(--mono);
-        font-size: 0.65rem;
+        font-size: 0.72rem;
         color: var(--mute2);
       }
 
       .blurb {
         position: fixed;
-        left: 10px;
-        bottom: 10px;
+        right: 12px;
+        bottom: 12px;
+        left: auto;
         z-index: 20;
-        max-width: min(280px, calc(100vw - 20px));
-        padding: 0.5rem 0.6rem;
-        border-radius: 8px;
+        max-width: min(340px, calc(100vw - 24px));
+        padding: 0.7rem 0.8rem;
+        border-radius: 10px;
         border: 1px solid var(--border);
-        background: rgba(12, 10, 9, 0.94);
+        background: rgba(12, 10, 9, 0.95);
         color: var(--muted);
-        font-size: 0.65rem;
-        line-height: 1.4;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        font-size: 0.7rem;
+        line-height: 1.45;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
         pointer-events: none;
       }
       .blurb strong {
         display: block;
         color: var(--text);
-        font-size: 0.68rem;
-        margin-bottom: 0.15rem;
+        font-size: 0.74rem;
+        margin-bottom: 0.3rem;
       }
     </style>
   </head>
@@ -534,73 +536,80 @@
       </main>
     </div>
 
-    <aside class="blurb" aria-label="About">
+    <aside class="blurb" aria-label="About Macro Bias">
       <strong>What is this?</strong>
-      Match today's macro features to dated past sessions, weight what happened next,
-      and print a permission (LONG / SHORT / FLAT / NO_TRADE). Illustrative demo — not live advice.
+      Macro Bias is a daily regime research product: it turns a macro feature snapshot
+      (SPY RSI, VIX momentum, HYG/TLT, CPER/GLD, USO) into a next-session
+      <em>permission</em> — LONG / SHORT / FLAT / NO_TRADE — with a risk size, not a
+      price target. Under the hood this demo mirrors the product idea: find the K
+      nearest historical sessions in feature space (cosine distance), inverse-distance
+      weight their forward returns, and map the blend through a gate (including
+      sit-out when fear is extreme and edge is tiny). Walk-forward honesty and
+      track-record reporting are first-class on the live site; this page is an
+      interactive portfolio sketch of the decision surface for recruiters.
     </aside>
 
     <script>
-      const KEYS = ["equity", "fear", "credit", "metals", "oil"];
+      const KEYS = ["spy", "vix", "credit", "metals", "oil"];
       const DIALS = [
-        { key: "equity", label: "Equity strength", lo: "weak", hi: "strong" },
-        { key: "fear", label: "Fear (VIX)", lo: "calm", hi: "panic" },
-        { key: "credit", label: "Credit health", lo: "stress", hi: "healthy" },
-        { key: "metals", label: "Copper / gold", lo: "defensive", hi: "growth" },
-        { key: "oil", label: "Oil pressure", lo: "soft", hi: "spike" },
+        { key: "spy", label: "SPY RSI", lo: "oversold", hi: "overbought" },
+        { key: "vix", label: "VIX momentum", lo: "calm", hi: "spike" },
+        { key: "credit", label: "HYG / TLT", lo: "stress", hi: "risk-on" },
+        { key: "metals", label: "CPER / GLD", lo: "defensive", hi: "growth" },
+        { key: "oil", label: "USO momentum", lo: "soft", hi: "spike" },
       ];
 
       const SCENARIOS = [
         {
           name: "Calm risk-on",
-          hint: "Strong equities, low fear, healthy credit",
-          equity: 0.72,
-          fear: 0.22,
+          hint: "High SPY RSI, low VIX mom, healthy HYG/TLT",
+          spy: 0.72,
+          vix: 0.22,
           credit: 0.68,
           metals: 0.55,
           oil: 0.4,
         },
         {
           name: "Fear spike",
-          hint: "Weak equities, hot VIX, wobbly credit",
-          equity: 0.25,
-          fear: 0.9,
+          hint: "Weak SPY, hot VIX mom, credit stress",
+          spy: 0.25,
+          vix: 0.9,
           credit: 0.2,
           metals: 0.4,
           oil: 0.55,
         },
         {
           name: "Credit stress",
-          hint: "Spreads matter more than the tape",
-          equity: 0.35,
-          fear: 0.7,
+          hint: "HYG/TLT crushed; spreads dominate",
+          spy: 0.35,
+          vix: 0.7,
           credit: 0.12,
           metals: 0.45,
           oil: 0.5,
         },
         {
           name: "Oil shock",
-          hint: "Energy jump; growth scare",
-          equity: 0.4,
-          fear: 0.65,
+          hint: "USO impulse high; growth scare",
+          spy: 0.4,
+          vix: 0.65,
           credit: 0.35,
           metals: 0.48,
           oil: 0.92,
         },
         {
           name: "Chop / mid",
-          hint: "Nothing extreme — hard to lean",
-          equity: 0.5,
-          fear: 0.5,
+          hint: "Features near median — hard to lean",
+          spy: 0.5,
+          vix: 0.5,
           credit: 0.5,
           metals: 0.5,
           oil: 0.5,
         },
         {
           name: "Soft landing",
-          hint: "Equities ok, fear fading, credit fine",
-          equity: 0.62,
-          fear: 0.32,
+          hint: "SPY ok, VIX fading, credit fine",
+          spy: 0.62,
+          vix: 0.32,
           credit: 0.6,
           metals: 0.52,
           oil: 0.38,
@@ -608,8 +617,8 @@
       ];
 
       const state = {
-        equity: 0.55,
-        fear: 0.4,
+        spy: 0.55,
+        vix: 0.4,
         credit: 0.5,
         metals: 0.45,
         oil: 0.5,
@@ -644,19 +653,20 @@
         };
         let cursor = prevBusinessDay(ANCHOR);
         for (let i = 0; i < 60; i++) {
-          const equity = r();
-          const fear = r();
+          const spy = r();
+          const vix = r();
           const credit = r();
           const metals = r();
           const oil = r();
+          // Risk-on: high SPY RSI, low VIX mom, healthy credit, growth metals, soft oil
           const riskOn =
-            equity * 0.35 + (1 - fear) * 0.35 + credit * 0.2 + metals * 0.1 - oil * 0.05;
+            spy * 0.35 + (1 - vix) * 0.35 + credit * 0.2 + metals * 0.1 - oil * 0.05;
           const ret = (riskOn - 0.45) * 0.028 + (r() - 0.5) * 0.01;
           LIBRARY.push({
             date: new Date(cursor.getTime()),
             iso: fmtDate(cursor),
             dow: DOW[cursor.getDay()],
-            f: [equity, fear, credit, metals, oil],
+            f: [spy, vix, credit, metals, oil],
             ret,
           });
           cursor = prevBusinessDay(cursor);
@@ -690,7 +700,7 @@
 
       function knn() {
         const q = vec();
-        const k = state.fear >= 0.55 ? 5 : 7;
+        const k = state.vix >= 0.55 ? 5 : 7;
         const scored = LIBRARY.map((row) => ({
           ...row,
           dist: cosineDist(q, row.f),
@@ -710,12 +720,12 @@
         return { top, score: rSum / wSum, k };
       }
 
-      function permission(score, fear) {
-        if (fear > 0.88 && Math.abs(score) < 0.004) {
+      function permission(score, vix) {
+        if (vix > 0.88 && Math.abs(score) < 0.004) {
           return {
             bias: "NO_TRADE",
             size: 0,
-            text: "Extreme fear + tiny edge — sit out. No new risk.",
+            text: "Extreme VIX momentum + tiny edge — sit out. No new risk.",
           };
         }
         if (score > 0.0045) {
@@ -799,7 +809,7 @@
 
       function update() {
         const { top, score, k } = knn();
-        const perm = permission(score, state.fear);
+        const perm = permission(score, state.vix);
         const pill = document.getElementById("pill");
         pill.textContent = perm.bias;
         pill.className = "pill " + perm.bias;
@@ -809,10 +819,10 @@
         document.getElementById("mSize").textContent = Math.round(perm.size * 100) + "%";
         document.getElementById("mK").textContent = String(k);
         document.getElementById("flowSnap").textContent =
-          "eq " +
-          levelWord(state.equity) +
-          " · fear " +
-          levelWord(state.fear);
+          "SPY " +
+          levelWord(state.spy) +
+          " · VIX " +
+          levelWord(state.vix);
         document.getElementById("flowK").textContent = "K=" + k;
         document.getElementById("flowBias").textContent = perm.bias;
         document.getElementById("asOf").textContent = "anchor " + fmtDate(ANCHOR);
