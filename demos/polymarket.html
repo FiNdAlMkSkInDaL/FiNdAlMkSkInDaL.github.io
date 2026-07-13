@@ -86,69 +86,145 @@
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       }
 
-      /* Recruiter signal strip */
+      /* Recruiter signal strip — primary visual for what to notice */
+      .signals-wrap {
+        padding: 0.4rem 0.55rem 0;
+        flex-shrink: 0;
+      }
+      .signals-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.35rem;
+        padding: 0 0.1rem;
+      }
+      .signals-head .label {
+        font-family: var(--mono);
+        font-size: 0.62rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--sky2);
+        font-weight: 700;
+      }
+      .signals-head .sub {
+        font-size: 0.68rem;
+        color: var(--mute2);
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
       .signals {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 0.4rem;
-        padding: 0.45rem 0.55rem 0;
+        gap: 0.45rem;
       }
       @media (max-width: 900px) {
         .signals { grid-template-columns: 1fr 1fr; }
+        .signals-head .sub { display: none; }
       }
       .sig {
-        border: 1px solid var(--border);
-        border-radius: 9px;
-        background: rgba(12, 18, 32, 0.9);
-        padding: 0.45rem 0.55rem;
+        border: 1px solid rgba(56, 189, 248, 0.28);
+        border-radius: 10px;
+        background:
+          linear-gradient(165deg, rgba(56, 189, 248, 0.08), transparent 55%),
+          rgba(12, 18, 32, 0.95);
+        padding: 0.55rem 0.6rem 0.5rem;
         min-width: 0;
-        transition: 0.2s ease;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      .sig::before {
+        content: attr(data-n);
+        position: absolute;
+        top: 0.4rem;
+        right: 0.5rem;
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: rgba(56, 189, 248, 0.22);
       }
       .sig.hot {
-        border-color: rgba(56, 189, 248, 0.55);
-        box-shadow: 0 0 18px rgba(56, 189, 248, 0.12);
+        border-color: rgba(56, 189, 248, 0.7);
+        box-shadow: 0 0 22px rgba(56, 189, 248, 0.18);
+        transform: translateY(-1px);
       }
       .sig.hot-ok {
-        border-color: rgba(52, 211, 153, 0.55);
-        box-shadow: 0 0 18px rgba(52, 211, 153, 0.12);
+        border-color: rgba(52, 211, 153, 0.7);
+        box-shadow: 0 0 22px rgba(52, 211, 153, 0.18);
+        background:
+          linear-gradient(165deg, rgba(52, 211, 153, 0.1), transparent 55%),
+          rgba(12, 18, 32, 0.95);
+        transform: translateY(-1px);
       }
       .sig.hot-bad {
-        border-color: rgba(251, 113, 133, 0.55);
-        box-shadow: 0 0 18px rgba(251, 113, 133, 0.12);
+        border-color: rgba(251, 113, 133, 0.7);
+        box-shadow: 0 0 22px rgba(251, 113, 133, 0.18);
+        background:
+          linear-gradient(165deg, rgba(251, 113, 133, 0.1), transparent 55%),
+          rgba(12, 18, 32, 0.95);
+        transform: translateY(-1px);
       }
       .sig.hot-warn {
-        border-color: rgba(251, 191, 36, 0.55);
-        box-shadow: 0 0 18px rgba(251, 191, 36, 0.12);
+        border-color: rgba(251, 191, 36, 0.7);
+        box-shadow: 0 0 22px rgba(251, 191, 36, 0.16);
+        background:
+          linear-gradient(165deg, rgba(251, 191, 36, 0.08), transparent 55%),
+          rgba(12, 18, 32, 0.95);
+        transform: translateY(-1px);
       }
       .sig .tag {
         font-family: var(--mono);
-        font-size: 0.58rem;
-        letter-spacing: 0.07em;
+        font-size: 0.56rem;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
         color: var(--sky2);
-        margin-bottom: 0.15rem;
+        margin-bottom: 0.2rem;
+        font-weight: 600;
       }
       .sig .title {
-        font-size: 0.78rem;
-        font-weight: 650;
+        font-size: 0.84rem;
+        font-weight: 700;
         color: var(--text);
-        margin-bottom: 0.12rem;
+        margin-bottom: 0.18rem;
+        letter-spacing: -0.01em;
+        padding-right: 1.1rem;
       }
       .sig .desc {
-        font-size: 0.68rem;
-        color: var(--mute2);
+        font-size: 0.7rem;
+        color: var(--muted);
+        line-height: 1.35;
+      }
+      .sig .why {
+        margin-top: 0.35rem;
+        padding-top: 0.3rem;
+        border-top: 1px solid rgba(56, 189, 248, 0.12);
+        font-size: 0.66rem;
+        color: var(--sky2);
         line-height: 1.3;
+        font-weight: 500;
       }
       .sig .state {
-        margin-top: 0.28rem;
+        margin-top: 0.32rem;
         font-family: var(--mono);
-        font-size: 0.62rem;
+        font-size: 0.64rem;
+        font-weight: 600;
         color: var(--muted);
       }
       .sig.hot-ok .state { color: var(--ok); }
       .sig.hot-bad .state { color: var(--bad); }
       .sig.hot-warn .state { color: var(--warn); }
       .sig.hot .state { color: var(--sky2); }
+      .sig.flash {
+        animation: sigPulse 0.7s ease;
+      }
+      @keyframes sigPulse {
+        0% { box-shadow: 0 0 0 0 rgba(125, 211, 252, 0.45); }
+        70% { box-shadow: 0 0 28px 6px rgba(125, 211, 252, 0.15); }
+        100% { box-shadow: 0 0 0 0 transparent; }
+      }
       .live-dot {
         display: inline-flex;
         align-items: center;
@@ -236,6 +312,28 @@
         font-size: 0.76rem;
         color: var(--muted);
         line-height: 1.4;
+      }
+      .hook {
+        margin: 0;
+        padding: 0.5rem 0.55rem 0.5rem 0.65rem;
+        border-radius: 8px;
+        border: 1px solid rgba(56, 189, 248, 0.28);
+        border-left: 3px solid var(--sky);
+        background: rgba(56, 189, 248, 0.07);
+        font-size: 0.74rem;
+        color: var(--text);
+        line-height: 1.4;
+      }
+      .hook em {
+        font-style: normal;
+        font-family: var(--mono);
+        font-size: 0.58rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--sky2);
+        display: block;
+        margin-bottom: 0.2rem;
+        font-weight: 700;
       }
 
       .btn-row {
@@ -350,31 +448,51 @@
 
       .decision {
         text-align: center;
-        padding: 0.9rem 0.75rem;
+        padding: 0.95rem 0.8rem 0.85rem;
         border-radius: 10px;
-        border: 1px solid var(--border);
-        background: rgba(0, 0, 0, 0.28);
+        border: 1px solid rgba(56, 189, 248, 0.32);
+        background:
+          linear-gradient(180deg, rgba(56, 189, 248, 0.08), transparent 40%),
+          rgba(0, 0, 0, 0.32);
+        box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.06);
       }
       .decision .eyebrow {
         font-family: var(--mono);
         font-size: 0.58rem;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.1em;
         text-transform: uppercase;
-        color: var(--mute2);
-        margin-bottom: 0.25rem;
+        color: var(--sky2);
+        margin-bottom: 0.3rem;
+        font-weight: 700;
       }
       .decision .big {
         font-family: var(--mono);
-        font-size: 1.35rem;
+        font-size: 1.45rem;
         font-weight: 700;
         letter-spacing: 0.04em;
-        margin-bottom: 0.3rem;
+        margin-bottom: 0.35rem;
       }
       .decision .recruiter {
-        margin: 0.35rem 0 0;
-        font-size: 0.7rem;
+        margin: 0.5rem 0 0;
+        padding: 0.45rem 0.55rem;
+        border-radius: 8px;
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        background: rgba(56, 189, 248, 0.08);
+        font-size: 0.74rem;
         color: var(--sky2);
-        line-height: 1.35;
+        line-height: 1.4;
+        font-weight: 500;
+        text-align: left;
+      }
+      .decision .recruiter span {
+        display: block;
+        font-family: var(--mono);
+        font-size: 0.56rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--mute2);
+        margin-bottom: 0.2rem;
+        font-weight: 700;
       }
       .decision .big.quote { color: var(--ok); }
       .decision .big.stand { color: var(--warn); }
@@ -446,22 +564,97 @@
         right: 12px;
         bottom: 12px;
         z-index: 30;
-        max-width: min(360px, calc(100vw - 24px));
-        padding: 0.7rem 0.8rem;
+        max-width: min(380px, calc(100vw - 24px));
+        padding: 0.75rem 0.85rem;
         border-radius: 10px;
-        border: 1px solid var(--border);
-        background: rgba(5, 8, 15, 0.95);
+        border: 1px solid rgba(56, 189, 248, 0.35);
+        background: rgba(5, 8, 15, 0.96);
         color: var(--muted);
-        font-size: 0.68rem;
+        font-size: 0.7rem;
         line-height: 1.45;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+        box-shadow:
+          0 8px 28px rgba(0, 0, 0, 0.5),
+          0 0 0 1px rgba(56, 189, 248, 0.06);
         pointer-events: none;
       }
       .blurb strong {
         display: block;
+        color: var(--sky2);
+        font-size: 0.74rem;
+        margin-bottom: 0.3rem;
+        font-family: var(--mono);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+      .blurb .wins {
+        margin: 0.35rem 0 0;
+        padding: 0;
+        list-style: none;
+      }
+      .blurb .wins li {
+        position: relative;
+        padding-left: 0.75rem;
+        margin: 0.2rem 0;
         color: var(--text);
-        font-size: 0.72rem;
-        margin-bottom: 0.25rem;
+        font-size: 0.68rem;
+      }
+      .blurb .wins li::before {
+        content: "▸";
+        position: absolute;
+        left: 0;
+        color: var(--sky);
+        font-size: 0.62rem;
+      }
+      .blurb .note {
+        margin: 0.4rem 0 0;
+        color: var(--mute2);
+        font-size: 0.64rem;
+      }
+
+      .toast {
+        position: fixed;
+        left: 50%;
+        top: 56px;
+        transform: translateX(-50%) translateY(-12px);
+        z-index: 40;
+        max-width: min(520px, calc(100vw - 24px));
+        padding: 0.65rem 0.9rem;
+        border-radius: 10px;
+        border: 1px solid rgba(52, 211, 153, 0.45);
+        background: rgba(5, 14, 12, 0.96);
+        color: var(--ok);
+        font-size: 0.78rem;
+        font-weight: 600;
+        line-height: 1.35;
+        box-shadow: 0 10px 32px rgba(0, 0, 0, 0.45);
+        opacity: 0;
+        pointer-events: none;
+        transition: 0.25s ease;
+        text-align: center;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+      .toast.warn {
+        border-color: rgba(251, 191, 36, 0.5);
+        color: var(--warn);
+        background: rgba(18, 14, 5, 0.96);
+      }
+      .toast.bad {
+        border-color: rgba(251, 113, 133, 0.5);
+        color: var(--bad);
+        background: rgba(18, 8, 10, 0.96);
+      }
+      .toast .t-label {
+        display: block;
+        font-family: var(--mono);
+        font-size: 0.58rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        opacity: 0.85;
+        margin-bottom: 0.15rem;
       }
     </style>
   </head>
@@ -482,31 +675,41 @@
         </div>
       </header>
 
-      <!-- What a recruiter should notice -->
-      <div class="signals" id="signals" aria-label="Engineering highlights">
-        <div class="sig" id="sigLake">
-          <div class="tag">data plane</div>
-          <div class="title">Continuous L2 lake</div>
-          <div class="desc">Hourly quote shards — not a one-off CSV dump.</div>
-          <div class="state" id="sigLakeState">feed off · 0 quotes this hour</div>
+      <!-- What a recruiter should notice — primary impress strip -->
+      <div class="signals-wrap">
+        <div class="signals-head">
+          <span class="label">★ Systems wins · look here first</span>
+          <span class="sub">production-shaped capture · integrity gates · paper-only risk · operator loop</span>
         </div>
-        <div class="sig" id="sigGap">
-          <div class="tag">integrity</div>
-          <div class="title">Temporal gap detection</div>
-          <div class="desc">Missing hours are first-class failures, not silent holes.</div>
-          <div class="state" id="sigGapState">no gap</div>
-        </div>
-        <div class="sig" id="sigPaper">
-          <div class="tag">risk control</div>
-          <div class="title">Paper-only shadow eval</div>
-          <div class="desc">Strategies judged offline — zero live order path.</div>
-          <div class="state" id="sigPaperState">awaiting book</div>
-        </div>
-        <div class="sig" id="sigOps">
-          <div class="tag">ops</div>
-          <div class="title">Operator visibility</div>
-          <div class="desc">Cron-style job + log so partial failure is visible.</div>
-          <div class="state" id="sigOpsState">idle</div>
+        <div class="signals" id="signals" aria-label="Engineering highlights">
+          <div class="sig" id="sigLake" data-n="01">
+            <div class="tag">data plane</div>
+            <div class="title">Continuous L2 lake</div>
+            <div class="desc">Hourly quote shards written live — not a one-off CSV dump.</div>
+            <div class="why">Shows you can own market-data plumbing end-to-end.</div>
+            <div class="state" id="sigLakeState">feed off · 0 quotes this hour</div>
+          </div>
+          <div class="sig" id="sigGap" data-n="02">
+            <div class="tag">integrity</div>
+            <div class="title">Temporal gap detection</div>
+            <div class="desc">Missing hours are first-class failures, not silent holes.</div>
+            <div class="why">Kill the feed — watch the stack refuse to pretend data exists.</div>
+            <div class="state" id="sigGapState">no gap</div>
+          </div>
+          <div class="sig" id="sigPaper" data-n="03">
+            <div class="tag">risk control</div>
+            <div class="title">Paper-only shadow eval</div>
+            <div class="desc">Strategies judged offline — zero live order path exists.</div>
+            <div class="why">Microstructure filters decide; capital never leaves paper.</div>
+            <div class="state" id="sigPaperState">awaiting book</div>
+          </div>
+          <div class="sig" id="sigOps" data-n="04">
+            <div class="tag">ops</div>
+            <div class="title">Operator visibility</div>
+            <div class="desc">Cron-style job + log so partial failure is loud, not quiet.</div>
+            <div class="why">DEGRADED is a feature — observability over silent hope.</div>
+            <div class="state" id="sigOpsState">idle</div>
+          </div>
         </div>
       </div>
 
@@ -518,9 +721,10 @@
             <span class="hint mono">what production captures each hour</span>
           </div>
           <div class="panel-body">
-            <p class="story">
-              <strong style="color:var(--sky2)">Recruiter hook:</strong> continuous market-data capture into
-              hour-partitioned files. Kill the feed to force the failure mode this stack is built to surface.
+            <p class="hook">
+              <em>Why this impresses</em>
+              Continuous market-data capture into hour-partitioned files. Kill the feed — the integrity
+              layer is what production teams actually hire for.
             </p>
             <div class="btn-row">
               <button class="btn primary" id="btnFeed" type="button">Start live feed</button>
@@ -574,10 +778,10 @@
               <div class="ladder" id="ladder"></div>
             </div>
             <div class="decision">
-              <div class="eyebrow">paper decision · zero live orders</div>
+              <div class="eyebrow">paper decision · zero live orders ever</div>
               <div class="big stand" id="decBig">STAND DOWN</div>
               <p class="why" id="decWhy">Start the live feed or tighten the book to see a paper quote.</p>
-              <p class="recruiter" id="decRec">Shows risk control: toxic/missing data blocks quoting.</p>
+              <p class="recruiter" id="decRec"><span>Why this matters</span>Risk control: toxic or missing data blocks quoting — the system refuses bad books.</p>
             </div>
           </div>
         </section>
@@ -589,9 +793,10 @@
             <span class="hint mono">:05 job · observability</span>
           </div>
           <div class="panel-body">
-            <p class="story">
-              <strong style="color:var(--sky2)">Recruiter hook:</strong> hourly paper evaluation + operator log.
-              Missing data is loud (DEGRADED), not silent. Auto-day walks a full production-shaped loop.
+            <p class="hook">
+              <em>Why this impresses</em>
+              Hourly paper evaluation + operator log. Missing data is loud (DEGRADED), not silent.
+              Auto-day walks the full production-shaped loop.
             </p>
             <div class="cron">
               <span>clock</span>
@@ -619,12 +824,18 @@
       </main>
     </div>
 
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
     <aside class="blurb" aria-label="About">
       <strong>What to notice</strong>
-      Continuous L2 capture into hourly lake files, first-class temporal-gap detection,
-      paper-only strategy evaluation (no live order path), and operator-facing status so
-      partial failure is visible. This page is an interactive sketch of the shadow stack
-      for demonstration purposes.
+      The top strip is the product story — systems discipline, not a trading UI.
+      <ul class="wins">
+        <li>Live L2 lake with hourly shards</li>
+        <li>Gap detection that refuses silent holes</li>
+        <li>Paper-only gate (no live orders)</li>
+        <li>Cron + log so DEGRADED is visible</li>
+      </ul>
+      <p class="note">Interactive sketch of the shadow stack for demonstration purposes.</p>
     </aside>
 
     <script>
@@ -669,13 +880,34 @@
         while (box.children.length > 40) box.removeChild(box.lastChild);
       }
 
+      function toast(msg, cls, label) {
+        const el = document.getElementById("toast");
+        el.className = "toast" + (cls ? " " + cls : "");
+        el.innerHTML =
+          '<span class="t-label">' +
+          (label || "Systems win") +
+          "</span>" +
+          msg;
+        el.classList.add("show");
+        clearTimeout(toast._t);
+        toast._t = setTimeout(() => el.classList.remove("show"), 3200);
+      }
+
+      function flashSig(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove("flash");
+        void el.offsetWidth;
+        el.classList.add("flash");
+      }
+
       function paperDecision() {
         if (state.feedDead || state.quotes === 0) {
           return {
             cls: "none",
             title: "STAND DOWN",
             why: "No usable quotes in this hour file — paper strategies skip.",
-            rec: "Integrity win: missing data blocks trading logic instead of failing quiet.",
+            rec: "Integrity win: missing data blocks trading logic instead of failing quiet. This refusal is the product.",
           };
         }
         const spr = state.spread;
@@ -685,7 +917,7 @@
             cls: "stand",
             title: "STAND DOWN",
             why: "Feed is off and data is getting stale (" + age.toFixed(0) + "s).",
-            rec: "Freshness gate: stale lake ≠ green light to quote.",
+            rec: "Freshness gate: a stale lake is never treated as a green light to quote.",
           };
         }
         if (spr >= 0.08 || Math.abs(state.imb) > 0.55) {
@@ -693,7 +925,7 @@
             cls: "stand",
             title: "STAND DOWN",
             why: "Book looks toxic/wide (spread " + (spr * 100).toFixed(1) + "¢, imbalance " + state.imb.toFixed(2) + ").",
-            rec: "Microstructure filter: adverse selection / wide books refuse paper risk.",
+            rec: "Microstructure filter: wide / imbalanced books refuse paper risk — adverse selection control.",
           };
         }
         return {
@@ -707,7 +939,7 @@
             " on " +
             state.markets +
             " markets.",
-          rec: "Only clean books pass the gate — still zero live orders.",
+          rec: "Only clean books pass the gate — and even then capital stays paper-only. Zero live order path.",
         };
       }
 
@@ -804,7 +1036,8 @@
         big.className = "big " + dec.cls;
         big.textContent = dec.title;
         document.getElementById("decWhy").textContent = dec.why;
-        document.getElementById("decRec").textContent = dec.rec;
+        document.getElementById("decRec").innerHTML =
+          "<span>Why this matters</span>" + dec.rec;
         updateSignals();
 
         document.getElementById("kvQuotes").textContent = state.quotes.toLocaleString();
@@ -851,6 +1084,8 @@
           document.getElementById("liveLabel").textContent = "feed live";
           if (!feedTimer) feedTimer = setInterval(tickFeed, 450);
           log("live feed ON · writing quotes into hour " + String(state.hour).padStart(2, "0"), "ok");
+          toast("Live L2 write path active — continuous lake, not a CSV dump.", "", "Data plane");
+          flashSig("sigLake");
         } else {
           document.getElementById("btnFeed").textContent = "Start live feed";
           document.getElementById("btnFeed").classList.remove("on");
@@ -871,6 +1106,13 @@
         state.quotes = 0;
         state.lastTick = null;
         log("TEMPORAL GAP · hour " + String(state.hour).padStart(2, "0") + " file wiped", "bad");
+        toast(
+          "Gap is first-class — missing hour refuses silent hope. Paper strategies stand down.",
+          "bad",
+          "Integrity win"
+        );
+        flashSig("sigGap");
+        flashSig("sigPaper");
         renderBook();
       }
 
@@ -884,6 +1126,12 @@
         if (!state.feedDead && state.quotes < 10) state.quotes = 40;
         state.lastTick = Date.now();
         log("injected toxic/wide book", "warn");
+        toast(
+          "Toxic book → STAND DOWN. Microstructure filter blocks paper risk.",
+          "warn",
+          "Risk control"
+        );
+        flashSig("sigPaper");
         renderBook();
       }
 
@@ -898,6 +1146,8 @@
         if (state.quotes < 30) state.quotes = 80;
         state.lastTick = Date.now();
         log("book reset to calm/tight", "ok");
+        toast("Clean book passes the gate — still zero live orders.", "", "Paper-only eval");
+        flashSig("sigPaper");
         renderBook();
       }
 
@@ -925,15 +1175,20 @@
           if (state.feedDead || state.quotes === 0) {
             log("shadow DEGRADED · temporal gap · strategies skipped", "bad");
             document.getElementById("kvLast").textContent = "GAP";
+            toast("Shadow DEGRADED is loud on purpose — ops visibility over silent fail.", "bad", "Ops win");
           } else if (dec.cls === "stand") {
             log("shadow DEGRADED · paper " + dec.title + " · " + dec.why, "warn");
             document.getElementById("kvLast").textContent = "CAUTIOUS";
+            toast("Shadow reports CAUTIOUS — operator sees partial failure, not a green light.", "warn", "Ops win");
           } else {
             log("shadow OK · paper " + dec.title + " · " + state.quotes + " quotes", "ok");
             document.getElementById("kvLast").textContent = "OK";
+            toast("Hourly paper scorecard complete — still no live order path.", "", "Shadow cron");
           }
+          flashSig("sigOps");
           state.shadowBusy = false;
           document.getElementById("cronHint").textContent = "· last run done";
+          updateSignals();
         };
         tick();
       }
