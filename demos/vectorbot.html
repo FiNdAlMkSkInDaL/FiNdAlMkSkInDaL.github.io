@@ -348,6 +348,32 @@
  margin: 0.35rem 0 0.55rem;
  min-height: 1.2em;
  }
+ .blurb {
+ position: fixed;
+ right: 14px;
+ bottom: 14px;
+ z-index: 20;
+ max-width: min(280px, calc(100vw - 28px));
+ padding: 0.65rem 0.75rem;
+ border-radius: 10px;
+ border: 1px solid var(--border);
+ background: rgba(14, 17, 23, 0.92);
+ color: var(--dim);
+ font-size: 0.72rem;
+ line-height: 1.45;
+ box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+ pointer-events: none;
+ }
+ .blurb strong {
+ display: block;
+ color: var(--text);
+ font-size: 0.75rem;
+ margin-bottom: 0.25rem;
+ font-weight: 600;
+ }
+ @media (max-width: 600px) {
+ .blurb { font-size: 0.68rem; max-width: min(240px, calc(100vw - 20px)); }
+ }
  </style>
  </head>
  <body>
@@ -395,6 +421,13 @@
  </section>
  </div>
  </main>
+
+ <aside class="blurb" aria-label="About this demo">
+ <strong>What is this?</strong>
+ Natural language is mapped to a small set of bot actions via a frozen model
+ activation and a probe — not by generating free-form text. Safe or unknown
+ commands are rejected (ABSTAIN); accepted ones update the grid.
+ </aside>
 
  <script>
  /**
