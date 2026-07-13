@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Pixel meadow portfolio — click the big flowers to open projects."
+      content="Pixel bush portfolio — hover and click the flowers."
     />
-    <title>Finlay · Pixel Meadow</title>
+    <title>Finlay · Pixel Bush</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -18,49 +18,35 @@
     />
   </head>
   <body>
-    <div class="world" id="world">
-      <!-- Sky + sun -->
-      <div class="sky">
-        <div class="sun" aria-hidden="true">
-          <span class="sun-core"></span>
-          <span class="ray r1"></span>
-          <span class="ray r2"></span>
-          <span class="ray r3"></span>
-          <span class="ray r4"></span>
-        </div>
-        <div class="cloud c1" aria-hidden="true"></div>
-        <div class="cloud c2" aria-hidden="true"></div>
-        <div class="cloud c3" aria-hidden="true"></div>
-      </div>
+    <div class="world">
+      <!-- Soft sky peeking through canopy gaps -->
+      <div class="sky-peek" aria-hidden="true"></div>
 
-      <!-- Dense meadow: grass tiles + layered flowers (smaller = farther) -->
-      <div class="field" id="field" aria-hidden="true"></div>
-      <div class="wild-layer far-blooms" id="farBlooms" aria-hidden="true"></div>
-      <div class="wild-layer mid-blooms" id="midBlooms" aria-hidden="true"></div>
-      <div class="wild-layer near-blooms" id="nearBlooms" aria-hidden="true"></div>
-
-      <!-- Frolicking dog -->
-      <div class="dog" id="dog" aria-hidden="true" title="good dog">
-        <div class="dog-sprite"></div>
-      </div>
+      <!-- Full-frame pixel bush (leaves + dense same-colour blossoms) -->
+      <canvas id="bush" class="bush-canvas" aria-hidden="true"></canvas>
 
       <!-- Identity HUD -->
       <header class="hud">
-        <img class="avatar" src="./assets/photo.jpg" alt="Finlay" width="40" height="40" />
+        <img
+          class="avatar"
+          src="./assets/photo.jpg"
+          alt="Finlay"
+          width="40"
+          height="40"
+        />
         <div class="hud-text">
           <p class="name">FINLAY</p>
-          <p class="tip">HOVER FLOWERS · CLICK TO PLAY</p>
+          <p class="tip">HOVER A FLOWER · CLICK TO OPEN</p>
         </div>
       </header>
 
-      <!-- Project flowers (interactive) -->
+      <!-- A few larger blooms on the same bush = projects (same pink family) -->
       <nav class="boss-flowers" aria-label="Projects">
         <a
-          class="boss theme-tickforge"
+          class="boss"
           href="https://findalmkskindal.github.io/tickforge/explorer/"
           target="_blank"
           rel="noopener noreferrer"
-          data-name="TICKFORGE"
         >
           <span class="name-tag">TICKFORGE</span>
           <span class="boss-bloom" aria-hidden="true"></span>
@@ -68,11 +54,10 @@
         </a>
 
         <a
-          class="boss theme-vectorbot"
+          class="boss boss-mid"
           href="./demos/vectorbot.html"
           target="_blank"
           rel="noopener noreferrer"
-          data-name="VECTORBOT"
         >
           <span class="name-tag">VECTORBOT</span>
           <span class="boss-bloom" aria-hidden="true"></span>
@@ -80,11 +65,10 @@
         </a>
 
         <a
-          class="boss theme-macro"
+          class="boss boss-right"
           href="https://github.com/FiNdAlMkSkInDaL"
           target="_blank"
           rel="noopener noreferrer"
-          data-name="MACRO BIAS"
         >
           <span class="name-tag">MACRO BIAS</span>
           <span class="boss-bloom" aria-hidden="true"></span>
@@ -93,7 +77,10 @@
       </nav>
 
       <footer class="hud-foot">
-        <a href="https://github.com/FiNdAlMkSkInDaL" target="_blank" rel="noopener noreferrer"
+        <a
+          href="https://github.com/FiNdAlMkSkInDaL"
+          target="_blank"
+          rel="noopener noreferrer"
           >GITHUB</a
         >
       </footer>
@@ -101,81 +88,128 @@
 
     <script>
       (function () {
-        const field = document.getElementById("field");
-        const W = 56;
-        const H = 26;
-        const grass = ["#5cb85c", "#4caf50", "#66bb6a", "#43a047", "#7cb342", "#8bc34a", "#9ccc65"];
-        const petals = [
-          "#ff8a80", "#ff80ab", "#ea80fc", "#b388ff", "#82b1ff",
-          "#ffd180", "#ffff8d", "#ccff90", "#ffab91", "#f8bbd0",
-          "#80d8ff", "#a7ffeb", "#ffccbc", "#e1bee7", "#c5e1a5",
+        const canvas = document.getElementById("bush");
+        const ctx = canvas.getContext("2d");
+
+        // Same-colour blossom palette (pink family, slight shade variance)
+        const PINK = [
+          "#ff8fab",
+          "#ff6b8a",
+          "#ffb3c6",
+          "#ff99b0",
+          "#f472b6",
+          "#fda4af",
+          "#fb7185",
         ];
+        const LEAF = [
+          "#1b4332",
+          "#2d6a4f",
+          "#40916c",
+          "#52b788",
+          "#166534",
+          "#14532d",
+          "#15803d",
+        ];
+        const BARK = ["#3f2a1e", "#5c3d2e", "#4a3224", "#6b4423"];
 
-        // Grass base (every tile) + many on-tile flowers
-        const frag = document.createDocumentFragment();
-        for (let y = 0; y < H; y++) {
-          // y=0 is far (horizon), y=H-1 is near
-          const depth = y / (H - 1); // 0 far → 1 near
-          const flowerChance = 0.22 + depth * 0.55; // denser nearby
-          const scale = 0.35 + depth * 0.95; // smaller when farther
-          for (let x = 0; x < W; x++) {
-            const cell = document.createElement("div");
-            cell.className = "tile grass";
-            cell.style.setProperty("--gc", grass[(x * 3 + y * 5) % grass.length]);
-            if (Math.random() < 0.5) cell.classList.add("tall");
-            if (Math.random() < flowerChance) {
-              cell.classList.add("flower");
-              cell.style.setProperty("--fc", petals[(x * 7 + y * 11) % petals.length]);
-              cell.style.setProperty("--fs", scale.toFixed(3));
+        function resize() {
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          // Low-res pixel buffer scaled up
+          const w = Math.ceil(window.innerWidth / 4);
+          const h = Math.ceil(window.innerHeight / 4);
+          canvas.width = w;
+          canvas.height = h;
+          canvas.style.width = window.innerWidth + "px";
+          canvas.style.height = window.innerHeight + "px";
+          paint(w, h);
+        }
+
+        function paint(w, h) {
+          // Deep foliage fill
+          ctx.fillStyle = "#14532d";
+          ctx.fillRect(0, 0, w, h);
+
+          // Branch structure (thick pixel trunks across frame)
+          for (let i = 0; i < 18; i++) {
+            const x0 = Math.floor((i / 18) * w + (Math.sin(i * 2.1) * w) / 20);
+            let x = x0;
+            let y = h;
+            ctx.fillStyle = BARK[i % BARK.length];
+            const steps = Math.floor(h * (0.55 + (i % 5) * 0.08));
+            for (let s = 0; s < steps; s++) {
+              const thick = 2 + ((i + s) % 3);
+              ctx.fillRect(x, y - s, thick, 2);
+              if (s % 7 === 0) x += (i % 2 === 0 ? 1 : -1) * ((s % 3) + 1);
+              // side twigs
+              if (s % 11 === 0) {
+                const dir = s % 22 === 0 ? 1 : -1;
+                for (let t = 0; t < 8; t++) {
+                  ctx.fillRect(x + dir * t, y - s - Math.floor(t / 2), 2, 2);
+                }
+              }
             }
-            cell.style.animationDelay = ((x + y) % 10) * 0.1 + "s";
-            frag.appendChild(cell);
+          }
+
+          // Leaf clusters — dense, whole frame
+          const leafCount = Math.floor((w * h) / 9);
+          for (let i = 0; i < leafCount; i++) {
+            const x = (i * 17 + (i * i) % 13) % w;
+            const y = (i * 31 + i * 3) % h;
+            // Prefer upper/mid canopy density but cover all
+            if (Math.random() > 0.92 && y > h * 0.85) continue;
+            ctx.fillStyle = LEAF[(x + y + i) % LEAF.length];
+            const s = 2 + ((x + y) % 3);
+            ctx.fillRect(x, y, s, s);
+            if ((i + y) % 4 === 0) ctx.fillRect(x + 1, y - 1, s, s);
+          }
+
+          // Blossoms — same colour family, denser toward center of bush
+          const bloomCount = Math.floor((w * h) / 14);
+          for (let i = 0; i < bloomCount; i++) {
+            // Cluster toward middle of frame (side-of-bush zoom)
+            const cx = w * 0.5 + (Math.random() - 0.5) * w * 0.95;
+            const cy = h * 0.48 + (Math.random() - 0.5) * h * 0.9;
+            const x = Math.floor(Math.max(1, Math.min(w - 4, cx)));
+            const y = Math.floor(Math.max(1, Math.min(h - 4, cy)));
+            // Depth: slightly smaller near edges / top (further into canopy)
+            const dist =
+              Math.hypot(x - w * 0.5, y - h * 0.55) /
+              (Math.hypot(w, h) * 0.5);
+            const depth = Math.min(1, dist);
+            const scale = depth > 0.75 ? 1 : depth > 0.45 ? 2 : 2 + (Math.random() > 0.6 ? 1 : 0);
+            // invert: closer to viewer (bottom-center) a bit larger
+            const near = y / h;
+            const r = near > 0.55 ? 2 + (scale > 1 ? 1 : 0) : near > 0.3 ? 2 : 1;
+
+            const pink = PINK[(i + x) % PINK.length];
+            drawPixelFlower(ctx, x, y, r, pink);
+          }
+
+          // Extra dense patch of same-colour blooms (bush volume)
+          for (let i = 0; i < Math.floor(w * 2.2); i++) {
+            const x = Math.floor(Math.random() * w);
+            const y = Math.floor(h * 0.15 + Math.random() * h * 0.7);
+            drawPixelFlower(ctx, x, y, 1 + (Math.random() > 0.7 ? 1 : 0), PINK[i % PINK.length]);
           }
         }
-        field.style.setProperty("--cols", W);
-        field.style.setProperty("--rows", H);
-        field.appendChild(frag);
 
-        // Extra free-floating bloom layers (more flowers, size by depth band)
-        function sprinkle(layerId, count, sizeMin, sizeMax, topMin, topMax, blur) {
-          const layer = document.getElementById(layerId);
-          const f = document.createDocumentFragment();
-          for (let i = 0; i < count; i++) {
-            const el = document.createElement("span");
-            el.className = "scatter-bloom";
-            const size = sizeMin + Math.random() * (sizeMax - sizeMin);
-            el.style.width = size + "px";
-            el.style.height = size + "px";
-            el.style.left = Math.random() * 100 + "%";
-            el.style.top = topMin + Math.random() * (topMax - topMin) + "%";
-            el.style.setProperty("--fc", petals[i % petals.length]);
-            el.style.setProperty("--blur", blur + "px");
-            el.style.animationDelay = (Math.random() * 2).toFixed(2) + "s";
-            el.style.opacity = (0.55 + Math.random() * 0.4).toFixed(2);
-            f.appendChild(el);
+        function drawPixelFlower(ctx, x, y, r, pink) {
+          // cross petals + yellow center
+          ctx.fillStyle = pink;
+          ctx.fillRect(x - r, y, r * 2 + 1, 1);
+          ctx.fillRect(x, y - r, 1, r * 2 + 1);
+          if (r >= 2) {
+            ctx.fillRect(x - r + 1, y - r + 1, 1, 1);
+            ctx.fillRect(x + r - 1, y - r + 1, 1, 1);
+            ctx.fillRect(x - r + 1, y + r - 1, 1, 1);
+            ctx.fillRect(x + r - 1, y + r - 1, 1, 1);
           }
-          layer.appendChild(f);
+          ctx.fillStyle = "#ffe566";
+          ctx.fillRect(x, y, 1, 1);
         }
-        // Far = tiny, mid = medium, near = larger (still smaller than boss flowers)
-        sprinkle("farBlooms", 90, 4, 8, 0, 100, 1.2);
-        sprinkle("midBlooms", 110, 7, 14, 0, 100, 0.6);
-        sprinkle("nearBlooms", 80, 11, 20, 0, 100, 0);
 
-        // Dog frolic
-        const dog = document.getElementById("dog");
-        let t = 0;
-        function hop() {
-          t += 0.016;
-          const x = 8 + ((t * 12) % 84);
-          const bounce = Math.abs(Math.sin(t * 6)) * 10;
-          const dir = Math.floor((t * 12) / 84) % 2 === 0 ? 1 : -1;
-          const px = dir === 1 ? x : 92 - x;
-          dog.style.left = px + "%";
-          dog.style.bottom = 28 + bounce * 0.15 + "%";
-          dog.style.transform = "scaleX(" + (dir === 1 ? 1 : -1) + ")";
-          requestAnimationFrame(hop);
-        }
-        requestAnimationFrame(hop);
+        resize();
+        window.addEventListener("resize", resize);
       })();
     </script>
   </body>

@@ -1,20 +1,18 @@
-/* Pixel meadow — happy retro Pokemon / arcade vibes */
+/* Zoomed-in pixel bush — one plant, pink blossoms, big project blooms */
 
 :root {
-  --pixel: 4px;
-  --ink: #2b2140;
+  --ink: #1a1424;
   --cream: #fff8e7;
-  --sky1: #87ceeb;
-  --sky2: #b8e0f0;
-  --sky3: #fff3c4;
+  --pink: #ff8fab;
+  --pink2: #ff6b8a;
+  --pink3: #ffb3c6;
+  --center: #ffe566;
 }
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
 }
 
 html,
@@ -27,7 +25,7 @@ body {
 body {
   font-family: "Press Start 2P", monospace;
   color: var(--ink);
-  background: #5a9e4b;
+  background: #14532d;
 }
 
 .world {
@@ -37,308 +35,27 @@ body {
   overflow: hidden;
 }
 
-/* —— Sky —— */
-.sky {
+.sky-peek {
   position: absolute;
-  inset: 0 0 38% 0;
+  inset: 0;
   z-index: 0;
   background: linear-gradient(
-    180deg,
-    #6ec6f0 0%,
-    var(--sky1) 35%,
-    var(--sky2) 70%,
-    var(--sky3) 100%
+    165deg,
+    #7ec8e8 0%,
+    #a8d8ea 25%,
+    #c5e4c8 55%,
+    #14532d 100%
   );
 }
 
-/* Blocky sun */
-.sun {
+.bush-canvas {
   position: absolute;
-  top: 8%;
-  right: 12%;
-  width: 64px;
-  height: 64px;
-}
-
-.sun-core {
-  display: block;
-  width: 48px;
-  height: 48px;
-  margin: 8px;
-  background: #ffe566;
-  box-shadow:
-    0 0 0 4px #ffcc33,
-    0 0 0 8px #ffaa00,
-    0 0 24px 8px rgba(255, 200, 50, 0.55);
-  animation: sun-pulse 2.5s steps(2, end) infinite;
-}
-
-.ray {
-  position: absolute;
-  background: #ffcc33;
-  box-shadow: 0 0 0 2px #ff9900;
-}
-
-.ray.r1 {
-  width: 8px;
-  height: 16px;
-  top: -12px;
-  left: 28px;
-}
-.ray.r2 {
-  width: 8px;
-  height: 16px;
-  bottom: -12px;
-  left: 28px;
-}
-.ray.r3 {
-  width: 16px;
-  height: 8px;
-  left: -12px;
-  top: 28px;
-}
-.ray.r4 {
-  width: 16px;
-  height: 8px;
-  right: -12px;
-  top: 28px;
-}
-
-@keyframes sun-pulse {
-  0%,
-  100% {
-    filter: brightness(1);
-  }
-  50% {
-    filter: brightness(1.15);
-  }
-}
-
-/* Pixel clouds */
-.cloud {
-  position: absolute;
-  background: #fff;
-  box-shadow:
-    12px 0 0 #fff,
-    24px 0 0 #fff,
-    6px -8px 0 #fff,
-    18px -8px 0 #fff,
-    0 0 0 2px #e8f4ff;
-  height: 12px;
-  width: 12px;
-  opacity: 0.95;
-  animation: cloud-drift 40s linear infinite;
-}
-
-.c1 {
-  top: 14%;
-  left: -10%;
-  animation-duration: 48s;
-}
-.c2 {
-  top: 22%;
-  left: 30%;
-  animation-duration: 56s;
-  animation-delay: -12s;
-  transform: scale(1.3);
-}
-.c3 {
-  top: 12%;
-  left: 60%;
-  animation-duration: 52s;
-  animation-delay: -25s;
-}
-
-@keyframes cloud-drift {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(120vw);
-  }
-}
-
-/* —— Dense pixel field —— */
-.field {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 58%;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(var(--cols, 48), 1fr);
-  grid-template-rows: repeat(var(--rows, 22), 1fr);
-  background: #5cb85c;
-  border-top: 4px solid #8fd18f;
-  box-shadow: inset 0 8px 0 rgba(255, 255, 255, 0.12);
-}
-
-.tile {
+  inset: 0;
+  z-index: 1;
   width: 100%;
   height: 100%;
-  min-height: 8px;
-  position: relative;
-}
-
-.tile.grass {
-  background: var(--gc, #5cb85c);
-}
-
-/* pixel blade */
-.tile.grass::before {
-  content: "";
-  position: absolute;
-  bottom: 10%;
-  left: 35%;
-  width: 20%;
-  height: 45%;
-  background: var(--gc, #4caf50);
-  box-shadow: 2px -2px 0 rgba(255, 255, 255, 0.15);
-  opacity: 0.85;
-}
-
-.tile.grass.tall::before {
-  height: 70%;
-  left: 40%;
-}
-
-.tile.flower {
-  background: var(--gc, #66bb6a);
-}
-
-/* Flower size scales with depth: --fs ~0.35 (far) → ~1.3 (near) */
-.tile.flower::before {
-  content: "";
-  position: absolute;
-  bottom: 22%;
-  left: 50%;
-  width: calc(5px * var(--fs, 1));
-  height: calc(5px * var(--fs, 1));
-  margin-left: calc(-2.5px * var(--fs, 1));
-  background: var(--fc, #ff8a80);
-  box-shadow:
-    calc(-3px * var(--fs, 1)) 0 0 var(--fc, #ff8a80),
-    calc(3px * var(--fs, 1)) 0 0 var(--fc, #ff8a80),
-    0 calc(-3px * var(--fs, 1)) 0 var(--fc, #ff8a80),
-    0 calc(3px * var(--fs, 1)) 0 var(--fc, #ff8a80),
-    0 0 0 calc(1.5px * var(--fs, 1)) #ffeb3b;
-  animation: bob 1.2s steps(2, end) infinite;
-  animation-delay: inherit;
-  transform-origin: center bottom;
-}
-
-.tile.flower::after {
-  content: "";
-  position: absolute;
-  bottom: 6%;
-  left: 50%;
-  width: max(1px, calc(1.5px * var(--fs, 1)));
-  height: calc(18% * var(--fs, 1) + 10%);
-  margin-left: calc(-0.75px * var(--fs, 1));
-  background: #2e7d32;
-}
-
-/* Extra free-floating blooms (scattered layers) */
-.wild-layer {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.far-blooms {
-  height: 58%;
-  z-index: 2;
-  opacity: 0.75;
-}
-
-.mid-blooms {
-  height: 50%;
-  z-index: 3;
-}
-
-.near-blooms {
-  height: 42%;
-  z-index: 4;
-}
-
-.scatter-bloom {
-  position: absolute;
-  border-radius: 1px;
-  background: var(--fc, #ff8a80);
-  filter: blur(var(--blur, 0px));
-  box-shadow:
-    -3px 0 0 var(--fc, #ff8a80),
-    3px 0 0 var(--fc, #ff8a80),
-    0 -3px 0 var(--fc, #ff8a80),
-    0 3px 0 var(--fc, #ff8a80),
-    0 0 0 1px #ffe566;
-  animation: bob 1.4s steps(2, end) infinite;
   image-rendering: pixelated;
-}
-
-@keyframes bob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-2px);
-  }
-}
-
-/* —— Dog (pixel sprite via box-shadow) —— */
-.dog {
-  position: absolute;
-  bottom: 30%;
-  left: 10%;
-  z-index: 5;
-  width: 40px;
-  height: 28px;
-  pointer-events: none;
-  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.15));
-}
-
-.dog-sprite {
-  width: 8px;
-  height: 8px;
-  background: #c47a3a;
-  box-shadow:
-    /* body */
-    8px 0 0 #d4894a,
-    16px 0 0 #c47a3a,
-    24px 0 0 #d4894a,
-    0 8px 0 #c47a3a,
-    8px 8px 0 #e8a060,
-    16px 8px 0 #d4894a,
-    24px 8px 0 #c47a3a,
-    /* head */
-    28px -4px 0 #e8a060,
-    36px -4px 0 #d4894a,
-    28px 4px 0 #e8a060,
-    36px 4px 0 #fff,
-    /* ear */
-    28px -12px 0 #a05a28,
-    /* legs */
-    4px 16px 0 #8b5a2b,
-    20px 16px 0 #8b5a2b,
-    /* tail */
-    -4px 0 0 #d4894a,
-    /* nose */
-    40px 0 0 #2b2140;
-  animation: dog-legs 0.3s steps(2, end) infinite;
-}
-
-@keyframes dog-legs {
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(1px);
-  }
+  image-rendering: crisp-edges;
 }
 
 /* —— HUD —— */
@@ -354,7 +71,7 @@ body {
   padding: 8px 12px 8px 8px;
   background: var(--cream);
   border: 4px solid var(--ink);
-  box-shadow: 4px 4px 0 rgba(43, 33, 64, 0.35);
+  box-shadow: 4px 4px 0 rgba(26, 20, 36, 0.35);
   max-width: calc(100% - 24px);
 }
 
@@ -363,7 +80,7 @@ body {
   height: 40px;
   object-fit: cover;
   border: 3px solid var(--ink);
-  image-rendering: auto; /* photo stays smooth */
+  image-rendering: auto;
   display: block;
   background: #ffcce0;
 }
@@ -371,7 +88,6 @@ body {
 .hud-text .name {
   margin: 0 0 4px;
   font-size: 11px;
-  letter-spacing: 0.04em;
   color: var(--ink);
 }
 
@@ -404,7 +120,7 @@ body {
   background: #5c4a7a;
 }
 
-/* —— Boss (project) flowers —— */
+/* —— Project blooms on the bush (same pink family) —— */
 .boss-flowers {
   position: absolute;
   inset: 0;
@@ -414,9 +130,10 @@ body {
 
 .boss {
   position: absolute;
-  bottom: 22%;
-  width: 72px;
-  height: 120px;
+  bottom: 28%;
+  left: 18%;
+  width: 80px;
+  height: 130px;
   pointer-events: auto;
   text-decoration: none;
   display: flex;
@@ -427,137 +144,66 @@ body {
   outline: none;
 }
 
-/*
- * Project-themed blooms (abstracted colour schemes):
- * TickForge  → terminal cyan / void navy / violet (matching engine glow)
- * VectorBot  → latent purple / hot magenta / electric cyan (neural space)
- * Macro Bias → chart gold / bull green / bear red / ink (markets)
- */
-.boss.theme-tickforge {
-  left: 16%;
-  --p: #22d3ee;
-  --p2: #67e8f9;
-  --c: #0a0e14;
-  --g: rgba(34, 211, 238, 0.85);
-  --stem: #164e63;
-  --stem2: #22d3ee;
-  --tag-bg: #0a0e14;
-  --tag-fg: #22d3ee;
-  --tag-bd: #22d3ee;
-}
-
-.boss.theme-vectorbot {
+.boss-mid {
   left: 50%;
   transform: translateX(-50%);
-  bottom: 24%;
-  height: 140px;
-  width: 80px;
-  --p: #c026d3;
-  --p2: #e879f9;
-  --c: #22d3ee;
-  --g: rgba(232, 121, 249, 0.9);
-  --stem: #4a044e;
-  --stem2: #a78bfa;
-  --tag-bg: #1e1b4b;
-  --tag-fg: #e879f9;
-  --tag-bd: #22d3ee;
+  bottom: 32%;
+  height: 150px;
+  width: 90px;
   z-index: 2;
 }
 
-.boss.theme-macro {
-  right: 14%;
+.boss-right {
   left: auto;
-  --p: #fbbf24;
-  --p2: #fde68a;
-  --c: #dc2626;
-  --g: rgba(251, 191, 36, 0.9);
-  --stem: #14532d;
-  --stem2: #22c55e;
-  --tag-bg: #1c1917;
-  --tag-fg: #fbbf24;
-  --tag-bd: #22c55e;
+  right: 16%;
+  bottom: 26%;
+  height: 125px;
 }
 
 .boss-stem {
   width: 8px;
-  height: 48%;
-  background: var(--stem, #2e7d32);
-  border: 2px solid #0f172a;
-  box-shadow: 2px 0 0 var(--stem2, #81c784);
+  height: 42%;
+  background: #166534;
+  border: 2px solid #052e16;
+  box-shadow: 2px 0 0 #4ade80;
   z-index: 0;
 }
 
+/* Same pink as bush blossoms, larger & clearer */
 .boss-bloom {
   position: absolute;
-  bottom: 42%;
-  width: 56px;
-  height: 56px;
-  background: var(--p);
+  bottom: 40%;
+  width: 60px;
+  height: 60px;
+  background: var(--pink2);
   box-shadow:
-    0 -16px 0 var(--p2),
-    0 16px 0 var(--p2),
-    -16px 0 0 var(--p2),
-    16px 0 0 var(--p2),
-    -12px -12px 0 var(--p),
-    12px -12px 0 var(--p),
-    -12px 12px 0 var(--p),
-    12px 12px 0 var(--p),
-    0 0 0 4px var(--c),
-    0 0 0 8px transparent;
+    0 -18px 0 var(--pink3),
+    0 18px 0 var(--pink3),
+    -18px 0 0 var(--pink3),
+    18px 0 0 var(--pink3),
+    -14px -14px 0 var(--pink),
+    14px -14px 0 var(--pink),
+    -14px 14px 0 var(--pink),
+    14px 14px 0 var(--pink),
+    0 0 0 4px var(--center);
   z-index: 2;
-  transition: none;
   image-rendering: pixelated;
 }
 
-.boss.theme-vectorbot .boss-bloom {
-  width: 64px;
-  height: 64px;
-  bottom: 44%;
-}
-
-/* TickForge: extra “terminal ring” */
-.boss.theme-tickforge .boss-bloom {
+.boss-mid .boss-bloom {
+  width: 72px;
+  height: 72px;
+  bottom: 42%;
   box-shadow:
-    0 -16px 0 var(--p2),
-    0 16px 0 var(--p2),
-    -16px 0 0 var(--p2),
-    16px 0 0 var(--p2),
-    -12px -12px 0 var(--p),
-    12px -12px 0 var(--p),
-    -12px 12px 0 var(--p),
-    12px 12px 0 var(--p),
-    0 0 0 4px #0a0e14,
-    0 0 0 8px #22d3ee;
-}
-
-/* VectorBot: neon double core */
-.boss.theme-vectorbot .boss-bloom {
-  box-shadow:
-    0 -18px 0 var(--p2),
-    0 18px 0 var(--p2),
-    -18px 0 0 var(--p2),
-    18px 0 0 var(--p2),
-    -14px -14px 0 var(--p),
-    14px -14px 0 #22d3ee,
-    -14px 14px 0 #a78bfa,
-    14px 14px 0 var(--p),
-    0 0 0 4px #22d3ee,
-    0 0 0 8px #4c1d95;
-}
-
-/* Macro: gold petals + bull/bear center */
-.boss.theme-macro .boss-bloom {
-  box-shadow:
-    0 -16px 0 var(--p2),
-    0 16px 0 #22c55e,
-    -16px 0 0 var(--p2),
-    16px 0 0 #ef4444,
-    -12px -12px 0 var(--p),
-    12px -12px 0 var(--p),
-    -12px 12px 0 #22c55e,
-    12px 12px 0 #ef4444,
-    0 0 0 4px #1c1917,
-    0 0 0 8px #fbbf24;
+    0 -22px 0 var(--pink3),
+    0 22px 0 var(--pink3),
+    -22px 0 0 var(--pink3),
+    22px 0 0 var(--pink3),
+    -16px -16px 0 var(--pink),
+    16px -16px 0 var(--pink),
+    -16px 16px 0 var(--pink),
+    16px 16px 0 var(--pink),
+    0 0 0 5px var(--center);
 }
 
 .boss-bloom::after {
@@ -565,39 +211,24 @@ body {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 12px;
-  height: 12px;
-  margin: -6px 0 0 -6px;
-  background: var(--c);
-  box-shadow: 0 0 0 2px #0f172a;
-}
-
-.boss.theme-tickforge .boss-bloom::after {
-  background: #22d3ee;
-  box-shadow: 0 0 0 2px #0a0e14, 0 0 8px #22d3ee;
-}
-
-.boss.theme-vectorbot .boss-bloom::after {
-  background: #22d3ee;
-  box-shadow: 0 0 0 2px #e879f9, 0 0 10px #22d3ee;
-}
-
-.boss.theme-macro .boss-bloom::after {
-  background: #fbbf24;
-  box-shadow: 0 0 0 2px #dc2626, 0 0 0 4px #1c1917;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  background: var(--center);
+  box-shadow: 0 0 0 2px #eab308;
 }
 
 .name-tag {
   position: absolute;
-  bottom: calc(42% + 72px);
+  bottom: calc(40% + 78px);
   left: 50%;
   transform: translateX(-50%) translateY(6px);
   padding: 6px 8px;
-  background: var(--tag-bg, var(--cream));
-  border: 3px solid var(--tag-bd, var(--ink));
-  box-shadow: 3px 3px 0 rgba(43, 33, 64, 0.35);
+  background: var(--cream);
+  border: 3px solid var(--ink);
+  box-shadow: 3px 3px 0 rgba(26, 20, 36, 0.35);
   font-size: 8px;
-  color: var(--tag-fg, var(--ink));
+  color: var(--ink);
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
@@ -605,28 +236,44 @@ body {
   transition: opacity 0.05s steps(1);
 }
 
-.boss.theme-vectorbot .name-tag {
-  bottom: calc(44% + 80px);
+.boss-mid .name-tag {
+  bottom: calc(42% + 90px);
   font-size: 9px;
 }
 
-/* Hover: chunky glow outline + label */
 .boss:hover .boss-bloom,
 .boss:focus-visible .boss-bloom {
   box-shadow:
-    0 -16px 0 var(--p2),
-    0 16px 0 var(--p2),
-    -16px 0 0 var(--p2),
-    16px 0 0 var(--p2),
-    -12px -12px 0 var(--p),
-    12px -12px 0 var(--p),
-    -12px 12px 0 var(--p),
-    12px 12px 0 var(--p),
-    0 0 0 4px var(--c),
+    0 -18px 0 var(--pink3),
+    0 18px 0 var(--pink3),
+    -18px 0 0 var(--pink3),
+    18px 0 0 var(--pink3),
+    -14px -14px 0 var(--pink),
+    14px -14px 0 var(--pink),
+    -14px 14px 0 var(--pink),
+    14px 14px 0 var(--pink),
+    0 0 0 4px var(--center),
     0 0 0 8px #fff,
     0 0 0 12px var(--ink),
-    0 0 20px 4px var(--g);
-  animation: flower-pop 0.35s steps(2, end);
+    0 0 22px 6px rgba(255, 143, 171, 0.85);
+  transform: scale(1.1);
+}
+
+.boss-mid:hover .boss-bloom,
+.boss-mid:focus-visible .boss-bloom {
+  box-shadow:
+    0 -22px 0 var(--pink3),
+    0 22px 0 var(--pink3),
+    -22px 0 0 var(--pink3),
+    22px 0 0 var(--pink3),
+    -16px -16px 0 var(--pink),
+    16px -16px 0 var(--pink),
+    -16px 16px 0 var(--pink),
+    16px 16px 0 var(--pink),
+    0 0 0 5px var(--center),
+    0 0 0 9px #fff,
+    0 0 0 13px var(--ink),
+    0 0 26px 8px rgba(255, 143, 171, 0.9);
 }
 
 .boss:hover .name-tag,
@@ -635,69 +282,45 @@ body {
   transform: translateX(-50%) translateY(0);
 }
 
-.boss:hover .boss-stem,
-.boss:focus-visible .boss-stem {
-  filter: brightness(1.15);
-}
-
-@keyframes flower-pop {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.15);
-  }
-  100% {
-    transform: scale(1.08);
-  }
-}
-
-.boss:hover .boss-bloom,
-.boss:focus-visible .boss-bloom {
-  transform: scale(1.08);
-}
-
-/* Mobile */
 @media (max-width: 700px) {
   .hud-text .tip {
     font-size: 6px;
   }
 
-  .boss.theme-tickforge {
-    left: 2%;
-    bottom: 26%;
+  .boss {
+    left: 4%;
+    bottom: 30%;
+    height: 110px;
+    width: 70px;
   }
-  .boss.theme-vectorbot {
-    bottom: 28%;
+
+  .boss-mid {
+    bottom: 34%;
+    height: 125px;
   }
-  .boss.theme-macro {
-    right: 2%;
-    bottom: 26%;
+
+  .boss-right {
+    right: 4%;
+    bottom: 29%;
   }
 
   .boss-bloom {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
   }
-  .boss.theme-vectorbot .boss-bloom {
-    width: 52px;
-    height: 52px;
+
+  .boss-mid .boss-bloom {
+    width: 56px;
+    height: 56px;
   }
 
   .name-tag {
     font-size: 7px;
   }
-
-  .field {
-    height: 55%;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cloud,
-  .sun-core,
-  .tile.flower::before,
-  .dog-sprite {
-    animation: none;
+  .boss-bloom {
+    transition: none;
   }
 }
