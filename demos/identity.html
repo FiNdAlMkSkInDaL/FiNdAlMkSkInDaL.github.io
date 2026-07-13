@@ -7,7 +7,7 @@
     <title>Identity · .me Protocol</title>
     <meta
       name="description"
-      content="Identity .me demo: local vault, scoped handshake to agents, and a capture safety gate."
+      content="Identity .me: sealed vault vs naive full dump, scoped handshake, safety gate, draft from allowed facts only."
     />
     <link rel="icon" href="./favicon-identity.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -20,7 +20,6 @@
       :root {
         --bg: #07070c;
         --panel: rgba(16, 16, 24, 0.94);
-        --elev: #181824;
         --border: rgba(167, 139, 250, 0.16);
         --text: #f4f4f5;
         --muted: #a1a1aa;
@@ -30,16 +29,12 @@
         --mint: #34d399;
         --rose: #fb7185;
         --cyan: #22d3ee;
+        --amber: #fbbf24;
         --font: Inter, system-ui, sans-serif;
         --mono: "JetBrains Mono", ui-monospace, monospace;
       }
       *, *::before, *::after { box-sizing: border-box; }
-      html, body {
-        height: 100%;
-        height: 100dvh;
-        margin: 0;
-        overflow: hidden;
-      }
+      html, body { height: 100%; height: 100dvh; margin: 0; overflow: hidden; }
       body {
         font-family: var(--font);
         color: var(--text);
@@ -64,11 +59,10 @@
         height: 100%;
         height: 100dvh;
         display: grid;
-        grid-template-rows: 48px minmax(0, 1fr) minmax(160px, 0.42fr);
+        grid-template-rows: 48px minmax(0, 1fr) minmax(148px, 0.34fr);
         overflow: hidden;
       }
 
-      /* Top bar */
       .top {
         display: flex;
         align-items: center;
@@ -79,56 +73,30 @@
         backdrop-filter: blur(10px);
         gap: 0.75rem;
       }
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 0.55rem;
-        min-width: 0;
-      }
+      .brand { display: flex; align-items: center; gap: 0.55rem; min-width: 0; }
       .mark {
-        width: 28px;
-        height: 28px;
-        border-radius: 7px;
-        display: grid;
-        place-items: center;
-        font-family: var(--mono);
-        font-size: 0.62rem;
-        font-weight: 700;
+        width: 28px; height: 28px; border-radius: 7px;
+        display: grid; place-items: center;
+        font-family: var(--mono); font-size: 0.62rem; font-weight: 700;
         color: #0a0a12;
         background: linear-gradient(135deg, #a78bfa, #22d3ee);
         flex-shrink: 0;
       }
-      .brand h1 {
-        margin: 0;
-        font-size: 0.85rem;
-        font-weight: 600;
-        white-space: nowrap;
-      }
+      .brand h1 { margin: 0; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
       .brand p {
-        margin: 0;
-        font-size: 0.62rem;
-        color: var(--muted);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        margin: 0; font-size: 0.62rem; color: var(--muted);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       }
-      .top-links {
-        display: flex;
-        gap: 0.65rem;
-        flex-shrink: 0;
-      }
+      .top-links { display: flex; gap: 0.65rem; flex-shrink: 0; }
       .top-links a {
-        font-family: var(--mono);
-        font-size: 0.72rem;
-        color: var(--mute2);
-        text-decoration: none;
+        font-family: var(--mono); font-size: 0.72rem;
+        color: var(--mute2); text-decoration: none;
       }
       .top-links a:hover { color: var(--violet2); }
 
-      /* Stage */
       .stage {
         display: grid;
-        grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.15fr) minmax(0, 1.05fr);
+        grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.05fr) minmax(0, 1.25fr);
         gap: 0.55rem;
         padding: 0.55rem 0.55rem 0.35rem;
         min-height: 0;
@@ -136,8 +104,8 @@
       }
       @media (max-width: 980px) {
         .app { grid-template-rows: 48px minmax(0, 1fr); overflow: auto; }
-        .stage { grid-template-columns: 1fr; overflow: visible; height: auto; }
-        .gate-row { min-height: 220px; }
+        .stage { grid-template-columns: 1fr; height: auto; overflow: visible; }
+        .gate-row { min-height: 200px; }
       }
 
       .panel {
@@ -168,7 +136,7 @@
       }
       .panel-h .hint {
         font-family: var(--mono);
-        font-size: 0.6rem;
+        font-size: 0.58rem;
         color: var(--mute2);
       }
       .panel-body {
@@ -177,39 +145,30 @@
         overflow: auto;
         display: flex;
         flex-direction: column;
-        gap: 0.55rem;
+        gap: 0.5rem;
       }
 
-      .mono { font-family: var(--mono); font-feature-settings: "tnum"; }
-
-      /* Task column */
       .prompt {
         width: 100%;
-        min-height: 88px;
+        min-height: 72px;
         resize: vertical;
         background: rgba(0, 0, 0, 0.28);
         border: 1px solid var(--border);
         border-radius: 8px;
         color: var(--text);
         font: inherit;
-        font-size: 0.85rem;
-        padding: 0.6rem 0.7rem;
+        font-size: 0.84rem;
+        padding: 0.55rem 0.65rem;
         line-height: 1.4;
       }
-      .prompt:focus {
-        outline: none;
-        border-color: rgba(167, 139, 250, 0.45);
-      }
-      .presets {
-        display: flex;
-        flex-direction: column;
-        gap: 0.3rem;
-      }
+      .prompt:focus { outline: none; border-color: rgba(167, 139, 250, 0.45); }
+
+      .presets { display: flex; flex-direction: column; gap: 0.28rem; }
       .preset {
         text-align: left;
         font: inherit;
-        font-size: 0.78rem;
-        padding: 0.45rem 0.55rem;
+        font-size: 0.76rem;
+        padding: 0.42rem 0.5rem;
         border-radius: 8px;
         border: 1px solid transparent;
         background: rgba(0, 0, 0, 0.22);
@@ -222,9 +181,10 @@
         background: rgba(167, 139, 250, 0.1);
         color: var(--text);
       }
+
       .actions {
         display: grid;
-        grid-template-columns: 1.2fr 1fr;
+        grid-template-columns: 1.25fr 1fr;
         gap: 0.4rem;
         margin-top: auto;
       }
@@ -251,7 +211,7 @@
         align-items: center;
         gap: 0.5rem;
         font-family: var(--mono);
-        font-size: 0.68rem;
+        font-size: 0.66rem;
         color: var(--mute2);
       }
       .budget-bar {
@@ -274,83 +234,141 @@
       .vault-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 0.78rem;
+        font-size: 0.76rem;
       }
       .vault-table th {
         text-align: left;
         font-family: var(--mono);
-        font-size: 0.6rem;
+        font-size: 0.58rem;
         letter-spacing: 0.06em;
         text-transform: uppercase;
         color: var(--mute2);
-        padding: 0.25rem 0.4rem 0.45rem;
+        padding: 0.2rem 0.35rem 0.4rem;
         border-bottom: 1px solid var(--border);
       }
       .vault-table td {
-        padding: 0.45rem 0.4rem;
+        padding: 0.4rem 0.35rem;
         border-bottom: 1px solid rgba(167, 139, 250, 0.06);
         vertical-align: top;
       }
       .vault-table tr.locked td { color: var(--mute2); }
       .vault-table tr.selected td {
         color: var(--text);
-        background: rgba(167, 139, 250, 0.08);
+        background: rgba(167, 139, 250, 0.09);
       }
+      .vault-table tr.sensitive td { color: #fda4af; }
       .dom {
         font-family: var(--mono);
-        font-size: 0.65rem;
+        font-size: 0.62rem;
         color: var(--violet2);
         white-space: nowrap;
       }
       .status {
         font-family: var(--mono);
-        font-size: 0.62rem;
+        font-size: 0.6rem;
         white-space: nowrap;
       }
       .status.locked { color: var(--mute2); }
       .status.open { color: var(--mint); }
+      .status.leak { color: var(--rose); }
 
-      /* Agent column */
-      .agent {
-        flex: 1;
+      /* Compare column */
+      .compare {
+        display: grid;
+        grid-template-rows: 1fr 1fr;
+        gap: 0.45rem;
         min-height: 0;
-        background: rgba(0, 0, 0, 0.3);
-        border: 1px dashed rgba(34, 211, 238, 0.28);
-        border-radius: 10px;
-        padding: 0.7rem 0.75rem;
-        font-family: var(--mono);
-        font-size: 0.75rem;
-        line-height: 1.5;
-        color: var(--muted);
-        overflow: auto;
+        flex: 1;
       }
-      .agent .hdr {
-        color: var(--cyan);
-        font-size: 0.65rem;
+      .lane {
+        min-height: 0;
+        border-radius: 9px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.28);
+        padding: 0.55rem 0.6rem;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .lane.bad { border-color: rgba(251, 113, 133, 0.35); }
+      .lane.good { border-color: rgba(52, 211, 153, 0.35); }
+      .lane-h {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.35rem;
+        flex-shrink: 0;
+      }
+      .lane-h .title {
+        font-family: var(--mono);
+        font-size: 0.62rem;
         letter-spacing: 0.06em;
         text-transform: uppercase;
-        margin-bottom: 0.45rem;
       }
-      .agent.empty { color: var(--mute2); }
-      .agent .fact {
-        margin: 0.25rem 0;
-        color: var(--text);
+      .lane.bad .title { color: var(--rose); }
+      .lane.good .title { color: var(--mint); }
+      .lane-h .badge {
+        font-family: var(--mono);
+        font-size: 0.58rem;
+        padding: 0.15rem 0.4rem;
+        border-radius: 999px;
+        border: 1px solid;
+      }
+      .lane.bad .badge {
+        color: var(--rose);
+        border-color: rgba(251, 113, 133, 0.4);
+      }
+      .lane.good .badge {
+        color: var(--mint);
+        border-color: rgba(52, 211, 153, 0.4);
+      }
+      .lane-body {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        line-height: 1.45;
+        color: var(--muted);
+      }
+      .lane-body .line {
+        margin: 0.15rem 0;
         opacity: 0;
-        transform: translateY(6px);
-        transition: 0.35s ease;
+        transform: translateY(4px);
+        transition: 0.3s ease;
       }
-      .agent .fact.show {
-        opacity: 1;
-        transform: translateY(0);
-      }
-      .stream-note {
-        font-size: 0.72rem;
-        color: var(--mute2);
-        line-height: 1.4;
-        margin: 0;
-      }
+      .lane-body .line.show { opacity: 1; transform: none; }
+      .lane-body .line.danger { color: var(--rose); }
+      .lane-body .line.ok { color: var(--text); }
+      .lane-body .empty { color: var(--mute2); }
 
-      /* Safety gate row — kept style */
+      .draft {
+        border-top: 1px solid var(--border);
+        padding-top: 0.5rem;
+        margin-top: 0.15rem;
+        flex-shrink: 0;
+      }
+      .draft h3 {
+        margin: 0 0 0.3rem;
+        font-size: 0.62rem;
+        font-family: var(--mono);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--cyan);
+      }
+      .draft-box {
+        font-size: 0.76rem;
+        line-height: 1.45;
+        color: var(--muted);
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.5rem 0.55rem;
+        min-height: 4.2em;
+      }
+      .draft-box strong { color: var(--text); font-weight: 600; }
+
+      /* Gate */
       .gate-row {
         padding: 0 0.55rem 0.55rem;
         min-height: 0;
@@ -360,22 +378,28 @@
         background: var(--panel);
         border: 1px solid var(--border);
         border-radius: 10px;
-        padding: 0.7rem 0.8rem;
-        display: grid;
-        grid-template-columns: 1.15fr 1fr;
-        gap: 0.85rem;
+        padding: 0.65rem 0.8rem;
+        display: flex;
+        flex-direction: column;
         min-height: 0;
-      }
-      @media (max-width: 860px) {
-        .gate-panel { grid-template-columns: 1fr; }
+        gap: 0.4rem;
       }
       .gate-panel h2 {
-        margin: 0 0 0.45rem;
+        margin: 0;
         font-size: 0.68rem;
         font-weight: 600;
         letter-spacing: 0.08em;
         text-transform: uppercase;
         color: var(--mute2);
+      }
+      .gate-row-inner {
+        display: grid;
+        grid-template-columns: 1.4fr auto;
+        gap: 0.55rem;
+        align-items: start;
+      }
+      @media (max-width: 700px) {
+        .gate-row-inner { grid-template-columns: 1fr; }
       }
       .gate-input {
         width: 100%;
@@ -384,8 +408,8 @@
         border-radius: 8px;
         color: var(--text);
         font: inherit;
-        font-size: 0.85rem;
-        padding: 0.55rem 0.65rem;
+        font-size: 0.84rem;
+        padding: 0.5rem 0.6rem;
       }
       .gate-input:focus {
         outline: none;
@@ -394,13 +418,13 @@
       .samples {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.3rem;
-        margin: 0.4rem 0 0.5rem;
+        gap: 0.28rem;
+        margin-top: 0.35rem;
       }
       .sample {
         font: inherit;
-        font-size: 0.68rem;
-        padding: 0.28rem 0.45rem;
+        font-size: 0.66rem;
+        padding: 0.25rem 0.42rem;
         border-radius: 999px;
         border: 1px solid var(--border);
         background: rgba(0, 0, 0, 0.22);
@@ -414,13 +438,13 @@
       .pipeline {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.3rem;
-        margin: 0.45rem 0;
+        gap: 0.28rem;
+        align-content: flex-start;
       }
       .step {
         font-family: var(--mono);
         font-size: 0.62rem;
-        padding: 0.28rem 0.42rem;
+        padding: 0.28rem 0.4rem;
         border-radius: 6px;
         border: 1px solid var(--border);
         color: var(--mute2);
@@ -438,32 +462,25 @@
       }
       .gate-msg {
         font-family: var(--mono);
-        font-size: 0.72rem;
+        font-size: 0.7rem;
         color: var(--muted);
-        min-height: 1.2em;
-        margin: 0.35rem 0 0.5rem;
+        min-height: 1.1em;
       }
       .gate-msg.ok { color: var(--mint); }
       .gate-msg.bad { color: var(--rose); }
-      .gate-copy {
-        margin: 0;
-        font-size: 0.78rem;
-        color: var(--muted);
-        line-height: 1.45;
-      }
 
       .blurb {
         position: fixed;
         right: 12px;
         bottom: 12px;
         z-index: 30;
-        max-width: min(320px, calc(100vw - 24px));
-        padding: 0.65rem 0.75rem;
+        max-width: min(300px, calc(100vw - 24px));
+        padding: 0.6rem 0.7rem;
         border-radius: 10px;
         border: 1px solid var(--border);
         background: rgba(7, 7, 12, 0.95);
         color: var(--muted);
-        font-size: 0.68rem;
+        font-size: 0.66rem;
         line-height: 1.45;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
         pointer-events: none;
@@ -471,7 +488,7 @@
       .blurb strong {
         display: block;
         color: var(--text);
-        font-size: 0.72rem;
+        font-size: 0.7rem;
         margin-bottom: 0.2rem;
       }
     </style>
@@ -483,7 +500,7 @@
           <span class="mark">.me</span>
           <div>
             <h1>Identity</h1>
-            <p>local vault · scoped handshake · capture safety gate</p>
+            <p>sealed vault · scoped handshake · naive dump comparison · safety gate</p>
           </div>
         </div>
         <div class="top-links">
@@ -493,11 +510,10 @@
       </header>
 
       <main class="stage">
-        <!-- Task -->
         <section class="panel">
           <div class="panel-h">
             <h2>1 · Task</h2>
-            <span class="hint mono">what the agent is asked to do</span>
+            <span class="hint mono">ask the agent</span>
           </div>
           <div class="panel-body">
             <textarea class="prompt" id="prompt">Draft outreach to three founders in my tone from last week.</textarea>
@@ -513,11 +529,10 @@
           </div>
         </section>
 
-        <!-- Vault -->
         <section class="panel">
           <div class="panel-h">
             <h2>2 · Local .me vault</h2>
-            <span class="hint mono">stays sealed · only selected rows leave</span>
+            <span class="hint mono">what leaves vs stays sealed</span>
           </div>
           <div class="panel-body">
             <table class="vault-table">
@@ -533,55 +548,67 @@
           </div>
         </section>
 
-        <!-- Agent -->
         <section class="panel">
           <div class="panel-h">
-            <h2>3 · Agent session</h2>
-            <span class="hint mono">ephemeral · cleared on demand</span>
+            <h2>3 · What the agent receives</h2>
+            <span class="hint mono">naive dump vs Identity scope</span>
           </div>
           <div class="panel-body">
-            <p class="stream-note" id="streamNote">
-              Press <strong style="color:var(--violet2)">Run handshake</strong>. Ranked facts stream in; the rest of the vault stays locked.
-            </p>
-            <div class="agent empty" id="agent">
-              <div class="hdr">session memory</div>
-              empty
+            <div class="compare">
+              <div class="lane bad">
+                <div class="lane-h">
+                  <span class="title">Naive agent</span>
+                  <span class="badge">full dump</span>
+                </div>
+                <div class="lane-body" id="naiveBody">
+                  <div class="empty">Run handshake to compare.</div>
+                </div>
+              </div>
+              <div class="lane good">
+                <div class="lane-h">
+                  <span class="title">Identity .me</span>
+                  <span class="badge">scoped only</span>
+                </div>
+                <div class="lane-body" id="idBody">
+                  <div class="empty">Run handshake to compare.</div>
+                </div>
+              </div>
+            </div>
+            <div class="draft">
+              <h3>Draft produced from scoped facts only</h3>
+              <div class="draft-box" id="draftBox">
+                Waiting for handshake…
+              </div>
             </div>
           </div>
         </section>
       </main>
 
-      <!-- Safety gate (kept) -->
       <div class="gate-row">
         <div class="gate-panel">
-          <div>
-            <h2>Capture → safety gate → promote</h2>
-            <input class="gate-input" id="capture" placeholder="Paste a capture (try a fake API key)…" />
-            <div class="samples">
-              <button type="button" class="sample" data-t="Met with Acme founder; they liked the local-first pitch.">safe note</button>
-              <button type="button" class="sample" data-t="sk-live-51a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6">api key (reject)</button>
-              <button type="button" class="sample" data-t="Card 4111 1111 1111 1111 expires 09/28">card (reject)</button>
-              <button type="button" class="sample" data-t="Prefer short emails; no exclamation marks.">tone fact</button>
+          <h2>Capture → safety gate → promote</h2>
+          <div class="gate-row-inner">
+            <div>
+              <input class="gate-input" id="capture" placeholder="Paste a capture (try a fake API key)…" />
+              <div class="samples">
+                <button type="button" class="sample" data-t="Met with Acme founder; they liked the local-first pitch.">safe note</button>
+                <button type="button" class="sample" data-t="sk-live-51a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6">api key (reject)</button>
+                <button type="button" class="sample" data-t="Card 4111 1111 1111 1111 expires 09/28">card (reject)</button>
+                <button type="button" class="sample" data-t="Prefer short emails; no exclamation marks.">tone fact</button>
+              </div>
+              <div class="gate-msg" id="gateMsg"></div>
             </div>
-            <div class="pipeline" id="pipeline">
-              <span class="step" data-s="capture">capture</span>
-              <span class="step" data-s="size">size cap</span>
-              <span class="step" data-s="secret">secret scan</span>
-              <span class="step" data-s="lock">at-rest lock</span>
-              <span class="step" data-s="embed">embed</span>
-              <span class="step" data-s="graph">graph node</span>
+            <div>
+              <div class="pipeline" id="pipeline">
+                <span class="step" data-s="capture">capture</span>
+                <span class="step" data-s="size">size cap</span>
+                <span class="step" data-s="secret">secret scan</span>
+                <span class="step" data-s="lock">at-rest lock</span>
+                <span class="step" data-s="embed">embed</span>
+                <span class="step" data-s="graph">graph node</span>
+              </div>
+              <button class="btn primary" id="runGate" type="button" style="width:100%;margin-top:0.45rem">Run gate</button>
             </div>
-            <div class="gate-msg" id="gateMsg"></div>
-            <button class="btn primary" id="runGate" type="button" style="width:100%">Run gate</button>
-          </div>
-          <div>
-            <h2>Why the gate exists</h2>
-            <p class="gate-copy">
-              Every capture path hits one deterministic gate before persistence: size limits,
-              secret/credential/payment rejects, then at-rest protection and promote into local
-              memory. Agents never see raw captures that fail the gate — matching the real
-              <span class="mono">identityd</span> pipeline.
-            </p>
           </div>
         </div>
       </div>
@@ -589,23 +616,25 @@
 
     <aside class="blurb" aria-label="About Identity">
       <strong>What is this?</strong>
-      Identity keeps user context in a local encrypted <span class="mono">.me</span> vault.
-      Agents only receive a small ranked slice of facts for a task, then drop session state.
-      Captures are filtered by a safety gate before they can enter memory.
+      Identity keeps context in a local sealed vault. A naive agent gets everything
+      (including secrets). Identity only ships a ranked fact budget, then the agent
+      can still produce useful work — from allowed facts only.
     </aside>
 
     <script>
       const BUDGET = 5;
       const VAULT = [
-        { id: "n1", domain: "network", text: "Founder: Maya Chen · robotics hiring Q3" },
-        { id: "n2", domain: "network", text: "Founder: Omar R. · infra tooling, London" },
-        { id: "n3", domain: "network", text: "Founder: Priya S. · climate fintech" },
-        { id: "n4", domain: "tone", text: "Writing tone: short, dry, no hype adjectives" },
-        { id: "n5", domain: "tone", text: "Sign-off: Best, Finlay — never Thanks!!" },
-        { id: "n6", domain: "project", text: "Active: Identity .me protocol (Rust daemon)" },
-        { id: "n7", domain: "project", text: "Active: TickForge LOB / A–S demo" },
-        { id: "n8", domain: "window", text: "Foreground: VS Code · identityd/src" },
-        { id: "n9", domain: "prefs", text: "Prefer async email over calls" },
+        { id: "n1", domain: "network", text: "Founder: Maya Chen · robotics hiring Q3", sensitive: false },
+        { id: "n2", domain: "network", text: "Founder: Omar R. · infra tooling, London", sensitive: false },
+        { id: "n3", domain: "network", text: "Founder: Priya S. · climate fintech", sensitive: false },
+        { id: "n4", domain: "tone", text: "Writing tone: short, dry, no hype adjectives", sensitive: false },
+        { id: "n5", domain: "tone", text: "Sign-off: Best, Finlay — never Thanks!!", sensitive: false },
+        { id: "n6", domain: "project", text: "Active: Identity .me protocol (Rust daemon)", sensitive: false },
+        { id: "n7", domain: "project", text: "Active: TickForge LOB / A–S demo", sensitive: false },
+        { id: "n8", domain: "secret", text: "API key sk-live-DEMO-DO-NOT-SHARE-9f3a", sensitive: true },
+        { id: "n9", domain: "secret", text: "Home address: 14 Example St, London", sensitive: true },
+        { id: "n10", domain: "prefs", text: "Prefer async email over calls", sensitive: false },
+        { id: "n11", domain: "window", text: "Foreground: VS Code · identityd/src", sensitive: false },
       ];
 
       const PRESETS = [
@@ -614,8 +643,8 @@
           text: "Draft outreach to three founders in my tone from last week.",
         },
         {
-          label: "Summarise my projects",
-          text: "Summarise my active engineering projects for a recruiter intro.",
+          label: "Recruiter intro",
+          text: "Write a short recruiter intro about my active engineering projects.",
         },
         {
           label: "Who is in my network?",
@@ -631,18 +660,23 @@
         VAULT.forEach((n) => {
           const open = selected.includes(n.id);
           const tr = document.createElement("tr");
-          tr.className = open ? "selected" : "locked";
+          tr.className =
+            (open ? "selected" : "locked") + (n.sensitive ? " sensitive" : "");
+          let stateLabel = "sealed";
+          let stateCls = "locked";
+          if (open) {
+            stateLabel = "scoped out";
+            stateCls = "open";
+          }
           tr.innerHTML =
             '<td class="dom">' +
             n.domain +
-            "</td>" +
-            "<td>" +
+            "</td><td>" +
             n.text +
-            "</td>" +
-            '<td class="status ' +
-            (open ? "open" : "locked") +
+            '</td><td class="status ' +
+            stateCls +
             '">' +
-            (open ? "scoped out" : "sealed") +
+            stateLabel +
             "</td>";
           body.appendChild(tr);
         });
@@ -654,17 +688,18 @@
 
       function rankForTask(prompt) {
         const t = (prompt || "").toLowerCase();
-        const scores = VAULT.map((n) => {
-          let s = 0;
-          if (/founder|outreach|network|email/.test(t) && n.domain === "network") s += 3;
-          if (/tone|writing|outreach|email|intro/.test(t) && n.domain === "tone") s += 3;
-          if (/project|recruiter|engineering|code/.test(t) && n.domain === "project") s += 3;
-          if (/network|infra/.test(t) && n.domain === "network") s += 1;
-          if (n.domain === "prefs" && /email|outreach|async/.test(t)) s += 1.5;
-          if (n.domain === "window") s += 0.4;
-          s += Math.random() * 0.15;
-          return { n, s };
-        }).sort((a, b) => b.s - a.s);
+        const scores = VAULT.filter((n) => !n.sensitive)
+          .map((n) => {
+            let s = 0;
+            if (/founder|outreach|network|email|infra/.test(t) && n.domain === "network") s += 3.2;
+            if (/tone|writing|outreach|email|intro/.test(t) && n.domain === "tone") s += 3;
+            if (/project|recruiter|engineering|code|intro/.test(t) && n.domain === "project") s += 3.2;
+            if (n.domain === "prefs" && /email|outreach|async/.test(t)) s += 1.4;
+            if (n.domain === "window") s += 0.3;
+            s += Math.random() * 0.12;
+            return { n, s };
+          })
+          .sort((a, b) => b.s - a.s);
 
         const picked = [];
         const domains = new Set();
@@ -679,36 +714,100 @@
         return picked;
       }
 
+      function fillLane(el, lines, dangerSet) {
+        el.innerHTML = "";
+        if (!lines.length) {
+          el.innerHTML = '<div class="empty">empty</div>';
+          return;
+        }
+        lines.forEach((item, i) => {
+          const div = document.createElement("div");
+          const isDanger = dangerSet && dangerSet.has(item.id);
+          div.className = "line " + (isDanger ? "danger" : "ok");
+          div.textContent =
+            (isDanger ? "! " : "• ") +
+            "[" +
+            item.domain +
+            "] " +
+            item.text;
+          el.appendChild(div);
+          setTimeout(() => div.classList.add("show"), 60 + i * 70);
+        });
+      }
+
+      function buildDraft(picks, prompt) {
+        const t = (prompt || "").toLowerCase();
+        const founders = picks.filter((p) => p.domain === "network").map((p) => p.text.replace(/^Founder:\s*/i, ""));
+        const tone = picks.find((p) => p.domain === "tone");
+        const projects = picks.filter((p) => p.domain === "project").map((p) => p.text.replace(/^Active:\s*/i, ""));
+        const prefs = picks.find((p) => p.domain === "prefs");
+
+        if (/outreach|founder|network|email/.test(t) && founders.length) {
+          const who = founders.slice(0, 3).join("; ");
+          const toneBit = tone
+            ? " Tone: " + tone.text.replace(/^Writing tone:\s*/i, "").replace(/^Sign-off:\s*/i, "sign-off ") + "."
+            : "";
+          const prefBit = prefs ? " " + prefs.text + "." : "";
+          return (
+            "<strong>Subject:</strong> quick note<br/><br/>" +
+            "Hi — saw your work and wanted to connect. Relevant people from my network context: " +
+            who +
+            "." +
+            toneBit +
+            prefBit +
+            "<br/><br/><em>Generated only from the scoped Identity slice (secrets never included).</em>"
+          );
+        }
+
+        if (/recruiter|project|intro|engineering/.test(t) && projects.length) {
+          return (
+            "<strong>Intro draft:</strong><br/>" +
+            "I'm currently shipping " +
+            projects.join(" and ") +
+            ". Happy to walk through architecture, tradeoffs, and demos." +
+            (tone ? " (" + tone.text + ")" : "") +
+            "<br/><br/><em>Built from scoped project/tone facts only — home address and API keys never left the vault.</em>"
+          );
+        }
+
+        if (founders.length) {
+          return (
+            "<strong>Network note:</strong><br/>" +
+            founders.map((f) => "• " + f).join("<br/>") +
+            "<br/><br/><em>Scoped network facts only.</em>"
+          );
+        }
+
+        return (
+          "<strong>Scoped reply:</strong><br/>" +
+          picks.map((p) => "• " + p.text).join("<br/>") +
+          "<br/><br/><em>No secrets included.</em>"
+        );
+      }
+
       function handshake() {
         const prompt = document.getElementById("prompt").value;
         const picks = rankForTask(prompt);
         selected = picks.map((p) => p.id);
         renderVault();
 
-        const agent = document.getElementById("agent");
-        agent.classList.remove("empty");
-        agent.innerHTML = '<div class="hdr">session memory · scoped only</div>';
-        document.getElementById("streamNote").textContent =
-          "Vault stays sealed. Only the ranked slice below was allowed out.";
+        // Naive path dumps everything including secrets
+        const naive = VAULT.slice();
+        const danger = new Set(VAULT.filter((v) => v.sensitive).map((v) => v.id));
+        fillLane(document.getElementById("naiveBody"), naive, danger);
+        fillLane(document.getElementById("idBody"), picks, null);
 
-        picks.forEach((p, i) => {
-          const line = document.createElement("div");
-          line.className = "fact";
-          line.textContent = "• [" + p.domain + "] " + p.text;
-          agent.appendChild(line);
-          setTimeout(() => line.classList.add("show"), 90 + i * 140);
-        });
+        document.getElementById("draftBox").innerHTML = buildDraft(picks, prompt);
       }
 
       function clearAgent() {
         selected = [];
         renderVault();
-        const agent = document.getElementById("agent");
-        agent.classList.add("empty");
-        agent.innerHTML =
-          '<div class="hdr">session memory</div>empty — context dropped (stateless execution)';
-        document.getElementById("streamNote").textContent =
-          "Agent session cleared. Press Run handshake to scope a new slice.";
+        document.getElementById("naiveBody").innerHTML =
+          '<div class="empty">Run handshake to compare.</div>';
+        document.getElementById("idBody").innerHTML =
+          '<div class="empty">Run handshake to compare.</div>';
+        document.getElementById("draftBox").textContent = "Waiting for handshake…";
       }
 
       function secretScan(text) {
@@ -770,10 +869,19 @@
           i++;
           if (i >= order.length) {
             msg.className = "gate-msg ok";
-            msg.textContent = "accepted → locked → embedded → graph node (demo)";
+            msg.textContent = "accepted → locked → embedded → graph node";
+            // Promote safe capture into vault for demo usefulness
+            const id = "cap-" + Date.now();
+            VAULT.unshift({
+              id,
+              domain: "capture",
+              text: text.trim().slice(0, 120),
+              sensitive: false,
+            });
+            renderVault();
             return;
           }
-          setTimeout(tick, 200);
+          setTimeout(tick, 180);
         };
         tick();
       }
