@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-build="flowers-60-random">
+<html lang="en" data-build="critters-1">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -9,7 +9,7 @@
     />
     <title>Finlay · Pixel Bush</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css?v=flowers-60" />
+    <link rel="stylesheet" href="./styles.css?v=critters-1" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -22,15 +22,8 @@
       <div class="sky-peek" aria-hidden="true"></div>
       <canvas id="bush" class="bush-canvas" aria-hidden="true"></canvas>
 
-      <!-- Pixel snake (top-right) -->
-      <div class="snake" aria-hidden="true" title="sss">
-        <div class="snake-body"></div>
-        <div class="snake-head">
-          <span class="eye e1"></span>
-          <span class="eye e2"></span>
-          <span class="tongue"></span>
-        </div>
-      </div>
+      <!-- Critters: positions re-rolled on every refresh (see spawnCritters) -->
+      <div id="critters" class="critters" aria-hidden="true"></div>
 
       <header class="hud">
         <img
@@ -241,6 +234,114 @@
 
         resize();
         window.addEventListener("resize", resize);
+      })();
+
+      // —— Pixel critters: snake, ladybirds, ants ——
+      // Positions + facing re-randomised on every page load (like flowers).
+      (function spawnCritters() {
+        const host = document.getElementById("critters");
+        if (!host) return;
+
+        function rand(min, max) {
+          return min + Math.random() * (max - min);
+        }
+        function pick(arr) {
+          return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function place(el, opts) {
+          const left = rand(opts.leftMin, opts.leftMax);
+          const top = rand(opts.topMin, opts.topMax);
+          el.style.left = left.toFixed(1) + "%";
+          el.style.top = top.toFixed(1) + "%";
+          el.style.right = "auto";
+          el.style.bottom = "auto";
+          if (opts.flip) el.classList.add("flip");
+          if (opts.scale) el.style.setProperty("--s", String(opts.scale));
+          if (opts.delay) el.style.animationDelay = opts.delay + "s";
+          host.appendChild(el);
+        }
+
+        // Snake (1)
+        const snake = document.createElement("div");
+        snake.className = "snake critter";
+        snake.title = "sss";
+        snake.innerHTML =
+          '<div class="snake-body"></div>' +
+          '<div class="snake-head">' +
+          '<span class="eye e1"></span><span class="eye e2"></span>' +
+          '<span class="tongue"></span></div>';
+        place(snake, {
+          leftMin: 55,
+          leftMax: 88,
+          topMin: 6,
+          topMax: 28,
+          flip: Math.random() < 0.45,
+          scale: rand(0.85, 1.1),
+          delay: rand(0, 0.8),
+        });
+
+        // Ladybirds (2)
+        for (let i = 0; i < 2; i++) {
+          const bug = document.createElement("div");
+          bug.className = "ladybird critter";
+          bug.title = "ladybird";
+          bug.innerHTML =
+            '<span class="lb-shell"></span>' +
+            '<span class="lb-head"></span>' +
+            '<span class="lb-spot s1"></span>' +
+            '<span class="lb-spot s2"></span>' +
+            '<span class="lb-spot s3"></span>';
+          place(bug, {
+            leftMin: 8,
+            leftMax: 90,
+            topMin: 18,
+            topMax: 78,
+            flip: Math.random() < 0.5,
+            scale: rand(0.75, 1.15),
+            delay: rand(0, 1.2),
+          });
+        }
+
+        // Ants (4) — sometimes a little trail of 2 near each other
+        const antCount = 4;
+        for (let i = 0; i < antCount; i++) {
+          const ant = document.createElement("div");
+          ant.className = "ant critter";
+          ant.title = "ant";
+          ant.innerHTML =
+            '<span class="ant-body"></span>' +
+            '<span class="ant-head"></span>' +
+            '<span class="ant-leg l1"></span>' +
+            '<span class="ant-leg l2"></span>' +
+            '<span class="ant-leg l3"></span>';
+          // Cluster a couple so they look like a mini trail
+          let leftMin = 5,
+            leftMax = 92,
+            topMin = 25,
+            topMax = 85;
+          if (i === 1) {
+            // near first ant if it exists
+            const first = host.querySelector(".ant");
+            if (first) {
+              const fl = parseFloat(first.style.left);
+              const ft = parseFloat(first.style.top);
+              leftMin = Math.max(4, fl - 6);
+              leftMax = Math.min(94, fl + 6);
+              topMin = Math.max(20, ft - 5);
+              topMax = Math.min(88, ft + 5);
+            }
+          }
+          place(ant, {
+            leftMin,
+            leftMax,
+            topMin,
+            topMax,
+            flip: Math.random() < 0.5,
+            scale: rand(0.7, 1.05),
+            delay: rand(0, 1.5),
+          });
+        }
       })();
     </script>
   </body>

@@ -63,16 +63,32 @@ body {
   image-rendering: crisp-edges;
 }
 
-/* â€”â€” Cute pixel snake (top-right) â€”â€” */
-.snake {
+/* —— Critters (snake, ladybirds, ants) —— */
+.critters {
   position: absolute;
-  top: 11%;
-  right: 8%;
+  inset: 0;
   z-index: 8;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.critter {
+  position: absolute;
+  pointer-events: none;
+  image-rendering: pixelated;
+  filter: drop-shadow(1px 1px 0 rgba(0, 0, 0, 0.18));
+  transform: scale(var(--s, 1));
+  transform-origin: center center;
+}
+
+.critter.flip {
+  transform: scale(calc(var(--s, 1) * -1), var(--s, 1));
+}
+
+/* Snake */
+.snake {
   width: 72px;
   height: 48px;
-  pointer-events: none;
-  filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.2));
 }
 
 .snake-body {
@@ -83,16 +99,13 @@ body {
   height: 10px;
   background: #4ade80;
   box-shadow:
-    /* coiled body into bush */
     8px 2px 0 #22c55e,
     14px 6px 0 #4ade80,
     18px 12px 0 #16a34a,
     14px 18px 0 #22c55e,
     6px 20px 0 #4ade80,
     -2px 16px 0 #16a34a,
-    -6px 10px 0 #22c55e,
-    /* spots */
-    8px 2px 0 0 #166534;
+    -6px 10px 0 #22c55e;
 }
 
 .snake-head {
@@ -138,6 +151,108 @@ body {
   transform-origin: left center;
 }
 
+/* Ladybird */
+.ladybird {
+  width: 28px;
+  height: 22px;
+  animation: bug-wiggle 1.4s steps(2, end) infinite;
+}
+
+.ladybird .lb-shell {
+  position: absolute;
+  left: 6px;
+  top: 4px;
+  width: 18px;
+  height: 14px;
+  background: #ef4444;
+  border: 2px solid #7f1d1d;
+  box-shadow:
+    inset 8px 0 0 #dc2626,
+    inset 0 -3px 0 #b91c1c;
+}
+
+.ladybird .lb-head {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 8px;
+  height: 10px;
+  background: #1a1424;
+  box-shadow:
+    -3px 1px 0 #1a1424,
+    -3px 6px 0 #1a1424;
+}
+
+.ladybird .lb-spot {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #1a1424;
+  z-index: 1;
+}
+.ladybird .lb-spot.s1 {
+  left: 10px;
+  top: 7px;
+}
+.ladybird .lb-spot.s2 {
+  left: 17px;
+  top: 10px;
+}
+.ladybird .lb-spot.s3 {
+  left: 12px;
+  top: 13px;
+}
+
+/* Ant */
+.ant {
+  width: 26px;
+  height: 14px;
+  animation: ant-scurry 0.7s steps(2, end) infinite;
+}
+
+.ant .ant-body {
+  position: absolute;
+  left: 6px;
+  top: 4px;
+  width: 12px;
+  height: 6px;
+  background: #1a1424;
+  box-shadow:
+    10px 0 0 #292524,
+    -1px 1px 0 #44403c;
+}
+
+.ant .ant-head {
+  position: absolute;
+  left: 0;
+  top: 3px;
+  width: 6px;
+  height: 6px;
+  background: #1c1917;
+  box-shadow:
+    -3px -2px 0 #1c1917,
+    -3px 4px 0 #1c1917;
+}
+
+.ant .ant-leg {
+  position: absolute;
+  width: 2px;
+  height: 5px;
+  background: #1a1424;
+  top: 9px;
+}
+.ant .ant-leg.l1 {
+  left: 7px;
+  transform: rotate(25deg);
+}
+.ant .ant-leg.l2 {
+  left: 12px;
+}
+.ant .ant-leg.l3 {
+  left: 17px;
+  transform: rotate(-25deg);
+}
+
 @keyframes snake-bob {
   0%,
   100% {
@@ -155,6 +270,54 @@ body {
   }
   50% {
     transform: scaleX(1.35);
+  }
+}
+
+@keyframes bug-wiggle {
+  0%,
+  100% {
+    transform: scale(var(--s, 1)) translate(0, 0);
+  }
+  50% {
+    transform: scale(var(--s, 1)) translate(1px, -1px);
+  }
+}
+
+.ladybird.flip {
+  animation-name: bug-wiggle-flip;
+}
+
+@keyframes bug-wiggle-flip {
+  0%,
+  100% {
+    transform: scale(calc(var(--s, 1) * -1), var(--s, 1)) translate(0, 0);
+  }
+  50% {
+    transform: scale(calc(var(--s, 1) * -1), var(--s, 1)) translate(1px, -1px);
+  }
+}
+
+@keyframes ant-scurry {
+  0%,
+  100% {
+    transform: scale(var(--s, 1)) translateX(0);
+  }
+  50% {
+    transform: scale(var(--s, 1)) translateX(2px);
+  }
+}
+
+.ant.flip {
+  animation-name: ant-scurry-flip;
+}
+
+@keyframes ant-scurry-flip {
+  0%,
+  100% {
+    transform: scale(calc(var(--s, 1) * -1), var(--s, 1)) translateX(0);
+  }
+  50% {
+    transform: scale(calc(var(--s, 1) * -1), var(--s, 1)) translateX(2px);
   }
 }
 
@@ -527,17 +690,16 @@ body {
     font-size: 7px;
   }
 
-  .snake {
-    top: 14%;
-    right: 4%;
-    transform: scale(0.85);
-    transform-origin: top right;
+  .critter {
+    --s: 0.85;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .snake-head,
-  .snake-head .tongue {
+  .snake-head .tongue,
+  .ladybird,
+  .ant {
     animation: none;
   }
 }
