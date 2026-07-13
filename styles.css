@@ -1,4 +1,4 @@
-/* Pixel garden portfolio — garden-v3 */
+/* Pixel garden portfolio — garden-v4 */
 
 :root {
   --ink: #1a1424;
@@ -880,7 +880,10 @@ body.list-mode .hud {
   top: 46%;
 }
 
-/* Core bloom — petal ring via box-shadows (reads as flower, not square tile) */
+/*
+ * Shared bloom geometry (all five projects).
+ * Theme colours only — same petal ring, same stem, same scale.
+ */
 .boss-bloom {
   position: absolute;
   top: 42%;
@@ -893,132 +896,124 @@ body.list-mode .hud {
   z-index: 2;
   image-rendering: pixelated;
   transition: filter 0.1s steps(2);
-  /* base daisy-like ring */
   box-shadow:
-    0 -28px 0 6px var(--p2),
-    0 28px 0 6px var(--p2),
-    -28px 0 0 6px var(--p2),
-    28px 0 0 6px var(--p2),
-    -20px -20px 0 4px var(--p3),
-    20px -20px 0 4px var(--p3),
-    -20px 20px 0 4px var(--p3),
-    20px 20px 0 4px var(--p3),
+    /* primary petals (N/S/E/W) */
+    0 -28px 0 7px var(--p2),
+    0 28px 0 7px var(--p2),
+    -28px 0 0 7px var(--p2),
+    28px 0 0 7px var(--p2),
+    /* diagonal petals */
+    -20px -20px 0 5px var(--p3),
+    20px -20px 0 5px var(--p3),
+    -20px 20px 0 5px var(--p3),
+    20px 20px 0 5px var(--p3),
+    /* outer tips */
     0 -40px 0 2px var(--p),
     0 40px 0 2px var(--p),
     -40px 0 0 2px var(--p),
     40px 0 0 2px var(--p),
-    0 0 0 4px rgba(26, 20, 36, 0.65),
+    /* ink ring + glow */
+    0 0 0 4px rgba(26, 20, 36, 0.7),
     0 0 36px 12px var(--g);
 }
 
-/* TickForge: terminal diamond / hard edges */
+/* Subtle per-project accent only (same geometry) */
 .boss-bloom.shape-terminal {
-  width: 32px;
-  height: 32px;
   background: #0a0e14;
   box-shadow:
-    0 -26px 0 8px var(--p2),
-    0 26px 0 8px var(--p2),
-    -26px 0 0 8px var(--p2),
-    26px 0 0 8px var(--p2),
-    -18px -18px 0 4px var(--p),
-    18px -18px 0 4px var(--p),
-    -18px 18px 0 4px var(--p),
-    18px 18px 0 4px var(--p),
-    0 0 0 4px #22d3ee,
-    0 0 0 8px #0a0e14,
-    0 0 40px 14px var(--g);
+    0 -28px 0 7px var(--p2),
+    0 28px 0 7px var(--p2),
+    -28px 0 0 7px var(--p2),
+    28px 0 0 7px var(--p2),
+    -20px -20px 0 5px var(--p),
+    20px -20px 0 5px var(--p),
+    -20px 20px 0 5px var(--p),
+    20px 20px 0 5px var(--p),
+    0 -40px 0 2px #67e8f9,
+    0 40px 0 2px #67e8f9,
+    -40px 0 0 2px #22d3ee,
+    40px 0 0 2px #22d3ee,
+    0 0 0 4px #0a0e14,
+    0 0 0 7px #22d3ee,
+    0 0 36px 12px var(--g);
 }
 
-/* Polymarket: soft daisy */
 .boss-bloom.shape-daisy {
-  width: 34px;
-  height: 34px;
-  border-radius: 2px;
   background: #fef9c3;
   box-shadow:
-    0 -30px 0 8px var(--p2),
-    0 30px 0 8px var(--p3),
-    -30px 0 0 8px var(--p2),
-    30px 0 0 8px var(--p3),
-    -22px -22px 0 6px var(--p),
-    22px -22px 0 6px var(--p),
-    -22px 22px 0 6px #0ea5e9,
-    22px 22px 0 6px #34d399,
-    0 -44px 0 2px #7dd3fc,
-    0 44px 0 2px #7dd3fc,
-    -44px 0 0 2px #7dd3fc,
-    44px 0 0 2px #7dd3fc,
+    0 -28px 0 7px var(--p2),
+    0 28px 0 7px var(--p3),
+    -28px 0 0 7px var(--p2),
+    28px 0 0 7px var(--p3),
+    -20px -20px 0 5px var(--p),
+    20px -20px 0 5px var(--p),
+    -20px 20px 0 5px #0ea5e9,
+    20px 20px 0 5px #34d399,
+    0 -40px 0 2px var(--p2),
+    0 40px 0 2px var(--p2),
+    -40px 0 0 2px var(--p2),
+    40px 0 0 2px var(--p2),
     0 0 0 4px #0c4a6e,
     0 0 36px 12px var(--g);
 }
 
-/* Macro: star / bull-bear accents */
 .boss-bloom.shape-star {
-  width: 34px;
-  height: 34px;
   background: #fbbf24;
   box-shadow:
-    0 -30px 0 4px var(--p2),
-    0 30px 0 4px #22c55e,
-    -30px 0 0 4px var(--p2),
-    30px 0 0 4px #ef4444,
-    -14px -26px 0 2px var(--p),
-    14px -26px 0 2px var(--p),
-    -26px -14px 0 2px #22c55e,
-    26px -14px 0 2px #ef4444,
-    -26px 14px 0 2px #22c55e,
-    26px 14px 0 2px #ef4444,
-    -14px 26px 0 2px var(--p),
-    14px 26px 0 2px var(--p),
+    0 -28px 0 7px var(--p2),
+    0 28px 0 7px #22c55e,
+    -28px 0 0 7px var(--p2),
+    28px 0 0 7px #ef4444,
+    -20px -20px 0 5px var(--p),
+    20px -20px 0 5px var(--p),
+    -20px 20px 0 5px #22c55e,
+    20px 20px 0 5px #ef4444,
+    0 -40px 0 2px #fde68a,
+    0 40px 0 2px #fde68a,
+    -40px 0 0 2px #fbbf24,
+    40px 0 0 2px #fbbf24,
     0 0 0 4px #1c1917,
-    0 0 0 8px #fbbf24,
-    0 0 34px 12px var(--g);
+    0 0 0 7px #fbbf24,
+    0 0 36px 12px var(--g);
 }
 
-/* Identity: rose layered */
 .boss-bloom.shape-rose {
-  width: 38px;
-  height: 38px;
   background: #c4b5fd;
   box-shadow:
-    0 -24px 0 10px var(--p2),
-    0 24px 0 10px var(--p2),
-    -24px 0 0 10px var(--p3),
-    24px 0 0 10px var(--p3),
-    -16px -16px 0 6px var(--p),
-    16px -16px 0 6px var(--p),
-    -16px 16px 0 6px var(--p),
-    16px 16px 0 6px var(--p),
-    0 -36px 0 2px #ddd6fe,
-    0 36px 0 2px #ddd6fe,
-    -36px 0 0 2px #a5f3fc,
-    36px 0 0 2px #a5f3fc,
+    0 -28px 0 7px var(--p2),
+    0 28px 0 7px var(--p2),
+    -28px 0 0 7px var(--p3),
+    28px 0 0 7px var(--p3),
+    -20px -20px 0 5px var(--p),
+    20px -20px 0 5px var(--p),
+    -20px 20px 0 5px var(--p),
+    20px 20px 0 5px var(--p),
+    0 -40px 0 2px #ddd6fe,
+    0 40px 0 2px #ddd6fe,
+    -40px 0 0 2px #a5f3fc,
+    40px 0 0 2px #a5f3fc,
     0 0 0 4px #1e1b4b,
-    0 0 38px 12px var(--g);
+    0 0 36px 12px var(--g);
 }
 
-/* VectorBot: neon multi-core */
 .boss-bloom.shape-neon {
-  width: 40px;
-  height: 40px;
   background: #22d3ee;
   box-shadow:
-    0 -28px 0 8px var(--p2),
-    0 28px 0 8px var(--p2),
-    -28px 0 0 8px var(--p2),
-    28px 0 0 8px var(--p2),
-    -20px -20px 0 4px var(--p),
-    20px -20px 0 4px #22d3ee,
-    -20px 20px 0 4px #a78bfa,
-    20px 20px 0 4px var(--p),
-    0 -42px 0 2px #e879f9,
-    0 42px 0 2px #22d3ee,
-    -42px 0 0 2px #c026d3,
-    42px 0 0 2px #a78bfa,
+    0 -28px 0 7px var(--p2),
+    0 28px 0 7px var(--p2),
+    -28px 0 0 7px var(--p2),
+    28px 0 0 7px var(--p2),
+    -20px -20px 0 5px var(--p),
+    20px -20px 0 5px #22d3ee,
+    -20px 20px 0 5px #a78bfa,
+    20px 20px 0 5px var(--p),
+    0 -40px 0 2px #e879f9,
+    0 40px 0 2px #22d3ee,
+    -40px 0 0 2px #c026d3,
+    40px 0 0 2px #a78bfa,
     0 0 0 4px #4c1d95,
-    0 0 0 8px #22d3ee,
-    0 0 42px 14px var(--g);
+    0 0 0 7px #22d3ee,
+    0 0 36px 12px var(--g);
 }
 
 .boss-bloom::after {
@@ -1035,15 +1030,15 @@ body.list-mode .hud {
 
 .boss-bloom.shape-terminal::after {
   background: #22d3ee;
-  box-shadow: 0 0 0 2px #0a0e14, 0 0 10px #22d3ee;
+  box-shadow: 0 0 0 2px #0a0e14, 0 0 8px #22d3ee;
 }
 .boss-bloom.shape-neon::after {
   background: #e879f9;
-  box-shadow: 0 0 0 2px #22d3ee, 0 0 12px #e879f9;
+  box-shadow: 0 0 0 2px #22d3ee, 0 0 8px #e879f9;
 }
 .boss-bloom.shape-star::after {
   background: #fef08a;
-  box-shadow: 0 0 0 2px #dc2626, 0 0 0 4px #1c1917;
+  box-shadow: 0 0 0 2px #1c1917;
 }
 .boss-bloom.shape-daisy::after {
   background: #0c4a6e;
@@ -1051,7 +1046,7 @@ body.list-mode .hud {
 }
 .boss-bloom.shape-rose::after {
   background: #1e1b4b;
-  box-shadow: 0 0 0 2px #c4b5fd, 0 0 8px #a78bfa;
+  box-shadow: 0 0 0 2px #c4b5fd;
 }
 
 /* Rich tooltip */
@@ -1063,7 +1058,9 @@ body.list-mode .hud {
   padding: 10px 12px;
   background: var(--tag-bg);
   border: 3px solid var(--tag-bd);
-  box-shadow: 4px 4px 0 rgba(26, 20, 36, 0.35);
+  box-shadow:
+    4px 4px 0 rgba(63, 42, 30, 0.3),
+    0 0 0 2px rgba(34, 197, 94, 0.35);
   color: var(--tag-fg);
   white-space: normal;
   width: max-content;
@@ -1333,6 +1330,13 @@ body.list-mode .hud {
   animation: panel-in 0.2s ease;
 }
 
+/* About: ~2× footprint for premium breathing room */
+.modal-panel.about-panel {
+  width: min(920px, calc(100vw - 24px));
+  max-height: min(88vh, 720px);
+  padding: 28px 28px 26px;
+}
+
 .modal-panel h2 {
   margin: 0 0 14px;
   font-size: 12px;
@@ -1340,6 +1344,12 @@ body.list-mode .hud {
   color: var(--wood-deep);
   padding-bottom: 8px;
   border-bottom: 3px solid var(--leaf);
+}
+
+.about-panel h2 {
+  font-size: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
 }
 
 .modal-x {
@@ -1365,34 +1375,59 @@ body.list-mode .hud {
 
 .about-grid {
   display: flex;
-  gap: 14px;
+  gap: 28px;
   align-items: flex-start;
 }
 
 .about-photo {
-  width: 96px;
-  height: 96px;
+  width: 160px;
+  height: 160px;
   object-fit: cover;
-  border: 3px solid var(--ink);
+  border: 4px solid var(--wood-deep);
+  box-shadow:
+    4px 4px 0 rgba(63, 42, 30, 0.3),
+    0 0 0 3px var(--leaf);
   flex-shrink: 0;
+  image-rendering: auto;
+}
+
+.about-copy {
+  flex: 1;
+  min-width: 0;
+  padding-top: 4px;
 }
 
 .about-lead {
-  margin: 0 0 8px;
-  font-size: 10px;
+  margin: 0 0 14px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--wood-deep);
+  line-height: 1.5;
 }
 
+/* Strict pixel body — matches garden UI (no clean sans) */
 .about-grid p {
-  margin: 0 0 10px;
-  font-size: 8px;
-  line-height: 1.65;
-  font-family: system-ui, sans-serif;
-  font-weight: 500;
-  letter-spacing: 0.01em;
+  margin: 0 0 14px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+  line-height: 1.9;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+
+.about-grid p strong {
+  color: var(--leaf-deep);
+  font-weight: 400;
 }
 
 .about-soft {
-  color: #4b5563;
+  color: #5c4a3a !important;
+  font-size: 8px !important;
+  line-height: 1.85 !important;
+  margin-bottom: 0 !important;
+  padding-top: 8px;
+  border-top: 2px dashed rgba(63, 42, 30, 0.25);
 }
 
 .skill-cloud {
@@ -1413,10 +1448,11 @@ body.list-mode .hud {
 }
 
 .contact-blurb {
+  font-family: "Press Start 2P", monospace;
   font-size: 8px;
-  line-height: 1.5;
-  font-family: system-ui, sans-serif;
-  margin: 0 0 12px;
+  line-height: 1.8;
+  margin: 0 0 14px;
+  color: var(--ink);
 }
 
 .contact-list {
@@ -1646,6 +1682,39 @@ body.list-mode .hud {
 
   .about-grid {
     flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .modal-panel.about-panel {
+    width: min(100%, calc(100vw - 16px));
+    max-height: min(90vh, 720px);
+    padding: 20px 14px 16px;
+  }
+
+  .about-panel h2 {
+    font-size: 12px;
+    margin-bottom: 14px;
+    text-align: left;
+  }
+
+  .about-photo {
+    width: 112px;
+    height: 112px;
+  }
+
+  .about-lead {
+    font-size: 10px;
+  }
+
+  .about-grid p {
+    font-size: 8px;
+    line-height: 1.85;
+  }
+
+  .about-soft {
+    font-size: 7px !important;
   }
 
   .boss {
