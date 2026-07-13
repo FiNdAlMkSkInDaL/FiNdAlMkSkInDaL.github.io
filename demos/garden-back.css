@@ -1,0 +1,31 @@
+/* Fixed pixel "Back to Garden" — demos when opened standalone */
+.garden-back {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 9999;
+  font-family: "Press Start 2P", system-ui, monospace;
+  font-size: 8px;
+  line-height: 1.2;
+  color: #1a1424;
+  text-decoration: none;
+  background: #fff8e7;
+  border: 3px solid #1a1424;
+  padding: 10px 12px;
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  box-shadow: 3px 3px 0 rgba(26, 20, 36, 0.3);
+}
+.garden-back:hover,
+.garden-back:focus-visible {
+  background: #dcfce7;
+  outline: 3px solid #22d3ee;
+  outline-offset: 1px;
+}
+
+/* Hide when embedded in garden iframe */
+html.in-garden-frame .garden-back {
+  display: none;
+}

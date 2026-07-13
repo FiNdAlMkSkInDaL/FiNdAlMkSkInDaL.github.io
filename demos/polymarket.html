@@ -382,6 +382,15 @@
     </style>
   </head>
   <body>
+    <link rel="stylesheet" href="./garden-back.css" />
+    <a class="garden-back" href="../">← GARDEN</a>
+    <script>
+      try {
+        if (window.self !== window.top) document.documentElement.classList.add("in-garden-frame");
+      } catch (e) {
+        document.documentElement.classList.add("in-garden-frame");
+      }
+    </script>
     <div class="app">
       <header class="top">
         <div class="brand">
