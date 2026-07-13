@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-build="critters-1">
+<html lang="en" data-build="ladybirds-2">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -9,7 +9,7 @@
     />
     <title>Finlay · Pixel Bush</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css?v=critters-1" />
+    <link rel="stylesheet" href="./styles.css?v=ladybirds-2" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -281,65 +281,41 @@
           delay: rand(0, 0.8),
         });
 
-        // Ladybirds (2)
-        for (let i = 0; i < 2; i++) {
+        // Ladybirds (6) — mixed shell colours, short snout heads
+        const ladyPalettes = [
+          { shell: "#ef4444", shell2: "#dc2626", edge: "#7f1d1d" }, // classic red
+          { shell: "#f97316", shell2: "#ea580c", edge: "#9a3412" }, // orange
+          { shell: "#fbbf24", shell2: "#f59e0b", edge: "#92400e" }, // gold
+          { shell: "#e11d48", shell2: "#be123c", edge: "#881337" }, // rose
+          { shell: "#a855f7", shell2: "#9333ea", edge: "#581c87" }, // purple
+          { shell: "#22c55e", shell2: "#16a34a", edge: "#14532d" }, // green
+          { shell: "#38bdf8", shell2: "#0ea5e9", edge: "#0c4a6e" }, // sky
+          { shell: "#f472b6", shell2: "#ec4899", edge: "#9d174d" }, // pink
+        ];
+        for (let i = 0; i < 6; i++) {
+          const pal = pick(ladyPalettes);
           const bug = document.createElement("div");
           bug.className = "ladybird critter";
           bug.title = "ladybird";
+          bug.style.setProperty("--lb", pal.shell);
+          bug.style.setProperty("--lb2", pal.shell2);
+          bug.style.setProperty("--lb-edge", pal.edge);
           bug.innerHTML =
             '<span class="lb-shell"></span>' +
+            '<span class="lb-line"></span>' +
             '<span class="lb-head"></span>' +
             '<span class="lb-spot s1"></span>' +
             '<span class="lb-spot s2"></span>' +
-            '<span class="lb-spot s3"></span>';
+            '<span class="lb-spot s3"></span>' +
+            '<span class="lb-spot s4"></span>';
           place(bug, {
-            leftMin: 8,
-            leftMax: 90,
-            topMin: 18,
-            topMax: 78,
+            leftMin: 6,
+            leftMax: 92,
+            topMin: 14,
+            topMax: 82,
             flip: Math.random() < 0.5,
-            scale: rand(0.75, 1.15),
+            scale: rand(0.8, 1.2),
             delay: rand(0, 1.2),
-          });
-        }
-
-        // Ants (4) — sometimes a little trail of 2 near each other
-        const antCount = 4;
-        for (let i = 0; i < antCount; i++) {
-          const ant = document.createElement("div");
-          ant.className = "ant critter";
-          ant.title = "ant";
-          ant.innerHTML =
-            '<span class="ant-body"></span>' +
-            '<span class="ant-head"></span>' +
-            '<span class="ant-leg l1"></span>' +
-            '<span class="ant-leg l2"></span>' +
-            '<span class="ant-leg l3"></span>';
-          // Cluster a couple so they look like a mini trail
-          let leftMin = 5,
-            leftMax = 92,
-            topMin = 25,
-            topMax = 85;
-          if (i === 1) {
-            // near first ant if it exists
-            const first = host.querySelector(".ant");
-            if (first) {
-              const fl = parseFloat(first.style.left);
-              const ft = parseFloat(first.style.top);
-              leftMin = Math.max(4, fl - 6);
-              leftMax = Math.min(94, fl + 6);
-              topMin = Math.max(20, ft - 5);
-              topMax = Math.min(88, ft + 5);
-            }
-          }
-          place(ant, {
-            leftMin,
-            leftMax,
-            topMin,
-            topMax,
-            flip: Math.random() < 0.5,
-            scale: rand(0.7, 1.05),
-            delay: rand(0, 1.5),
           });
         }
       })();
