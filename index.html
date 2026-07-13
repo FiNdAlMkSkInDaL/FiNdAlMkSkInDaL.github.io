@@ -1,13 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
+﻿<!DOCTYPE html>
+<html lang="en" data-build="ceba0fd+">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Pixel bush portfolio — hover and click the flowers."
+      content="Pixel bush portfolio â€” hover and click the flowers."
     />
-    <title>Finlay · Pixel Bush</title>
+    <title>Finlay Â· Pixel Bush</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -42,12 +42,12 @@
         />
         <div class="hud-text">
           <p class="name">FINLAY</p>
-          <p class="tip">HOVER A FLOWER · CLICK TO OPEN</p>
+          <p class="tip">HOVER A FLOWER Â· CLICK TO OPEN</p>
         </div>
       </header>
 
       <nav class="boss-flowers" aria-label="Projects">
-        <!-- left ~60% up — TickForge: cyan terminal -->
+        <!-- left ~60% up â€” TickForge: cyan terminal -->
         <a
           class="boss b-left theme-tickforge"
           href="https://findalmkskindal.github.io/tickforge/explorer/"
@@ -56,7 +56,7 @@
         >
           <span class="name-tag">TICKFORGE</span>
           <span class="boss-bloom" aria-hidden="true"></span>
-          <!-- Pixel stair stem: left / up / left / up / right / up … -->
+          <!-- Pixel stair stem: left / up / left / up / right / up â€¦ -->
           <svg
             class="pixel-stem"
             viewBox="0 0 40 120"
@@ -100,7 +100,7 @@
           </svg>
         </a>
 
-        <!-- middle ~30% up — VectorBot: latent magenta/cyan -->
+        <!-- middle ~30% up â€” VectorBot: latent magenta/cyan -->
         <a
           class="boss b-mid theme-vectorbot"
           href="./demos/vectorbot.html"
@@ -150,7 +150,7 @@
           </svg>
         </a>
 
-        <!-- right ~80% up — Macro Bias: gold / bull-bear -->
+        <!-- right ~80% up â€” Macro Bias: gold / bull-bear -->
         <a
           class="boss b-right theme-macro"
           href="https://github.com/FiNdAlMkSkInDaL"
@@ -253,7 +253,7 @@
         }
 
         function paint(w, h) {
-          // Base gradient: light top → deep bottom
+          // Base gradient: light top â†’ deep bottom
           for (let y = 0; y < h; y++) {
             const t = y / h;
             const g = Math.floor(180 - t * 100);
@@ -282,7 +282,7 @@
             }
           }
 
-          // Dense leaves — NO pink flowers
+          // Dense leaves â€” NO pink flowers
           const leafCount = Math.floor((w * h) / 5.5);
           for (let i = 0; i < leafCount; i++) {
             const x = (i * 19 + (i * i) % 17) % w;
