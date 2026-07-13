@@ -1,18 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
-  <!-- Macro Bias: gold candle + bull/bear -->
-  <rect width="16" height="16" fill="#1c1917"/>
-  <!-- chart grid -->
-  <rect x="2" y="12" width="12" height="1" fill="#292524"/>
-  <rect x="2" y="2" width="1" height="10" fill="#292524"/>
-  <!-- bull candle (green) -->
-  <rect x="4" y="4" width="1" height="6" fill="#22c55e"/>
-  <rect x="3" y="6" width="3" height="3" fill="#22c55e"/>
-  <!-- gold mid -->
-  <rect x="7" y="5" width="1" height="5" fill="#fbbf24"/>
-  <rect x="6" y="7" width="3" height="2" fill="#fde68a"/>
-  <!-- bear candle (red) -->
-  <rect x="11" y="3" width="1" height="7" fill="#ef4444"/>
-  <rect x="10" y="4" width="3" height="3" fill="#ef4444"/>
-  <!-- spark -->
-  <rect x="13" y="2" width="1" height="1" fill="#fbbf24"/>
+ <!-- Macro Bias: gold candle + bull/bear -->
+ <rect width="16" height="16" fill="#1c1917"/>
+ <!-- chart grid -->
+ <rect x="2" y="12" width="12" height="1" fill="#292524"/>
+ <rect x="2" y="2" width="1" height="10" fill="#292524"/>
+ <!-- bull candle (green) -->
+ <rect x="4" y="4" width="1" height="6" fill="#22c55e"/>
+ <rect x="3" y="6" width="3" height="3" fill="#22c55e"/>
+ <!-- gold mid -->
+ <rect x="7" y="5" width="1" height="5" fill="#fbbf24"/>
+ <rect x="6" y="7" width="3" height="2" fill="#fde68a"/>
+ <!-- bear candle (red) -->
+ <rect x="11" y="3" width="1" height="7" fill="#ef4444"/>
+ <rect x="10" y="4" width="3" height="3" fill="#ef4444"/>
+ <!-- spark -->
+ <rect x="13" y="2" width="1" height="1" fill="#fbbf24"/>
 </svg>

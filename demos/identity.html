@@ -1,485 +1,485 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Identity · .me Handshake</title>
-    <meta
-      name="description"
-      content="Interactive demo of the Identity .me protocol — scoped context handshake, safety gate, ephemeral agent memory."
-    />
-    <link rel="icon" href="./favicon-identity.svg" type="image/svg+xml" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      :root {
-        --bg: #07070c;
-        --panel: #101018;
-        --elev: #181824;
-        --border: rgba(167, 139, 250, 0.2);
-        --text: #f4f4f5;
-        --dim: #a1a1aa;
-        --mute: #71717a;
-        --violet: #a78bfa;
-        --violet2: #c4b5fd;
-        --mint: #34d399;
-        --rose: #fb7185;
-        --cyan: #22d3ee;
-        --font: "Space Grotesk", system-ui, sans-serif;
-        --mono: "JetBrains Mono", ui-monospace, monospace;
-      }
-      * { box-sizing: border-box; }
-      html, body { margin: 0; min-height: 100%; }
-      body {
-        font-family: var(--font);
-        color: var(--text);
-        background: var(--bg);
-        background-image:
-          radial-gradient(ellipse 55% 40% at 15% 0%, rgba(167, 139, 250, 0.12), transparent 50%),
-          radial-gradient(ellipse 45% 30% at 90% 30%, rgba(34, 211, 238, 0.06), transparent 45%);
-      }
-      main { max-width: 1120px; margin: 0 auto; padding: 1.25rem 1.15rem 2.5rem; }
-      .back { color: var(--mute); text-decoration: none; font-size: 0.85rem; }
-      .back:hover { color: var(--violet2); }
-      h1 { margin: 0.75rem 0 0.2rem; font-size: 1.6rem; }
-      .sub { color: var(--mute); font-size: 0.9rem; margin: 0 0 1.1rem; line-height: 1.45; }
-      .sub a { color: var(--violet2); }
-      .layout { display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 0.85rem; align-items: stretch; }
-      @media (max-width: 960px) { .layout { grid-template-columns: 1fr; } }
-      .panel {
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 0.95rem 1rem;
-        min-height: 320px;
-        display: flex;
-        flex-direction: column;
-      }
-      .panel h2 {
-        margin: 0 0 0.65rem;
-        font-size: 0.7rem;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: var(--mute);
-      }
-      .vault {
-        flex: 1;
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.45rem;
-        align-content: start;
-      }
-      .node {
-        background: var(--elev);
-        border: 1px solid rgba(255,255,255,0.06);
-        border-radius: 8px;
-        padding: 0.45rem;
-        font-size: 0.68rem;
-        color: var(--dim);
-        position: relative;
-        overflow: hidden;
-        transition: 0.35s ease;
-      }
-      .node.locked::after {
-        content: "🔒";
-        position: absolute;
-        inset: 0;
-        display: grid;
-        place-items: center;
-        background: rgba(7, 7, 12, 0.72);
-        font-size: 0.9rem;
-      }
-      .node.selected {
-        border-color: var(--violet);
-        box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.4), 0 0 16px rgba(167, 139, 250, 0.25);
-        color: var(--text);
-      }
-      .node.selected::after { display: none; }
-      .node .tag { display: block; font-family: var(--mono); font-size: 0.58rem; color: var(--violet2); margin-bottom: 0.2rem; }
-      .center { text-align: center; }
-      .prompt {
-        width: 100%;
-        background: var(--elev);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        color: var(--text);
-        font: inherit;
-        font-size: 0.88rem;
-        padding: 0.65rem 0.75rem;
-        resize: vertical;
-        min-height: 72px;
-      }
-      .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; margin: 0.65rem 0; }
-      .btn {
-        font: inherit;
-        font-weight: 600;
-        font-size: 0.85rem;
-        padding: 0.55rem 0.7rem;
-        border-radius: 10px;
-        border: 1px solid var(--border);
-        background: var(--elev);
-        color: var(--dim);
-        cursor: pointer;
-      }
-      .btn.primary {
-        background: linear-gradient(135deg, rgba(167, 139, 250, 0.35), rgba(34, 211, 238, 0.2));
-        border-color: rgba(167, 139, 250, 0.5);
-        color: var(--violet2);
-      }
-      .btn:hover { filter: brightness(1.08); }
-      .stream {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
-        justify-content: center;
-        min-height: 100px;
-      }
-      .chip-fly {
-        font-size: 0.75rem;
-        padding: 0.4rem 0.55rem;
-        border-radius: 8px;
-        background: rgba(167, 139, 250, 0.12);
-        border: 1px solid rgba(167, 139, 250, 0.35);
-        color: var(--text);
-        opacity: 0;
-        transform: translateY(8px);
-        transition: 0.4s ease;
-      }
-      .chip-fly.show { opacity: 1; transform: translateY(0); }
-      .chip-fly.gone { opacity: 0; transform: scale(0.9); }
-      .agent-box {
-        flex: 1;
-        background: #0a0a12;
-        border: 1px dashed rgba(34, 211, 238, 0.3);
-        border-radius: 10px;
-        padding: 0.7rem;
-        font-family: var(--mono);
-        font-size: 0.72rem;
-        color: var(--dim);
-        line-height: 1.45;
-        min-height: 140px;
-      }
-      .agent-box.empty { color: var(--mute); }
-      .agent-box .hdr { color: var(--cyan); margin-bottom: 0.4rem; }
-      .gate {
-        margin-top: 1rem;
-        display: grid;
-        grid-template-columns: 1.2fr 1fr;
-        gap: 0.85rem;
-      }
-      @media (max-width: 860px) { .gate { grid-template-columns: 1fr; } }
-      .gate-input {
-        width: 100%;
-        background: var(--elev);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        color: var(--text);
-        font: inherit;
-        font-size: 0.88rem;
-        padding: 0.6rem 0.75rem;
-      }
-      .pipeline { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.55rem; }
-      .step {
-        font-family: var(--mono);
-        font-size: 0.65rem;
-        padding: 0.3rem 0.45rem;
-        border-radius: 6px;
-        border: 1px solid var(--border);
-        color: var(--mute);
-        background: rgba(0,0,0,0.2);
-      }
-      .step.on { color: var(--mint); border-color: rgba(52, 211, 153, 0.45); background: rgba(52, 211, 153, 0.08); }
-      .step.fail { color: var(--rose); border-color: rgba(251, 113, 133, 0.45); background: rgba(251, 113, 133, 0.08); }
-      .gate-msg { font-family: var(--mono); font-size: 0.78rem; margin-top: 0.55rem; color: var(--dim); min-height: 1.2em; }
-      .gate-msg.ok { color: var(--mint); }
-      .gate-msg.bad { color: var(--rose); }
-      .budget {
-        margin-top: 0.75rem;
-        height: 10px;
-        background: #181824;
-        border-radius: 4px;
-        overflow: hidden;
-        border: 1px solid var(--border);
-      }
-      .budget > i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--violet), var(--cyan)); transition: width 0.45s ease; }
-      .foot { margin-top: 1rem; font-size: 0.78rem; color: var(--mute); line-height: 1.5; }
-      .foot a { color: var(--violet2); }
-      .samples { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.4rem; }
-      .sample {
-        font-size: 0.72rem;
-        padding: 0.3rem 0.5rem;
-        border-radius: 999px;
-        border: 1px solid var(--border);
-        background: var(--elev);
-        color: var(--dim);
-        cursor: pointer;
-        font-family: inherit;
-      }
-      .sample:hover { color: var(--violet2); border-color: rgba(167,139,250,0.45); }
-    </style>
-  </head>
-  <body>
-    <main>
-      <a class="back" href="../">← Portfolio</a>
-      <h1>Identity · .me Handshake</h1>
-      <p class="sub">
-        Local vault stays sealed. Only narrowly scoped facts stream to the agent — then agent memory clears.
-        Protocol:
-        <a href="https://github.com/FiNdAlMkSkInDaL/Identity" target="_blank" rel="noopener">Identity / .me</a>
-      </p>
+ <head>
+ <meta charset="utf-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1" />
+ <title>Identity · .me Handshake</title>
+ <meta
+ name="description"
+ content="Interactive demo of the Identity .me protocol — scoped context handshake, safety gate, ephemeral agent memory."
+ />
+ <link rel="icon" href="./favicon-identity.svg" type="image/svg+xml" />
+ <link rel="preconnect" href="https://fonts.googleapis.com" />
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+ <link
+ href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap"
+ rel="stylesheet"
+ />
+ <style>
+ :root {
+ --bg: #07070c;
+ --panel: #101018;
+ --elev: #181824;
+ --border: rgba(167, 139, 250, 0.2);
+ --text: #f4f4f5;
+ --dim: #a1a1aa;
+ --mute: #71717a;
+ --violet: #a78bfa;
+ --violet2: #c4b5fd;
+ --mint: #34d399;
+ --rose: #fb7185;
+ --cyan: #22d3ee;
+ --font: "Space Grotesk", system-ui, sans-serif;
+ --mono: "JetBrains Mono", ui-monospace, monospace;
+ }
+ * { box-sizing: border-box; }
+ html, body { margin: 0; min-height: 100%; }
+ body {
+ font-family: var(--font);
+ color: var(--text);
+ background: var(--bg);
+ background-image:
+ radial-gradient(ellipse 55% 40% at 15% 0%, rgba(167, 139, 250, 0.12), transparent 50%),
+ radial-gradient(ellipse 45% 30% at 90% 30%, rgba(34, 211, 238, 0.06), transparent 45%);
+ }
+ main { max-width: 1120px; margin: 0 auto; padding: 1.25rem 1.15rem 2.5rem; }
+ .back { color: var(--mute); text-decoration: none; font-size: 0.85rem; }
+ .back:hover { color: var(--violet2); }
+ h1 { margin: 0.75rem 0 0.2rem; font-size: 1.6rem; }
+ .sub { color: var(--mute); font-size: 0.9rem; margin: 0 0 1.1rem; line-height: 1.45; }
+ .sub a { color: var(--violet2); }
+ .layout { display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 0.85rem; align-items: stretch; }
+ @media (max-width: 960px) { .layout { grid-template-columns: 1fr; } }
+ .panel {
+ background: var(--panel);
+ border: 1px solid var(--border);
+ border-radius: 14px;
+ padding: 0.95rem 1rem;
+ min-height: 320px;
+ display: flex;
+ flex-direction: column;
+ }
+ .panel h2 {
+ margin: 0 0 0.65rem;
+ font-size: 0.7rem;
+ letter-spacing: 0.1em;
+ text-transform: uppercase;
+ color: var(--mute);
+ }
+ .vault {
+ flex: 1;
+ display: grid;
+ grid-template-columns: repeat(3, 1fr);
+ gap: 0.45rem;
+ align-content: start;
+ }
+ .node {
+ background: var(--elev);
+ border: 1px solid rgba(255,255,255,0.06);
+ border-radius: 8px;
+ padding: 0.45rem;
+ font-size: 0.68rem;
+ color: var(--dim);
+ position: relative;
+ overflow: hidden;
+ transition: 0.35s ease;
+ }
+ .node.locked::after {
+ content: "🔒";
+ position: absolute;
+ inset: 0;
+ display: grid;
+ place-items: center;
+ background: rgba(7, 7, 12, 0.72);
+ font-size: 0.9rem;
+ }
+ .node.selected {
+ border-color: var(--violet);
+ box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.4), 0 0 16px rgba(167, 139, 250, 0.25);
+ color: var(--text);
+ }
+ .node.selected::after { display: none; }
+ .node .tag { display: block; font-family: var(--mono); font-size: 0.58rem; color: var(--violet2); margin-bottom: 0.2rem; }
+ .center { text-align: center; }
+ .prompt {
+ width: 100%;
+ background: var(--elev);
+ border: 1px solid var(--border);
+ border-radius: 10px;
+ color: var(--text);
+ font: inherit;
+ font-size: 0.88rem;
+ padding: 0.65rem 0.75rem;
+ resize: vertical;
+ min-height: 72px;
+ }
+ .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; margin: 0.65rem 0; }
+ .btn {
+ font: inherit;
+ font-weight: 600;
+ font-size: 0.85rem;
+ padding: 0.55rem 0.7rem;
+ border-radius: 10px;
+ border: 1px solid var(--border);
+ background: var(--elev);
+ color: var(--dim);
+ cursor: pointer;
+ }
+ .btn.primary {
+ background: linear-gradient(135deg, rgba(167, 139, 250, 0.35), rgba(34, 211, 238, 0.2));
+ border-color: rgba(167, 139, 250, 0.5);
+ color: var(--violet2);
+ }
+ .btn:hover { filter: brightness(1.08); }
+ .stream {
+ flex: 1;
+ display: flex;
+ flex-direction: column;
+ gap: 0.4rem;
+ justify-content: center;
+ min-height: 100px;
+ }
+ .chip-fly {
+ font-size: 0.75rem;
+ padding: 0.4rem 0.55rem;
+ border-radius: 8px;
+ background: rgba(167, 139, 250, 0.12);
+ border: 1px solid rgba(167, 139, 250, 0.35);
+ color: var(--text);
+ opacity: 0;
+ transform: translateY(8px);
+ transition: 0.4s ease;
+ }
+ .chip-fly.show { opacity: 1; transform: translateY(0); }
+ .chip-fly.gone { opacity: 0; transform: scale(0.9); }
+ .agent-box {
+ flex: 1;
+ background: #0a0a12;
+ border: 1px dashed rgba(34, 211, 238, 0.3);
+ border-radius: 10px;
+ padding: 0.7rem;
+ font-family: var(--mono);
+ font-size: 0.72rem;
+ color: var(--dim);
+ line-height: 1.45;
+ min-height: 140px;
+ }
+ .agent-box.empty { color: var(--mute); }
+ .agent-box .hdr { color: var(--cyan); margin-bottom: 0.4rem; }
+ .gate {
+ margin-top: 1rem;
+ display: grid;
+ grid-template-columns: 1.2fr 1fr;
+ gap: 0.85rem;
+ }
+ @media (max-width: 860px) { .gate { grid-template-columns: 1fr; } }
+ .gate-input {
+ width: 100%;
+ background: var(--elev);
+ border: 1px solid var(--border);
+ border-radius: 10px;
+ color: var(--text);
+ font: inherit;
+ font-size: 0.88rem;
+ padding: 0.6rem 0.75rem;
+ }
+ .pipeline { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.55rem; }
+ .step {
+ font-family: var(--mono);
+ font-size: 0.65rem;
+ padding: 0.3rem 0.45rem;
+ border-radius: 6px;
+ border: 1px solid var(--border);
+ color: var(--mute);
+ background: rgba(0,0,0,0.2);
+ }
+ .step.on { color: var(--mint); border-color: rgba(52, 211, 153, 0.45); background: rgba(52, 211, 153, 0.08); }
+ .step.fail { color: var(--rose); border-color: rgba(251, 113, 133, 0.45); background: rgba(251, 113, 133, 0.08); }
+ .gate-msg { font-family: var(--mono); font-size: 0.78rem; margin-top: 0.55rem; color: var(--dim); min-height: 1.2em; }
+ .gate-msg.ok { color: var(--mint); }
+ .gate-msg.bad { color: var(--rose); }
+ .budget {
+ margin-top: 0.75rem;
+ height: 10px;
+ background: #181824;
+ border-radius: 4px;
+ overflow: hidden;
+ border: 1px solid var(--border);
+ }
+ .budget > i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--violet), var(--cyan)); transition: width 0.45s ease; }
+ .foot { margin-top: 1rem; font-size: 0.78rem; color: var(--mute); line-height: 1.5; }
+ .foot a { color: var(--violet2); }
+ .samples { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.4rem; }
+ .sample {
+ font-size: 0.72rem;
+ padding: 0.3rem 0.5rem;
+ border-radius: 999px;
+ border: 1px solid var(--border);
+ background: var(--elev);
+ color: var(--dim);
+ cursor: pointer;
+ font-family: inherit;
+ }
+ .sample:hover { color: var(--violet2); border-color: rgba(167,139,250,0.45); }
+ </style>
+ </head>
+ <body>
+ <main>
+ <a class="back" href="../">← Portfolio</a>
+ <h1>Identity · .me Handshake</h1>
+ <p class="sub">
+ Local vault stays sealed. Only narrowly scoped facts stream to the agent — then agent memory clears.
+ Protocol:
+ <a href="https://github.com/FiNdAlMkSkInDaL/Identity" target="_blank" rel="noopener">Identity / .me</a>
+ </p>
 
-      <div class="layout">
-        <section class="panel">
-          <h2>Local .me vault</h2>
-          <div class="vault" id="vault"></div>
-          <div class="budget" title="context budget"><i id="budgetFill"></i></div>
-          <p style="margin:0.4rem 0 0;font-size:0.7rem;color:var(--mute);font-family:var(--mono)" id="budgetLabel">budget 0 / 5 facts</p>
-        </section>
+ <div class="layout">
+ <section class="panel">
+ <h2>Local .me vault</h2>
+ <div class="vault" id="vault"></div>
+ <div class="budget" title="context budget"><i id="budgetFill"></i></div>
+ <p style="margin:0.4rem 0 0;font-size:0.7rem;color:var(--mute);font-family:var(--mono)" id="budgetLabel">budget 0 / 5 facts</p>
+ </section>
 
-        <section class="panel center">
-          <h2>Task → scoped stream</h2>
-          <textarea class="prompt" id="prompt">Draft outreach to three founders in my tone from last week.</textarea>
-          <div class="actions">
-            <button class="btn primary" id="handshake" type="button">Handshake</button>
-            <button class="btn" id="clearAgent" type="button">Clear agent</button>
-          </div>
-          <div class="stream" id="stream"></div>
-        </section>
+ <section class="panel center">
+ <h2>Task → scoped stream</h2>
+ <textarea class="prompt" id="prompt">Draft outreach to three founders in my tone from last week.</textarea>
+ <div class="actions">
+ <button class="btn primary" id="handshake" type="button">Handshake</button>
+ <button class="btn" id="clearAgent" type="button">Clear agent</button>
+ </div>
+ <div class="stream" id="stream"></div>
+ </section>
 
-        <section class="panel">
-          <h2>Agent session (ephemeral)</h2>
-          <div class="agent-box empty" id="agent">
-            <div class="hdr">session memory</div>
-            empty — waiting for scoped context
-          </div>
-        </section>
-      </div>
+ <section class="panel">
+ <h2>Agent session (ephemeral)</h2>
+ <div class="agent-box empty" id="agent">
+ <div class="hdr">session memory</div>
+ empty — waiting for scoped context
+ </div>
+ </section>
+ </div>
 
-      <div class="gate">
-        <section class="panel" style="min-height:auto">
-          <h2>Capture → safety gate → promote</h2>
-          <input class="gate-input" id="capture" placeholder="Paste capture text (try a fake API key)…" />
-          <div class="samples">
-            <button type="button" class="sample" data-t="Met with Acme founder; they liked the local-first pitch.">safe note</button>
-            <button type="button" class="sample" data-t="sk-live-51a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6">api key (reject)</button>
-            <button type="button" class="sample" data-t="Card 4111 1111 1111 1111 expires 09/28">card (reject)</button>
-            <button type="button" class="sample" data-t="Prefer short emails; no exclamation marks.">tone fact</button>
-          </div>
-          <div class="pipeline" id="pipeline">
-            <span class="step" data-s="capture">capture</span>
-            <span class="step" data-s="size">size cap</span>
-            <span class="step" data-s="secret">secret scan</span>
-            <span class="step" data-s="lock">at-rest lock</span>
-            <span class="step" data-s="embed">embed</span>
-            <span class="step" data-s="graph">graph node</span>
-          </div>
-          <div class="gate-msg" id="gateMsg"></div>
-          <button class="btn primary" id="runGate" type="button" style="margin-top:0.65rem;width:100%">Run gate</button>
-        </section>
-        <section class="panel" style="min-height:auto">
-          <h2>What this demo shows</h2>
-          <p style="margin:0;font-size:0.85rem;color:var(--dim);line-height:1.5">
-            Identity keeps preferences, network, and memory in an encrypted local <code>.me</code> bank.
-            Agents receive a <strong>budgeted</strong> context slice only. Captures hit a deterministic
-            safety gate (size + secret reject) before promotion — matching the real
-            <code>identityd</code> pipeline.
-          </p>
-        </section>
-      </div>
+ <div class="gate">
+ <section class="panel" style="min-height:auto">
+ <h2>Capture → safety gate → promote</h2>
+ <input class="gate-input" id="capture" placeholder="Paste capture text (try a fake API key)…" />
+ <div class="samples">
+ <button type="button" class="sample" data-t="Met with Acme founder; they liked the local-first pitch.">safe note</button>
+ <button type="button" class="sample" data-t="sk-live-51a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6">api key (reject)</button>
+ <button type="button" class="sample" data-t="Card 4111 1111 1111 1111 expires 09/28">card (reject)</button>
+ <button type="button" class="sample" data-t="Prefer short emails; no exclamation marks.">tone fact</button>
+ </div>
+ <div class="pipeline" id="pipeline">
+ <span class="step" data-s="capture">capture</span>
+ <span class="step" data-s="size">size cap</span>
+ <span class="step" data-s="secret">secret scan</span>
+ <span class="step" data-s="lock">at-rest lock</span>
+ <span class="step" data-s="embed">embed</span>
+ <span class="step" data-s="graph">graph node</span>
+ </div>
+ <div class="gate-msg" id="gateMsg"></div>
+ <button class="btn primary" id="runGate" type="button" style="margin-top:0.65rem;width:100%">Run gate</button>
+ </section>
+ <section class="panel" style="min-height:auto">
+ <h2>What this demo shows</h2>
+ <p style="margin:0;font-size:0.85rem;color:var(--dim);line-height:1.5">
+ Identity keeps preferences, network, and memory in an encrypted local <code>.me</code> bank.
+ Agents receive a <strong>budgeted</strong> context slice only. Captures hit a deterministic
+ safety gate (size + secret reject) before promotion — matching the real
+ <code>identityd</code> pipeline.
+ </p>
+ </section>
+ </div>
 
-      <p class="foot">
-        Interactive protocol sketch — synthetic vault data, no live OS capture in-browser.
-        Source: <a href="https://github.com/FiNdAlMkSkInDaL/Identity">FiNdAlMkSkInDaL/Identity</a>
-      </p>
-    </main>
-    <script>
-      const VAULT = [
-        { id: "n1", domain: "network", text: "Founder: Maya Chen · robotics hiring Q3", tags: ["network"] },
-        { id: "n2", domain: "network", text: "Founder: Omar R. · infra tooling, London", tags: ["network"] },
-        { id: "n3", domain: "network", text: "Founder: Priya S. · climate fintech", tags: ["network"] },
-        { id: "n4", domain: "tone", text: "Writing tone: short, dry, no hype adjectives", tags: ["tone"] },
-        { id: "n5", domain: "tone", text: "Sign-off: Best, Finlay — never Thanks!!", tags: ["tone"] },
-        { id: "n6", domain: "project", text: "Active: Identity .me protocol (Rust daemon)", tags: ["project"] },
-        { id: "n7", domain: "project", text: "Active: TickForge LOB / A–S demo", tags: ["project"] },
-        { id: "n8", domain: "window", text: "Foreground: VS Code · identityd/src", tags: ["window"] },
-        { id: "n9", domain: "prefs", text: "Prefer async email over calls", tags: ["prefs"] },
-      ];
+ <p class="foot">
+ Interactive protocol sketch — synthetic vault data, no live OS capture in-browser.
+ Source: <a href="https://github.com/FiNdAlMkSkInDaL/Identity">FiNdAlMkSkInDaL/Identity</a>
+ </p>
+ </main>
+ <script>
+ const VAULT = [
+ { id: "n1", domain: "network", text: "Founder: Maya Chen · robotics hiring Q3", tags: ["network"] },
+ { id: "n2", domain: "network", text: "Founder: Omar R. · infra tooling, London", tags: ["network"] },
+ { id: "n3", domain: "network", text: "Founder: Priya S. · climate fintech", tags: ["network"] },
+ { id: "n4", domain: "tone", text: "Writing tone: short, dry, no hype adjectives", tags: ["tone"] },
+ { id: "n5", domain: "tone", text: "Sign-off: Best, Finlay — never Thanks!!", tags: ["tone"] },
+ { id: "n6", domain: "project", text: "Active: Identity .me protocol (Rust daemon)", tags: ["project"] },
+ { id: "n7", domain: "project", text: "Active: TickForge LOB / A–S demo", tags: ["project"] },
+ { id: "n8", domain: "window", text: "Foreground: VS Code · identityd/src", tags: ["window"] },
+ { id: "n9", domain: "prefs", text: "Prefer async email over calls", tags: ["prefs"] },
+ ];
 
-      const BUDGET = 5;
-      let selected = [];
+ const BUDGET = 5;
+ let selected = [];
 
-      function renderVault() {
-        const box = document.getElementById("vault");
-        box.innerHTML = "";
-        VAULT.forEach((n) => {
-          const el = document.createElement("div");
-          el.className = "node locked" + (selected.includes(n.id) ? " selected" : "");
-          el.innerHTML = `<span class="tag">${n.domain}</span>${n.text}`;
-          box.appendChild(el);
-        });
-        const fill = (selected.length / BUDGET) * 100;
-        document.getElementById("budgetFill").style.width = fill + "%";
-        document.getElementById("budgetLabel").textContent =
-          `budget ${selected.length} / ${BUDGET} facts`;
-      }
+ function renderVault() {
+ const box = document.getElementById("vault");
+ box.innerHTML = "";
+ VAULT.forEach((n) => {
+ const el = document.createElement("div");
+ el.className = "node locked" + (selected.includes(n.id) ? " selected" : "");
+ el.innerHTML = `<span class="tag">${n.domain}</span>${n.text}`;
+ box.appendChild(el);
+ });
+ const fill = (selected.length / BUDGET) * 100;
+ document.getElementById("budgetFill").style.width = fill + "%";
+ document.getElementById("budgetLabel").textContent =
+ `budget ${selected.length} / ${BUDGET} facts`;
+ }
 
-      function rankForTask(prompt) {
-        const t = prompt.toLowerCase();
-        const scores = VAULT.map((n) => {
-          let s = 0;
-          if (t.includes("founder") || t.includes("outreach") || t.includes("network")) {
-            if (n.domain === "network") s += 3;
-          }
-          if (t.includes("tone") || t.includes("writing") || t.includes("email") || t.includes("outreach")) {
-            if (n.domain === "tone") s += 3;
-          }
-          if (t.includes("identity") || t.includes("project") || t.includes("code")) {
-            if (n.domain === "project") s += 2;
-          }
-          if (n.domain === "window") s += 0.5;
-          if (n.domain === "prefs" && (t.includes("email") || t.includes("outreach"))) s += 1.5;
-          // diversity: mild prior
-          s += Math.random() * 0.2;
-          return { n, s };
-        });
-        scores.sort((a, b) => b.s - a.s);
-        // domain diversity: don't take all from one domain first
-        const picked = [];
-        const domains = new Set();
-        for (const row of scores) {
-          if (picked.length >= BUDGET) break;
-          if (domains.has(row.n.domain) && domains.size < 3 && picked.length < BUDGET - 1) {
-            // allow second of same domain only after 2 domains present
-            if (domains.size < 2) continue;
-          }
-          picked.push(row.n);
-          domains.add(row.n.domain);
-        }
-        return picked;
-      }
+ function rankForTask(prompt) {
+ const t = prompt.toLowerCase();
+ const scores = VAULT.map((n) => {
+ let s = 0;
+ if (t.includes("founder") || t.includes("outreach") || t.includes("network")) {
+ if (n.domain === "network") s += 3;
+ }
+ if (t.includes("tone") || t.includes("writing") || t.includes("email") || t.includes("outreach")) {
+ if (n.domain === "tone") s += 3;
+ }
+ if (t.includes("identity") || t.includes("project") || t.includes("code")) {
+ if (n.domain === "project") s += 2;
+ }
+ if (n.domain === "window") s += 0.5;
+ if (n.domain === "prefs" && (t.includes("email") || t.includes("outreach"))) s += 1.5;
+ // diversity: mild prior
+ s += Math.random() * 0.2;
+ return { n, s };
+ });
+ scores.sort((a, b) => b.s - a.s);
+ // domain diversity: don't take all from one domain first
+ const picked = [];
+ const domains = new Set();
+ for (const row of scores) {
+ if (picked.length >= BUDGET) break;
+ if (domains.has(row.n.domain) && domains.size < 3 && picked.length < BUDGET - 1) {
+ // allow second of same domain only after 2 domains present
+ if (domains.size < 2) continue;
+ }
+ picked.push(row.n);
+ domains.add(row.n.domain);
+ }
+ return picked;
+ }
 
-      function handshake() {
-        const prompt = document.getElementById("prompt").value;
-        const picks = rankForTask(prompt);
-        selected = picks.map((p) => p.id);
-        renderVault();
+ function handshake() {
+ const prompt = document.getElementById("prompt").value;
+ const picks = rankForTask(prompt);
+ selected = picks.map((p) => p.id);
+ renderVault();
 
-        const stream = document.getElementById("stream");
-        stream.innerHTML = "";
-        const agent = document.getElementById("agent");
-        agent.classList.remove("empty");
-        agent.innerHTML = '<div class="hdr">session memory · scoped only</div>';
+ const stream = document.getElementById("stream");
+ stream.innerHTML = "";
+ const agent = document.getElementById("agent");
+ agent.classList.remove("empty");
+ agent.innerHTML = '<div class="hdr">session memory · scoped only</div>';
 
-        picks.forEach((p, i) => {
-          const chip = document.createElement("div");
-          chip.className = "chip-fly";
-          chip.textContent = p.text;
-          stream.appendChild(chip);
-          setTimeout(() => chip.classList.add("show"), 80 + i * 160);
-          setTimeout(() => {
-            const line = document.createElement("div");
-            line.textContent = "• " + p.text;
-            agent.appendChild(line);
-          }, 200 + i * 160);
-        });
-      }
+ picks.forEach((p, i) => {
+ const chip = document.createElement("div");
+ chip.className = "chip-fly";
+ chip.textContent = p.text;
+ stream.appendChild(chip);
+ setTimeout(() => chip.classList.add("show"), 80 + i * 160);
+ setTimeout(() => {
+ const line = document.createElement("div");
+ line.textContent = "• " + p.text;
+ agent.appendChild(line);
+ }, 200 + i * 160);
+ });
+ }
 
-      function clearAgent() {
-        selected = [];
-        renderVault();
-        const stream = document.getElementById("stream");
-        stream.querySelectorAll(".chip-fly").forEach((c) => c.classList.add("gone"));
-        setTimeout(() => {
-          stream.innerHTML = "";
-        }, 350);
-        const agent = document.getElementById("agent");
-        agent.classList.add("empty");
-        agent.innerHTML =
-          '<div class="hdr">session memory</div>empty — context dropped (stateless execution)';
-      }
+ function clearAgent() {
+ selected = [];
+ renderVault();
+ const stream = document.getElementById("stream");
+ stream.querySelectorAll(".chip-fly").forEach((c) => c.classList.add("gone"));
+ setTimeout(() => {
+ stream.innerHTML = "";
+ }, 350);
+ const agent = document.getElementById("agent");
+ agent.classList.add("empty");
+ agent.innerHTML =
+ '<div class="hdr">session memory</div>empty — context dropped (stateless execution)';
+ }
 
-      function secretScan(text) {
-        const patterns = [
-          { re: /\bsk-[a-zA-Z0-9]{10,}\b/, why: "API key pattern" },
-          { re: /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/, why: "payment card pattern" },
-          { re: /\b(AKIA|ASIA)[A-Z0-9]{16}\b/, why: "cloud access key" },
-          { re: /-----BEGIN (RSA |OPENSSH )?PRIVATE KEY-----/, why: "private key block" },
-          { re: /\bpassword\s*=\s*\S+/i, why: "password assignment" },
-        ];
-        for (const p of patterns) {
-          if (p.re.test(text)) return p.why;
-        }
-        return null;
-      }
+ function secretScan(text) {
+ const patterns = [
+ { re: /\bsk-[a-zA-Z0-9]{10,}\b/, why: "API key pattern" },
+ { re: /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/, why: "payment card pattern" },
+ { re: /\b(AKIA|ASIA)[A-Z0-9]{16}\b/, why: "cloud access key" },
+ { re: /-----BEGIN (RSA |OPENSSH )?PRIVATE KEY-----/, why: "private key block" },
+ { re: /\bpassword\s*=\s*\S+/i, why: "password assignment" },
+ ];
+ for (const p of patterns) {
+ if (p.re.test(text)) return p.why;
+ }
+ return null;
+ }
 
-      function runGate() {
-        const text = document.getElementById("capture").value || "";
-        const steps = [...document.querySelectorAll("#pipeline .step")];
-        steps.forEach((s) => s.classList.remove("on", "fail"));
-        const msg = document.getElementById("gateMsg");
-        msg.className = "gate-msg";
-        msg.textContent = "";
+ function runGate() {
+ const text = document.getElementById("capture").value || "";
+ const steps = [...document.querySelectorAll("#pipeline .step")];
+ steps.forEach((s) => s.classList.remove("on", "fail"));
+ const msg = document.getElementById("gateMsg");
+ msg.className = "gate-msg";
+ msg.textContent = "";
 
-        const order = ["capture", "size", "secret", "lock", "embed", "graph"];
-        let i = 0;
-        const tick = () => {
-          if (i >= order.length) return;
-          const name = order[i];
-          const el = steps.find((s) => s.dataset.s === name);
-          // checks
-          if (name === "capture") {
-            if (!text.trim()) {
-              el.classList.add("fail");
-              msg.className = "gate-msg bad";
-              msg.textContent = "reject — empty capture";
-              return;
-            }
-            el.classList.add("on");
-          } else if (name === "size") {
-            if (text.length > 1_000_000) {
-              el.classList.add("fail");
-              msg.className = "gate-msg bad";
-              msg.textContent = "reject — exceeds 1MB cap";
-              return;
-            }
-            el.classList.add("on");
-          } else if (name === "secret") {
-            const why = secretScan(text);
-            if (why) {
-              el.classList.add("fail");
-              msg.className = "gate-msg bad";
-              msg.textContent = "reject — " + why;
-              return;
-            }
-            el.classList.add("on");
-          } else {
-            el.classList.add("on");
-          }
-          i++;
-          if (i >= order.length) {
-            msg.className = "gate-msg ok";
-            msg.textContent = "accepted → locked → embedded → graph node (demo)";
-            return;
-          }
-          setTimeout(tick, 220);
-        };
-        tick();
-      }
+ const order = ["capture", "size", "secret", "lock", "embed", "graph"];
+ let i = 0;
+ const tick = () => {
+ if (i >= order.length) return;
+ const name = order[i];
+ const el = steps.find((s) => s.dataset.s === name);
+ // checks
+ if (name === "capture") {
+ if (!text.trim()) {
+ el.classList.add("fail");
+ msg.className = "gate-msg bad";
+ msg.textContent = "reject — empty capture";
+ return;
+ }
+ el.classList.add("on");
+ } else if (name === "size") {
+ if (text.length > 1_000_000) {
+ el.classList.add("fail");
+ msg.className = "gate-msg bad";
+ msg.textContent = "reject — exceeds 1MB cap";
+ return;
+ }
+ el.classList.add("on");
+ } else if (name === "secret") {
+ const why = secretScan(text);
+ if (why) {
+ el.classList.add("fail");
+ msg.className = "gate-msg bad";
+ msg.textContent = "reject — " + why;
+ return;
+ }
+ el.classList.add("on");
+ } else {
+ el.classList.add("on");
+ }
+ i++;
+ if (i >= order.length) {
+ msg.className = "gate-msg ok";
+ msg.textContent = "accepted → locked → embedded → graph node (demo)";
+ return;
+ }
+ setTimeout(tick, 220);
+ };
+ tick();
+ }
 
-      document.getElementById("handshake").onclick = handshake;
-      document.getElementById("clearAgent").onclick = clearAgent;
-      document.getElementById("runGate").onclick = runGate;
-      document.querySelectorAll(".sample").forEach((b) => {
-        b.onclick = () => {
-          document.getElementById("capture").value = b.dataset.t;
-        };
-      });
-      renderVault();
-    </script>
-  </body>
+ document.getElementById("handshake").onclick = handshake;
+ document.getElementById("clearAgent").onclick = clearAgent;
+ document.getElementById("runGate").onclick = runGate;
+ document.querySelectorAll(".sample").forEach((b) => {
+ b.onclick = () => {
+ document.getElementById("capture").value = b.dataset.t;
+ };
+ });
+ renderVault();
+ </script>
+ </body>
 </html>

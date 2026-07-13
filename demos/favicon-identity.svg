@@ -1,16 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
-  <rect width="16" height="16" fill="#07070c"/>
-  <!-- vault -->
-  <rect x="3" y="4" width="10" height="9" fill="#181824" stroke="#a78bfa" stroke-width="0"/>
-  <rect x="3" y="4" width="10" height="9" fill="none"/>
-  <rect x="3" y="4" width="10" height="2" fill="#a78bfa"/>
-  <rect x="3" y="4" width="1" height="9" fill="#a78bfa"/>
-  <rect x="12" y="4" width="1" height="9" fill="#a78bfa"/>
-  <rect x="3" y="12" width="10" height="1" fill="#a78bfa"/>
-  <!-- lock -->
-  <rect x="7" y="7" width="2" height="3" fill="#22d3ee"/>
-  <rect x="6" y="8" width="4" height="2" fill="#22d3ee"/>
-  <!-- scoped chips leaving -->
-  <rect x="13" y="6" width="2" height="1" fill="#c4b5fd"/>
-  <rect x="13" y="9" width="2" height="1" fill="#34d399"/>
+ <rect width="16" height="16" fill="#07070c"/>
+ <!-- vault -->
+ <rect x="3" y="4" width="10" height="9" fill="#181824" stroke="#a78bfa" stroke-width="0"/>
+ <rect x="3" y="4" width="10" height="9" fill="none"/>
+ <rect x="3" y="4" width="10" height="2" fill="#a78bfa"/>
+ <rect x="3" y="4" width="1" height="9" fill="#a78bfa"/>
+ <rect x="12" y="4" width="1" height="9" fill="#a78bfa"/>
+ <rect x="3" y="12" width="10" height="1" fill="#a78bfa"/>
+ <!-- lock -->
+ <rect x="7" y="7" width="2" height="3" fill="#22d3ee"/>
+ <rect x="6" y="8" width="4" height="2" fill="#22d3ee"/>
+ <!-- scoped chips leaving -->
+ <rect x="13" y="6" width="2" height="1" fill="#c4b5fd"/>
+ <rect x="13" y="9" width="2" height="1" fill="#34d399"/>
 </svg>

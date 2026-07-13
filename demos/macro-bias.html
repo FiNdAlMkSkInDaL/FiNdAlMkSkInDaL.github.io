@@ -1,467 +1,467 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Macro Bias · Regime Compass</title>
-    <meta
-      name="description"
-      content="Interactive walk-forward KNN regime compass — drag macro weather, watch the permission layer flip."
-    />
-    <link rel="icon" href="./favicon-macro.svg" type="image/svg+xml" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      :root {
-        --bg: #0c0a09;
-        --panel: #1c1917;
-        --elev: #292524;
-        --border: rgba(251, 191, 36, 0.18);
-        --text: #fafaf9;
-        --dim: #a8a29e;
-        --mute: #78716c;
-        --gold: #fbbf24;
-        --gold2: #fde68a;
-        --long: #22c55e;
-        --short: #ef4444;
-        --flat: #a8a29e;
-        --notrade: #6366f1;
-        --font: "IBM Plex Sans", system-ui, sans-serif;
-        --mono: "IBM Plex Mono", ui-monospace, monospace;
-      }
-      * { box-sizing: border-box; }
-      html, body { margin: 0; min-height: 100%; }
-      body {
-        font-family: var(--font);
-        color: var(--text);
-        background: var(--bg);
-        background-image:
-          radial-gradient(ellipse 60% 40% at 20% 0%, rgba(251, 191, 36, 0.08), transparent 50%),
-          radial-gradient(ellipse 50% 35% at 90% 20%, rgba(34, 197, 94, 0.05), transparent 45%);
-      }
-      main { max-width: 1100px; margin: 0 auto; padding: 1.25rem 1.15rem 2.5rem; }
-      .back { color: var(--mute); text-decoration: none; font-size: 0.85rem; }
-      .back:hover { color: var(--gold); }
-      h1 { margin: 0.75rem 0 0.2rem; font-size: 1.65rem; letter-spacing: -0.02em; }
-      .sub { color: var(--mute); font-size: 0.9rem; margin: 0 0 1.1rem; }
-      .sub a { color: var(--gold); }
-      .layout { display: grid; grid-template-columns: 1.1fr 1fr; gap: 1rem; }
-      @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
-      .panel {
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 1rem 1.05rem;
-      }
-      .panel h2 {
-        margin: 0 0 0.75rem;
-        font-size: 0.72rem;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: var(--mute);
-      }
-      .compass-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.85rem; }
-      .bias-pill {
-        font-family: var(--mono);
-        font-size: 1.35rem;
-        font-weight: 700;
-        padding: 0.55rem 1.2rem;
-        border-radius: 999px;
-        border: 2px solid;
-        letter-spacing: 0.04em;
-        transition: 0.2s ease;
-      }
-      .bias-pill.LONG { color: var(--long); border-color: var(--long); background: rgba(34, 197, 94, 0.12); box-shadow: 0 0 24px rgba(34, 197, 94, 0.25); }
-      .bias-pill.SHORT { color: var(--short); border-color: var(--short); background: rgba(239, 68, 68, 0.12); box-shadow: 0 0 24px rgba(239, 68, 68, 0.25); }
-      .bias-pill.FLAT { color: var(--flat); border-color: var(--flat); background: rgba(168, 162, 158, 0.1); }
-      .bias-pill.NO_TRADE { color: var(--notrade); border-color: var(--notrade); background: rgba(99, 102, 241, 0.12); box-shadow: 0 0 24px rgba(99, 102, 241, 0.2); }
-      .meta { font-family: var(--mono); font-size: 0.78rem; color: var(--dim); text-align: center; }
-      #radar { width: min(100%, 340px); height: 340px; display: block; }
-      .sliders { display: flex; flex-direction: column; gap: 0.85rem; }
-      .slider-row label {
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.82rem;
-        color: var(--dim);
-        margin-bottom: 0.3rem;
-      }
-      .slider-row label span { font-family: var(--mono); color: var(--gold2); }
-      input[type="range"] {
-        width: 100%;
-        accent-color: var(--gold);
-        cursor: pointer;
-      }
-      .presets { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
-      .chip {
-        font-size: 0.75rem;
-        padding: 0.35rem 0.65rem;
-        border-radius: 999px;
-        border: 1px solid var(--border);
-        background: var(--elev);
-        color: var(--dim);
-        cursor: pointer;
-        font-family: inherit;
-      }
-      .chip:hover, .chip.active { border-color: var(--gold); color: var(--gold2); }
-      .neighbours { display: flex; flex-direction: column; gap: 0.4rem; max-height: 280px; overflow: auto; }
-      .nb {
-        display: grid;
-        grid-template-columns: 72px 1fr 56px;
-        gap: 0.5rem;
-        align-items: center;
-        padding: 0.4rem 0.5rem;
-        border-radius: 8px;
-        background: rgba(0,0,0,0.25);
-        border: 1px solid transparent;
-        font-size: 0.78rem;
-      }
-      .nb:hover { border-color: var(--border); }
-      .nb .day { font-family: var(--mono); color: var(--mute); }
-      .nb .bar-track { height: 10px; background: #292524; border-radius: 3px; overflow: hidden; }
-      .nb .bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold2)); width: 0; transition: width 0.45s ease; }
-      .nb .ret { font-family: var(--mono); text-align: right; }
-      .nb .ret.pos { color: var(--long); }
-      .nb .ret.neg { color: var(--short); }
-      .tape {
-        margin-top: 1rem;
-        height: 72px;
-        position: relative;
-        background: #0c0a09;
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        overflow: hidden;
-      }
-      .tape canvas { width: 100%; height: 100%; display: block; }
-      .foot { margin-top: 1rem; font-size: 0.78rem; color: var(--mute); line-height: 1.5; }
-      .foot a { color: var(--gold); }
-      .note { font-size: 0.75rem; color: var(--mute); margin: 0.35rem 0 0; line-height: 1.4; }
-    </style>
-  </head>
-  <body>
-    <main>
-      <a class="back" href="../">← Portfolio</a>
-      <h1>Macro Bias · Regime Compass</h1>
-      <p class="sub">
-        Walk-forward KNN permission layer — drag macro weather, watch neighbours reweight and bias flip.
-        Live product:
-        <a href="https://macro-bias.com" target="_blank" rel="noopener">macro-bias.com</a>
-      </p>
+ <head>
+ <meta charset="utf-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1" />
+ <title>Macro Bias · Regime Compass</title>
+ <meta
+ name="description"
+ content="Interactive walk-forward KNN regime compass — drag macro weather, watch the permission layer flip."
+ />
+ <link rel="icon" href="./favicon-macro.svg" type="image/svg+xml" />
+ <link rel="preconnect" href="https://fonts.googleapis.com" />
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+ <link
+ href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"
+ rel="stylesheet"
+ />
+ <style>
+ :root {
+ --bg: #0c0a09;
+ --panel: #1c1917;
+ --elev: #292524;
+ --border: rgba(251, 191, 36, 0.18);
+ --text: #fafaf9;
+ --dim: #a8a29e;
+ --mute: #78716c;
+ --gold: #fbbf24;
+ --gold2: #fde68a;
+ --long: #22c55e;
+ --short: #ef4444;
+ --flat: #a8a29e;
+ --notrade: #6366f1;
+ --font: "IBM Plex Sans", system-ui, sans-serif;
+ --mono: "IBM Plex Mono", ui-monospace, monospace;
+ }
+ * { box-sizing: border-box; }
+ html, body { margin: 0; min-height: 100%; }
+ body {
+ font-family: var(--font);
+ color: var(--text);
+ background: var(--bg);
+ background-image:
+ radial-gradient(ellipse 60% 40% at 20% 0%, rgba(251, 191, 36, 0.08), transparent 50%),
+ radial-gradient(ellipse 50% 35% at 90% 20%, rgba(34, 197, 94, 0.05), transparent 45%);
+ }
+ main { max-width: 1100px; margin: 0 auto; padding: 1.25rem 1.15rem 2.5rem; }
+ .back { color: var(--mute); text-decoration: none; font-size: 0.85rem; }
+ .back:hover { color: var(--gold); }
+ h1 { margin: 0.75rem 0 0.2rem; font-size: 1.65rem; letter-spacing: -0.02em; }
+ .sub { color: var(--mute); font-size: 0.9rem; margin: 0 0 1.1rem; }
+ .sub a { color: var(--gold); }
+ .layout { display: grid; grid-template-columns: 1.1fr 1fr; gap: 1rem; }
+ @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+ .panel {
+ background: var(--panel);
+ border: 1px solid var(--border);
+ border-radius: 14px;
+ padding: 1rem 1.05rem;
+ }
+ .panel h2 {
+ margin: 0 0 0.75rem;
+ font-size: 0.72rem;
+ letter-spacing: 0.1em;
+ text-transform: uppercase;
+ color: var(--mute);
+ }
+ .compass-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.85rem; }
+ .bias-pill {
+ font-family: var(--mono);
+ font-size: 1.35rem;
+ font-weight: 700;
+ padding: 0.55rem 1.2rem;
+ border-radius: 999px;
+ border: 2px solid;
+ letter-spacing: 0.04em;
+ transition: 0.2s ease;
+ }
+ .bias-pill.LONG { color: var(--long); border-color: var(--long); background: rgba(34, 197, 94, 0.12); box-shadow: 0 0 24px rgba(34, 197, 94, 0.25); }
+ .bias-pill.SHORT { color: var(--short); border-color: var(--short); background: rgba(239, 68, 68, 0.12); box-shadow: 0 0 24px rgba(239, 68, 68, 0.25); }
+ .bias-pill.FLAT { color: var(--flat); border-color: var(--flat); background: rgba(168, 162, 158, 0.1); }
+ .bias-pill.NO_TRADE { color: var(--notrade); border-color: var(--notrade); background: rgba(99, 102, 241, 0.12); box-shadow: 0 0 24px rgba(99, 102, 241, 0.2); }
+ .meta { font-family: var(--mono); font-size: 0.78rem; color: var(--dim); text-align: center; }
+ #radar { width: min(100%, 340px); height: 340px; display: block; }
+ .sliders { display: flex; flex-direction: column; gap: 0.85rem; }
+ .slider-row label {
+ display: flex;
+ justify-content: space-between;
+ font-size: 0.82rem;
+ color: var(--dim);
+ margin-bottom: 0.3rem;
+ }
+ .slider-row label span { font-family: var(--mono); color: var(--gold2); }
+ input[type="range"] {
+ width: 100%;
+ accent-color: var(--gold);
+ cursor: pointer;
+ }
+ .presets { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+ .chip {
+ font-size: 0.75rem;
+ padding: 0.35rem 0.65rem;
+ border-radius: 999px;
+ border: 1px solid var(--border);
+ background: var(--elev);
+ color: var(--dim);
+ cursor: pointer;
+ font-family: inherit;
+ }
+ .chip:hover, .chip.active { border-color: var(--gold); color: var(--gold2); }
+ .neighbours { display: flex; flex-direction: column; gap: 0.4rem; max-height: 280px; overflow: auto; }
+ .nb {
+ display: grid;
+ grid-template-columns: 72px 1fr 56px;
+ gap: 0.5rem;
+ align-items: center;
+ padding: 0.4rem 0.5rem;
+ border-radius: 8px;
+ background: rgba(0,0,0,0.25);
+ border: 1px solid transparent;
+ font-size: 0.78rem;
+ }
+ .nb:hover { border-color: var(--border); }
+ .nb .day { font-family: var(--mono); color: var(--mute); }
+ .nb .bar-track { height: 10px; background: #292524; border-radius: 3px; overflow: hidden; }
+ .nb .bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold2)); width: 0; transition: width 0.45s ease; }
+ .nb .ret { font-family: var(--mono); text-align: right; }
+ .nb .ret.pos { color: var(--long); }
+ .nb .ret.neg { color: var(--short); }
+ .tape {
+ margin-top: 1rem;
+ height: 72px;
+ position: relative;
+ background: #0c0a09;
+ border: 1px solid var(--border);
+ border-radius: 10px;
+ overflow: hidden;
+ }
+ .tape canvas { width: 100%; height: 100%; display: block; }
+ .foot { margin-top: 1rem; font-size: 0.78rem; color: var(--mute); line-height: 1.5; }
+ .foot a { color: var(--gold); }
+ .note { font-size: 0.75rem; color: var(--mute); margin: 0.35rem 0 0; line-height: 1.4; }
+ </style>
+ </head>
+ <body>
+ <main>
+ <a class="back" href="../">← Portfolio</a>
+ <h1>Macro Bias · Regime Compass</h1>
+ <p class="sub">
+ Walk-forward KNN permission layer — drag macro weather, watch neighbours reweight and bias flip.
+ Live product:
+ <a href="https://macro-bias.com" target="_blank" rel="noopener">macro-bias.com</a>
+ </p>
 
-      <div class="layout">
-        <section class="panel">
-          <h2>Regime compass</h2>
-          <div class="compass-wrap">
-            <div class="bias-pill FLAT" id="biasPill">FLAT</div>
-            <div class="meta" id="biasMeta">score · size · grade</div>
-            <canvas id="radar" width="340" height="340"></canvas>
-          </div>
-          <p class="note">
-            Features stationarized as rolling percentiles (demo). Cosine distance on z-scored features → inverse-distance-weighted neighbours.
-          </p>
-        </section>
+ <div class="layout">
+ <section class="panel">
+ <h2>Regime compass</h2>
+ <div class="compass-wrap">
+ <div class="bias-pill FLAT" id="biasPill">FLAT</div>
+ <div class="meta" id="biasMeta">score · size · grade</div>
+ <canvas id="radar" width="340" height="340"></canvas>
+ </div>
+ <p class="note">
+ Features stationarized as rolling percentiles (demo). Cosine distance on z-scored features → inverse-distance-weighted neighbours.
+ </p>
+ </section>
 
-        <section class="panel">
-          <h2>Macro weather (drag)</h2>
-          <div class="sliders" id="sliders"></div>
-          <div class="presets" id="presets"></div>
-          <h2 style="margin-top:1.1rem">KNN neighbours</h2>
-          <div class="neighbours" id="neighbours"></div>
-          <h2 style="margin-top:1.1rem">Walk-forward tape (illustrative)</h2>
-          <div class="tape"><canvas id="tape" width="520" height="72"></canvas></div>
-          <p class="note">Synthetic path for UX — live track record on the product site.</p>
-        </section>
-      </div>
+ <section class="panel">
+ <h2>Macro weather (drag)</h2>
+ <div class="sliders" id="sliders"></div>
+ <div class="presets" id="presets"></div>
+ <h2 style="margin-top:1.1rem">KNN neighbours</h2>
+ <div class="neighbours" id="neighbours"></div>
+ <h2 style="margin-top:1.1rem">Walk-forward tape (illustrative)</h2>
+ <div class="tape"><canvas id="tape" width="520" height="72"></canvas></div>
+ <p class="note">Synthetic path for UX — live track record on the product site.</p>
+ </section>
+ </div>
 
-      <p class="foot">
-        Demo of the Macro Bias research surface (KNN regime → LONG / SHORT / FLAT / NO_TRADE).
-        Source:
-        <a href="https://github.com/FiNdAlMkSkInDaL/Macro-Bias">Macro-Bias</a>
-        · not investment advice.
-      </p>
-    </main>
-    <script>
-      const FEATURES = [
-        { id: "spy_rsi", label: "SPY RSI %ile", key: "spy" },
-        { id: "vix_mom", label: "VIX momentum %ile", key: "vix" },
-        { id: "hyg_tlt", label: "HYG/TLT %ile", key: "credit" },
-        { id: "cper_gld", label: "CPER/GLD %ile", key: "metals" },
-        { id: "uso_mom", label: "USO mom %ile", key: "oil" },
-      ];
+ <p class="foot">
+ Demo of the Macro Bias research surface (KNN regime → LONG / SHORT / FLAT / NO_TRADE).
+ Source:
+ <a href="https://github.com/FiNdAlMkSkInDaL/Macro-Bias">Macro-Bias</a>
+ · not investment advice.
+ </p>
+ </main>
+ <script>
+ const FEATURES = [
+ { id: "spy_rsi", label: "SPY RSI %ile", key: "spy" },
+ { id: "vix_mom", label: "VIX momentum %ile", key: "vix" },
+ { id: "hyg_tlt", label: "HYG/TLT %ile", key: "credit" },
+ { id: "cper_gld", label: "CPER/GLD %ile", key: "metals" },
+ { id: "uso_mom", label: "USO mom %ile", key: "oil" },
+ ];
 
-      // Historical "days" in feature space (percentiles 0-1) + forward returns
-      const LIBRARY = [];
-      (function seedLib() {
-        const rnd = (s) => {
-          let x = s;
-          return () => {
-            x = (x * 16807) % 2147483647;
-            return (x - 1) / 2147483646;
-          };
-        };
-        const r = rnd(42);
-        for (let i = 0; i < 48; i++) {
-          const spy = r();
-          const vix = r();
-          const credit = r();
-          const metals = r();
-          const oil = r();
-          // Toy forward return correlated with risk-on (low vix, high spy)
-          const riskOn = (1 - vix) * 0.4 + spy * 0.3 + credit * 0.2 + (1 - oil) * 0.1;
-          const noise = (r() - 0.5) * 0.012;
-          const ret = (riskOn - 0.5) * 0.03 + noise;
-          LIBRARY.push({
-            day: `D-${48 - i}`,
-            f: [spy, vix, credit, metals, oil],
-            ret,
-          });
-        }
-      })();
+ // Historical "days" in feature space (percentiles 0-1) + forward returns
+ const LIBRARY = [];
+ (function seedLib() {
+ const rnd = (s) => {
+ let x = s;
+ return () => {
+ x = (x * 16807) % 2147483647;
+ return (x - 1) / 2147483646;
+ };
+ };
+ const r = rnd(42);
+ for (let i = 0; i < 48; i++) {
+ const spy = r();
+ const vix = r();
+ const credit = r();
+ const metals = r();
+ const oil = r();
+ // Toy forward return correlated with risk-on (low vix, high spy)
+ const riskOn = (1 - vix) * 0.4 + spy * 0.3 + credit * 0.2 + (1 - oil) * 0.1;
+ const noise = (r() - 0.5) * 0.012;
+ const ret = (riskOn - 0.5) * 0.03 + noise;
+ LIBRARY.push({
+ day: `D-${48 - i}`,
+ f: [spy, vix, credit, metals, oil],
+ ret,
+ });
+ }
+ })();
 
-      const state = { spy: 0.55, vix: 0.4, credit: 0.5, metals: 0.45, oil: 0.5 };
+ const state = { spy: 0.55, vix: 0.4, credit: 0.5, metals: 0.45, oil: 0.5 };
 
-      const PRESETS = [
-        { name: "Risk-on calm", spy: 0.72, vix: 0.22, credit: 0.68, metals: 0.4, oil: 0.45 },
-        { name: "VIX spike", spy: 0.25, vix: 0.9, credit: 0.2, metals: 0.55, oil: 0.6 },
-        { name: "Credit stress", spy: 0.35, vix: 0.7, credit: 0.12, metals: 0.5, oil: 0.55 },
-        { name: "Oil shock", spy: 0.4, vix: 0.65, credit: 0.35, metals: 0.48, oil: 0.92 },
-        { name: "Chop / mid", spy: 0.5, vix: 0.5, credit: 0.5, metals: 0.5, oil: 0.5 },
-      ];
+ const PRESETS = [
+ { name: "Risk-on calm", spy: 0.72, vix: 0.22, credit: 0.68, metals: 0.4, oil: 0.45 },
+ { name: "VIX spike", spy: 0.25, vix: 0.9, credit: 0.2, metals: 0.55, oil: 0.6 },
+ { name: "Credit stress", spy: 0.35, vix: 0.7, credit: 0.12, metals: 0.5, oil: 0.55 },
+ { name: "Oil shock", spy: 0.4, vix: 0.65, credit: 0.35, metals: 0.48, oil: 0.92 },
+ { name: "Chop / mid", spy: 0.5, vix: 0.5, credit: 0.5, metals: 0.5, oil: 0.5 },
+ ];
 
-      function vec() {
-        return [state.spy, state.vix, state.credit, state.metals, state.oil];
-      }
+ function vec() {
+ return [state.spy, state.vix, state.credit, state.metals, state.oil];
+ }
 
-      function cosineDist(a, b) {
-        let dot = 0, na = 0, nb = 0;
-        for (let i = 0; i < a.length; i++) {
-          const da = a[i] - 0.5;
-          const db = b[i] - 0.5;
-          dot += da * db;
-          na += da * da;
-          nb += db * db;
-        }
-        const denom = Math.sqrt(na) * Math.sqrt(nb) || 1e-9;
-        return 1 - dot / denom;
-      }
+ function cosineDist(a, b) {
+ let dot = 0, na = 0, nb = 0;
+ for (let i = 0; i < a.length; i++) {
+ const da = a[i] - 0.5;
+ const db = b[i] - 0.5;
+ dot += da * db;
+ na += da * da;
+ nb += db * db;
+ }
+ const denom = Math.sqrt(na) * Math.sqrt(nb) || 1e-9;
+ return 1 - dot / denom;
+ }
 
-      function knn() {
-        const q = vec();
-        const k = state.vix >= 0.55 ? 5 : 7; // adaptive K by VIX (demo of product rule)
-        const scored = LIBRARY.map((row) => ({
-          ...row,
-          dist: cosineDist(q, row.f),
-        })).sort((a, b) => a.dist - b.dist);
-        const top = scored.slice(0, k);
-        let wSum = 0;
-        let rSum = 0;
-        top.forEach((n) => {
-          const w = 1 / (n.dist + 0.08);
-          n.weight = w;
-          wSum += w;
-          rSum += w * n.ret;
-        });
-        top.forEach((n) => {
-          n.wNorm = n.weight / wSum;
-        });
-        const score = rSum / wSum;
-        return { top, score, k };
-      }
+ function knn() {
+ const q = vec();
+ const k = state.vix >= 0.55 ? 5 : 7; // adaptive K by VIX (demo of product rule)
+ const scored = LIBRARY.map((row) => ({
+ ...row,
+ dist: cosineDist(q, row.f),
+ })).sort((a, b) => a.dist - b.dist);
+ const top = scored.slice(0, k);
+ let wSum = 0;
+ let rSum = 0;
+ top.forEach((n) => {
+ const w = 1 / (n.dist + 0.08);
+ n.weight = w;
+ wSum += w;
+ rSum += w * n.ret;
+ });
+ top.forEach((n) => {
+ n.wNorm = n.weight / wSum;
+ });
+ const score = rSum / wSum;
+ return { top, score, k };
+ }
 
-      function permission(score, vix) {
-        if (vix > 0.88 && Math.abs(score) < 0.004) return { bias: "NO_TRADE", size: 0, grade: "C" };
-        if (score > 0.0045) return { bias: "LONG", size: Math.min(1, score * 80), grade: score > 0.008 ? "A" : "B" };
-        if (score < -0.0045) return { bias: "SHORT", size: Math.min(1, -score * 80), grade: score < -0.008 ? "A" : "B" };
-        if (Math.abs(score) < 0.002) return { bias: "NO_TRADE", size: 0, grade: "B" };
-        return { bias: "FLAT", size: 0.15, grade: "B" };
-      }
+ function permission(score, vix) {
+ if (vix > 0.88 && Math.abs(score) < 0.004) return { bias: "NO_TRADE", size: 0, grade: "C" };
+ if (score > 0.0045) return { bias: "LONG", size: Math.min(1, score * 80), grade: score > 0.008 ? "A" : "B" };
+ if (score < -0.0045) return { bias: "SHORT", size: Math.min(1, -score * 80), grade: score < -0.008 ? "A" : "B" };
+ if (Math.abs(score) < 0.002) return { bias: "NO_TRADE", size: 0, grade: "B" };
+ return { bias: "FLAT", size: 0.15, grade: "B" };
+ }
 
-      function drawRadar() {
-        const canvas = document.getElementById("radar");
-        const ctx = canvas.getContext("2d");
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        const size = 340;
-        canvas.width = size * dpr;
-        canvas.height = size * dpr;
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        ctx.clearRect(0, 0, size, size);
-        const cx = size / 2;
-        const cy = size / 2;
-        const R = 120;
-        const n = FEATURES.length;
-        const vals = vec();
+ function drawRadar() {
+ const canvas = document.getElementById("radar");
+ const ctx = canvas.getContext("2d");
+ const dpr = Math.min(window.devicePixelRatio || 1, 2);
+ const size = 340;
+ canvas.width = size * dpr;
+ canvas.height = size * dpr;
+ ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+ ctx.clearRect(0, 0, size, size);
+ const cx = size / 2;
+ const cy = size / 2;
+ const R = 120;
+ const n = FEATURES.length;
+ const vals = vec();
 
-        // rings
-        for (let ring = 1; ring <= 4; ring++) {
-          ctx.beginPath();
-          ctx.strokeStyle = "rgba(251,191,36,0.12)";
-          ctx.lineWidth = 1;
-          for (let i = 0; i <= n; i++) {
-            const a = (-Math.PI / 2) + (i % n) * ((Math.PI * 2) / n);
-            const r = (R * ring) / 4;
-            const x = cx + Math.cos(a) * r;
-            const y = cy + Math.sin(a) * r;
-            if (i === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-          }
-          ctx.closePath();
-          ctx.stroke();
-        }
+ // rings
+ for (let ring = 1; ring <= 4; ring++) {
+ ctx.beginPath();
+ ctx.strokeStyle = "rgba(251,191,36,0.12)";
+ ctx.lineWidth = 1;
+ for (let i = 0; i <= n; i++) {
+ const a = (-Math.PI / 2) + (i % n) * ((Math.PI * 2) / n);
+ const r = (R * ring) / 4;
+ const x = cx + Math.cos(a) * r;
+ const y = cy + Math.sin(a) * r;
+ if (i === 0) ctx.moveTo(x, y);
+ else ctx.lineTo(x, y);
+ }
+ ctx.closePath();
+ ctx.stroke();
+ }
 
-        // axes + labels
-        FEATURES.forEach((f, i) => {
-          const a = (-Math.PI / 2) + i * ((Math.PI * 2) / n);
-          ctx.beginPath();
-          ctx.strokeStyle = "rgba(168,162,158,0.25)";
-          ctx.moveTo(cx, cy);
-          ctx.lineTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R);
-          ctx.stroke();
-          const lx = cx + Math.cos(a) * (R + 28);
-          const ly = cy + Math.sin(a) * (R + 28);
-          ctx.fillStyle = "#a8a29e";
-          ctx.font = "11px IBM Plex Mono, monospace";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText(f.key.toUpperCase(), lx, ly);
-        });
+ // axes + labels
+ FEATURES.forEach((f, i) => {
+ const a = (-Math.PI / 2) + i * ((Math.PI * 2) / n);
+ ctx.beginPath();
+ ctx.strokeStyle = "rgba(168,162,158,0.25)";
+ ctx.moveTo(cx, cy);
+ ctx.lineTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R);
+ ctx.stroke();
+ const lx = cx + Math.cos(a) * (R + 28);
+ const ly = cy + Math.sin(a) * (R + 28);
+ ctx.fillStyle = "#a8a29e";
+ ctx.font = "11px IBM Plex Mono, monospace";
+ ctx.textAlign = "center";
+ ctx.textBaseline = "middle";
+ ctx.fillText(f.key.toUpperCase(), lx, ly);
+ });
 
-        // polygon
-        ctx.beginPath();
-        vals.forEach((v, i) => {
-          const a = (-Math.PI / 2) + i * ((Math.PI * 2) / n);
-          const r = R * (0.15 + v * 0.85);
-          const x = cx + Math.cos(a) * r;
-          const y = cy + Math.sin(a) * r;
-          if (i === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        });
-        ctx.closePath();
-        ctx.fillStyle = "rgba(251,191,36,0.18)";
-        ctx.strokeStyle = "#fbbf24";
-        ctx.lineWidth = 2;
-        ctx.fill();
-        ctx.stroke();
+ // polygon
+ ctx.beginPath();
+ vals.forEach((v, i) => {
+ const a = (-Math.PI / 2) + i * ((Math.PI * 2) / n);
+ const r = R * (0.15 + v * 0.85);
+ const x = cx + Math.cos(a) * r;
+ const y = cy + Math.sin(a) * r;
+ if (i === 0) ctx.moveTo(x, y);
+ else ctx.lineTo(x, y);
+ });
+ ctx.closePath();
+ ctx.fillStyle = "rgba(251,191,36,0.18)";
+ ctx.strokeStyle = "#fbbf24";
+ ctx.lineWidth = 2;
+ ctx.fill();
+ ctx.stroke();
 
-        vals.forEach((v, i) => {
-          const a = (-Math.PI / 2) + i * ((Math.PI * 2) / n);
-          const r = R * (0.15 + v * 0.85);
-          ctx.beginPath();
-          ctx.fillStyle = "#fde68a";
-          ctx.arc(cx + Math.cos(a) * r, cy + Math.sin(a) * r, 4, 0, Math.PI * 2);
-          ctx.fill();
-        });
-      }
+ vals.forEach((v, i) => {
+ const a = (-Math.PI / 2) + i * ((Math.PI * 2) / n);
+ const r = R * (0.15 + v * 0.85);
+ ctx.beginPath();
+ ctx.fillStyle = "#fde68a";
+ ctx.arc(cx + Math.cos(a) * r, cy + Math.sin(a) * r, 4, 0, Math.PI * 2);
+ ctx.fill();
+ });
+ }
 
-      function renderNeighbours(top) {
-        const box = document.getElementById("neighbours");
-        box.innerHTML = "";
-        const maxW = Math.max(...top.map((n) => n.wNorm));
-        top.forEach((n) => {
-          const row = document.createElement("div");
-          row.className = "nb";
-          const retCls = n.ret >= 0 ? "pos" : "neg";
-          const retStr = (n.ret >= 0 ? "+" : "") + (n.ret * 100).toFixed(2) + "%";
-          row.innerHTML =
-            `<div class="day">${n.day}</div>` +
-            `<div class="bar-track"><div class="bar-fill" style="width:0%"></div></div>` +
-            `<div class="ret ${retCls}">${retStr}</div>`;
-          box.appendChild(row);
-          requestAnimationFrame(() => {
-            row.querySelector(".bar-fill").style.width = (n.wNorm / maxW) * 100 + "%";
-          });
-        });
-      }
+ function renderNeighbours(top) {
+ const box = document.getElementById("neighbours");
+ box.innerHTML = "";
+ const maxW = Math.max(...top.map((n) => n.wNorm));
+ top.forEach((n) => {
+ const row = document.createElement("div");
+ row.className = "nb";
+ const retCls = n.ret >= 0 ? "pos" : "neg";
+ const retStr = (n.ret >= 0 ? "+" : "") + (n.ret * 100).toFixed(2) + "%";
+ row.innerHTML =
+ `<div class="day">${n.day}</div>` +
+ `<div class="bar-track"><div class="bar-fill" style="width:0%"></div></div>` +
+ `<div class="ret ${retCls}">${retStr}</div>`;
+ box.appendChild(row);
+ requestAnimationFrame(() => {
+ row.querySelector(".bar-fill").style.width = (n.wNorm / maxW) * 100 + "%";
+ });
+ });
+ }
 
-      function drawTape(score) {
-        const canvas = document.getElementById("tape");
-        const ctx = canvas.getContext("2d");
-        const w = canvas.width;
-        const h = canvas.height;
-        ctx.fillStyle = "#0c0a09";
-        ctx.fillRect(0, 0, w, h);
-        // synthetic equity path nudged by current score
-        let y = h * 0.55;
-        ctx.beginPath();
-        ctx.strokeStyle = score >= 0 ? "#22c55e" : "#ef4444";
-        ctx.lineWidth = 2;
-        for (let x = 0; x < w; x++) {
-          const wave = Math.sin(x * 0.04 + score * 20) * 6;
-          const drift = score * 40 * (x / w);
-          const yy = y - drift + wave + Math.sin(x * 0.11) * 3;
-          if (x === 0) ctx.moveTo(x, yy);
-          else ctx.lineTo(x, yy);
-        }
-        ctx.stroke();
-        ctx.fillStyle = "#78716c";
-        ctx.font = "10px IBM Plex Mono";
-        ctx.fillText("illustrative path · not live track record", 10, h - 8);
-      }
+ function drawTape(score) {
+ const canvas = document.getElementById("tape");
+ const ctx = canvas.getContext("2d");
+ const w = canvas.width;
+ const h = canvas.height;
+ ctx.fillStyle = "#0c0a09";
+ ctx.fillRect(0, 0, w, h);
+ // synthetic equity path nudged by current score
+ let y = h * 0.55;
+ ctx.beginPath();
+ ctx.strokeStyle = score >= 0 ? "#22c55e" : "#ef4444";
+ ctx.lineWidth = 2;
+ for (let x = 0; x < w; x++) {
+ const wave = Math.sin(x * 0.04 + score * 20) * 6;
+ const drift = score * 40 * (x / w);
+ const yy = y - drift + wave + Math.sin(x * 0.11) * 3;
+ if (x === 0) ctx.moveTo(x, yy);
+ else ctx.lineTo(x, yy);
+ }
+ ctx.stroke();
+ ctx.fillStyle = "#78716c";
+ ctx.font = "10px IBM Plex Mono";
+ ctx.fillText("illustrative path · not live track record", 10, h - 8);
+ }
 
-      function update() {
-        const { top, score, k } = knn();
-        const perm = permission(score, state.vix);
-        const pill = document.getElementById("biasPill");
-        pill.textContent = perm.bias;
-        pill.className = "bias-pill " + perm.bias;
-        document.getElementById("biasMeta").textContent =
-          `score ${(score * 100).toFixed(3)}% · K=${k} · size ${(perm.size * 100).toFixed(0)}% · grade ${perm.grade}`;
-        drawRadar();
-        renderNeighbours(top);
-        drawTape(score);
-      }
+ function update() {
+ const { top, score, k } = knn();
+ const perm = permission(score, state.vix);
+ const pill = document.getElementById("biasPill");
+ pill.textContent = perm.bias;
+ pill.className = "bias-pill " + perm.bias;
+ document.getElementById("biasMeta").textContent =
+ `score ${(score * 100).toFixed(3)}% · K=${k} · size ${(perm.size * 100).toFixed(0)}% · grade ${perm.grade}`;
+ drawRadar();
+ renderNeighbours(top);
+ drawTape(score);
+ }
 
-      function buildUI() {
-        const host = document.getElementById("sliders");
-        const map = {
-          spy: "spy",
-          vix: "vix",
-          credit: "credit",
-          metals: "metals",
-          oil: "oil",
-        };
-        FEATURES.forEach((f) => {
-          const key = map[f.key];
-          const row = document.createElement("div");
-          row.className = "slider-row";
-          row.innerHTML =
-            `<label>${f.label}<span id="v_${key}">${Math.round(state[key] * 100)}</span></label>` +
-            `<input type="range" min="0" max="100" value="${Math.round(state[key] * 100)}" id="s_${key}" />`;
-          host.appendChild(row);
-          row.querySelector("input").oninput = (e) => {
-            state[key] = Number(e.target.value) / 100;
-            document.getElementById("v_" + key).textContent = e.target.value;
-            update();
-          };
-        });
+ function buildUI() {
+ const host = document.getElementById("sliders");
+ const map = {
+ spy: "spy",
+ vix: "vix",
+ credit: "credit",
+ metals: "metals",
+ oil: "oil",
+ };
+ FEATURES.forEach((f) => {
+ const key = map[f.key];
+ const row = document.createElement("div");
+ row.className = "slider-row";
+ row.innerHTML =
+ `<label>${f.label}<span id="v_${key}">${Math.round(state[key] * 100)}</span></label>` +
+ `<input type="range" min="0" max="100" value="${Math.round(state[key] * 100)}" id="s_${key}" />`;
+ host.appendChild(row);
+ row.querySelector("input").oninput = (e) => {
+ state[key] = Number(e.target.value) / 100;
+ document.getElementById("v_" + key).textContent = e.target.value;
+ update();
+ };
+ });
 
-        const presets = document.getElementById("presets");
-        PRESETS.forEach((p) => {
-          const b = document.createElement("button");
-          b.type = "button";
-          b.className = "chip";
-          b.textContent = p.name;
-          b.onclick = () => {
-            ["spy", "vix", "credit", "metals", "oil"].forEach((k) => {
-              state[k] = p[k];
-              const el = document.getElementById("s_" + k);
-              if (el) {
-                el.value = Math.round(p[k] * 100);
-                document.getElementById("v_" + k).textContent = el.value;
-              }
-            });
-            presets.querySelectorAll(".chip").forEach((c) => c.classList.remove("active"));
-            b.classList.add("active");
-            update();
-          };
-          presets.appendChild(b);
-        });
-      }
+ const presets = document.getElementById("presets");
+ PRESETS.forEach((p) => {
+ const b = document.createElement("button");
+ b.type = "button";
+ b.className = "chip";
+ b.textContent = p.name;
+ b.onclick = () => {
+ ["spy", "vix", "credit", "metals", "oil"].forEach((k) => {
+ state[k] = p[k];
+ const el = document.getElementById("s_" + k);
+ if (el) {
+ el.value = Math.round(p[k] * 100);
+ document.getElementById("v_" + k).textContent = el.value;
+ }
+ });
+ presets.querySelectorAll(".chip").forEach((c) => c.classList.remove("active"));
+ b.classList.add("active");
+ update();
+ };
+ presets.appendChild(b);
+ });
+ }
 
-      buildUI();
-      update();
-    </script>
-  </body>
+ buildUI();
+ update();
+ </script>
+ </body>
 </html>

@@ -1,787 +1,787 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Tiny Latent Control Lab â€¢ VectorBot</title>
-    <meta
-      name="description"
-      content="Exact portfolio host of latent-control-lab streamlit_app.py (3c0a996): zero-generation latent action routing."
-    />
-    <link rel="icon" href="./favicon-vectorbot.svg" type="image/svg+xml" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Code+Pro:wght@500;600&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      /* Layout + copy mirrored from streamlit_app.py (commit 3c0a996) */
-      :root {
-        --bg: #0e1117;
-        --panel: #262730;
-        --border: rgba(250, 250, 250, 0.1);
-        --text: #fafafa;
-        --dim: #a3a8b4;
-        --mute: #808495;
-        --primary: #ff4b4b;
-        --cyan: #22d3ee;
-        --cyan2: #67e8f9;
-        --green: #21c354;
-        --font: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
-        --mono: "Source Code Pro", ui-monospace, monospace;
-      }
-      * { box-sizing: border-box; }
-      html, body { margin: 0; min-height: 100%; }
-      body {
-        font-family: var(--font);
-        color: var(--text);
-        background: var(--bg);
-        -webkit-font-smoothing: antialiased;
-      }
-      main {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 1.25rem 1.5rem 2.5rem;
-      }
-      .back {
-        display: inline-block;
-        margin-bottom: 0.85rem;
-        font-size: 0.85rem;
-        color: var(--mute);
-        text-decoration: none;
-      }
-      .back:hover { color: var(--cyan); }
-      .header {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 4px;
-        flex-wrap: wrap;
-      }
-      .header .title {
-        font-size: 28px;
-        font-weight: 700;
-        line-height: 1.15;
-      }
-      .header .sub {
-        font-size: 13px;
-        color: #64748b;
-        padding-top: 6px;
-      }
-      .caption {
-        font-size: 0.85rem;
-        color: var(--dim);
-        margin: 0.35rem 0 1rem;
-        line-height: 1.45;
-      }
-      .info {
-        background: rgba(33, 195, 84, 0.1);
-        border: 1px solid rgba(33, 195, 84, 0.35);
-        border-radius: 0.5rem;
-        padding: 0.65rem 0.85rem;
-        font-size: 0.9rem;
-        color: var(--dim);
-        margin-bottom: 1rem;
-      }
-      h3.section {
-        margin: 0 0 0.65rem;
-        font-size: 1.1rem;
-        font-weight: 600;
-      }
-      .chips {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 0.45rem;
-        margin-bottom: 1.15rem;
-      }
-      @media (max-width: 900px) {
-        .chips { grid-template-columns: repeat(2, 1fr); }
-        .layout { grid-template-columns: 1fr !important; }
-      }
-      .chip {
-        font: inherit;
-        font-size: 0.85rem;
-        padding: 0.45rem 0.5rem;
-        border-radius: 0.5rem;
-        border: 1px solid var(--border);
-        background: var(--panel);
-        color: var(--text);
-        cursor: pointer;
-        text-align: center;
-      }
-      .chip:hover, .chip.active {
-        border-color: rgba(255, 75, 75, 0.55);
-        background: rgba(255, 75, 75, 0.12);
-      }
-      .layout {
-        display: grid;
-        grid-template-columns: 1.15fr 1fr;
-        gap: 1.25rem;
-        align-items: start;
-      }
-      .label-strong {
-        font-weight: 600;
-        margin: 0 0 0.45rem;
-        font-size: 0.95rem;
-      }
-      #cmd {
-        width: 100%;
-        padding: 0.55rem 0.7rem;
-        border-radius: 0.5rem;
-        border: 1px solid var(--border);
-        background: #0e1117;
-        color: var(--text);
-        font: inherit;
-        font-size: 1rem;
-        margin-bottom: 0.55rem;
-      }
-      #cmd:focus {
-        outline: none;
-        border-color: rgba(255, 75, 75, 0.65);
-        box-shadow: 0 0 0 1px rgba(255, 75, 75, 0.35);
-      }
-      .actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.5rem;
-        margin-bottom: 0.75rem;
-      }
-      .btn {
-        font: inherit;
-        font-weight: 600;
-        font-size: 0.95rem;
-        padding: 0.55rem 0.75rem;
-        border-radius: 0.5rem;
-        border: 1px solid var(--border);
-        background: var(--panel);
-        color: var(--text);
-        cursor: pointer;
-      }
-      .btn.primary {
-        background: var(--primary);
-        border-color: var(--primary);
-        color: #fff;
-      }
-      .btn:hover { filter: brightness(1.06); }
-      .timing {
-        font-size: 0.82rem;
-        color: var(--mute);
-        margin: 0.25rem 0 0.65rem;
-      }
-      h3.bonnet {
-        margin: 0.5rem 0 0.35rem;
-        font-size: 1.15rem;
-      }
-      .probe-box {
-        background: #0a0f1e;
-        border: 2px solid #1e40af;
-        border-radius: 10px;
-        padding: 14px 16px;
-        margin: 8px 0 8px;
-        font-family: var(--mono);
-        color: #bae6fd;
-      }
-      .probe-title {
-        font-size: 15px;
-        font-weight: 600;
-        color: #67e8f9;
-        margin-bottom: 6px;
-      }
-      .probe-note {
-        font-size: 10px;
-        color: #64748b;
-        margin-bottom: 8px;
-        line-height: 1.4;
-      }
-      .probe-foot {
-        margin-top: 6px;
-        font-size: 9px;
-        color: #475569;
-      }
-      .prob-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin: 4px 0;
-      }
-      .prob-lab {
-        width: 110px;
-        font-size: 12px;
-        color: #bae6fd;
-        text-align: right;
-        font-family: var(--mono);
-      }
-      .prob-track {
-        flex: 1;
-        background: #1e2937;
-        height: 22px;
-        border-radius: 3px;
-        overflow: hidden;
-        border: 1px solid #334155;
-        position: relative;
-      }
-      .prob-fill {
-        height: 100%;
-        width: 0%;
-        background: linear-gradient(90deg, #22d3ee, #67e8f9);
-        box-shadow: 0 0 8px #67e8f9;
-        transition: width 1200ms cubic-bezier(0.23, 1, 0.32, 1);
-      }
-      .prob-pct {
-        width: 60px;
-        font-size: 12px;
-        color: #e0f2fe;
-        font-family: var(--mono);
-        text-align: left;
-      }
-      .state-line {
-        font-family: var(--mono);
-        font-size: 12px;
-        color: #334155;
-        margin-bottom: 6px;
-      }
-      .grid-frame {
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-        background: #0f172a;
-        padding: 8px;
-        border-radius: 8px;
-        width: fit-content;
-      }
-      .grid-row {
-        display: flex;
-        gap: 3px;
-        justify-content: center;
-      }
-      .cell {
-        width: 52px;
-        height: 52px;
-        border-radius: 4px;
-        border: 1px solid #94a3b8;
-        background: #f1f5f9;
-      }
-      .cell.visited {
-        background: #e0e7ff;
-        border: 1px solid #64748b;
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 11px;
-        color: #64748b;
-      }
-      .cell.bot {
-        background: #60a5fa;
-        border: 3px solid #1e40af;
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 22px;
-      }
-      .cell.bot.lit {
-        background: #fde047;
-        border-color: #ca8a04;
-        box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.35);
-      }
-      details.replay {
-        margin-top: 1.25rem;
-        border: 1px solid var(--border);
-        border-radius: 0.5rem;
-        background: rgba(38, 39, 48, 0.45);
-        padding: 0.35rem 0.75rem 0.75rem;
-      }
-      details.replay > summary {
-        cursor: pointer;
-        font-weight: 600;
-        padding: 0.55rem 0;
-        list-style: none;
-      }
-      details.replay > summary::-webkit-details-marker { display: none; }
-      .replay-body { padding-bottom: 0.35rem; }
-      select#replaySel {
-        width: 100%;
-        padding: 0.45rem;
-        border-radius: 0.4rem;
-        border: 1px solid var(--border);
-        background: #0e1117;
-        color: var(--text);
-        font: inherit;
-        margin: 0.35rem 0 0.55rem;
-      }
-      pre.json {
-        background: #0e1117;
-        border: 1px solid var(--border);
-        border-radius: 0.4rem;
-        padding: 0.65rem 0.75rem;
-        font-family: var(--mono);
-        font-size: 0.78rem;
-        overflow: auto;
-        color: var(--dim);
-      }
-      pre.ascii {
-        background: #0e1117;
-        border: 1px solid var(--border);
-        border-radius: 0.4rem;
-        padding: 0.65rem 0.75rem;
-        font-family: var(--mono);
-        font-size: 0.78rem;
-        color: var(--text);
-        overflow: auto;
-      }
-      .foot {
-        margin-top: 1.15rem;
-        font-size: 0.85rem;
-        color: var(--mute);
-        line-height: 1.45;
-      }
-      .foot a { color: var(--cyan); }
-      .result-line {
-        font-family: var(--mono);
-        font-size: 0.82rem;
-        color: var(--dim);
-        margin: 0.35rem 0 0.55rem;
-        min-height: 1.2em;
-      }
-    </style>
-  </head>
-  <body>
-    <main>
-      <a class="back" href="../">â† Portfolio</a>
+ <head>
+ <meta charset="utf-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1" />
+ <title>Tiny Latent Control Lab * VectorBot</title>
+ <meta
+ name="description"
+ content="Exact portfolio host of latent-control-lab streamlit_app.py (3c0a996): zero-generation latent action routing."
+ />
+ <link rel="icon" href="./favicon-vectorbot.svg" type="image/svg+xml" />
+ <link rel="preconnect" href="https://fonts.googleapis.com" />
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+ <link
+ href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Code+Pro:wght@500;600&display=swap"
+ rel="stylesheet"
+ />
+ <style>
+ /* Layout + copy mirrored from streamlit_app.py (commit 3c0a996) */
+ :root {
+ --bg: #0e1117;
+ --panel: #262730;
+ --border: rgba(250, 250, 250, 0.1);
+ --text: #fafafa;
+ --dim: #a3a8b4;
+ --mute: #808495;
+ --primary: #ff4b4b;
+ --cyan: #22d3ee;
+ --cyan2: #67e8f9;
+ --green: #21c354;
+ --font: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+ --mono: "Source Code Pro", ui-monospace, monospace;
+ }
+ * { box-sizing: border-box; }
+ html, body { margin: 0; min-height: 100%; }
+ body {
+ font-family: var(--font);
+ color: var(--text);
+ background: var(--bg);
+ -webkit-font-smoothing: antialiased;
+ }
+ main {
+ max-width: 1200px;
+ margin: 0 auto;
+ padding: 1.25rem 1.5rem 2.5rem;
+ }
+ .back {
+ display: inline-block;
+ margin-bottom: 0.85rem;
+ font-size: 0.85rem;
+ color: var(--mute);
+ text-decoration: none;
+ }
+ .back:hover { color: var(--cyan); }
+ .header {
+ display: flex;
+ align-items: center;
+ gap: 12px;
+ margin-bottom: 4px;
+ flex-wrap: wrap;
+ }
+ .header .title {
+ font-size: 28px;
+ font-weight: 700;
+ line-height: 1.15;
+ }
+ .header .sub {
+ font-size: 13px;
+ color: #64748b;
+ padding-top: 6px;
+ }
+ .caption {
+ font-size: 0.85rem;
+ color: var(--dim);
+ margin: 0.35rem 0 1rem;
+ line-height: 1.45;
+ }
+ .info {
+ background: rgba(33, 195, 84, 0.1);
+ border: 1px solid rgba(33, 195, 84, 0.35);
+ border-radius: 0.5rem;
+ padding: 0.65rem 0.85rem;
+ font-size: 0.9rem;
+ color: var(--dim);
+ margin-bottom: 1rem;
+ }
+ h3.section {
+ margin: 0 0 0.65rem;
+ font-size: 1.1rem;
+ font-weight: 600;
+ }
+ .chips {
+ display: grid;
+ grid-template-columns: repeat(5, 1fr);
+ gap: 0.45rem;
+ margin-bottom: 1.15rem;
+ }
+ @media (max-width: 900px) {
+ .chips { grid-template-columns: repeat(2, 1fr); }
+ .layout { grid-template-columns: 1fr !important; }
+ }
+ .chip {
+ font: inherit;
+ font-size: 0.85rem;
+ padding: 0.45rem 0.5rem;
+ border-radius: 0.5rem;
+ border: 1px solid var(--border);
+ background: var(--panel);
+ color: var(--text);
+ cursor: pointer;
+ text-align: center;
+ }
+ .chip:hover, .chip.active {
+ border-color: rgba(255, 75, 75, 0.55);
+ background: rgba(255, 75, 75, 0.12);
+ }
+ .layout {
+ display: grid;
+ grid-template-columns: 1.15fr 1fr;
+ gap: 1.25rem;
+ align-items: start;
+ }
+ .label-strong {
+ font-weight: 600;
+ margin: 0 0 0.45rem;
+ font-size: 0.95rem;
+ }
+ #cmd {
+ width: 100%;
+ padding: 0.55rem 0.7rem;
+ border-radius: 0.5rem;
+ border: 1px solid var(--border);
+ background: #0e1117;
+ color: var(--text);
+ font: inherit;
+ font-size: 1rem;
+ margin-bottom: 0.55rem;
+ }
+ #cmd:focus {
+ outline: none;
+ border-color: rgba(255, 75, 75, 0.65);
+ box-shadow: 0 0 0 1px rgba(255, 75, 75, 0.35);
+ }
+ .actions {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 0.5rem;
+ margin-bottom: 0.75rem;
+ }
+ .btn {
+ font: inherit;
+ font-weight: 600;
+ font-size: 0.95rem;
+ padding: 0.55rem 0.75rem;
+ border-radius: 0.5rem;
+ border: 1px solid var(--border);
+ background: var(--panel);
+ color: var(--text);
+ cursor: pointer;
+ }
+ .btn.primary {
+ background: var(--primary);
+ border-color: var(--primary);
+ color: #fff;
+ }
+ .btn:hover { filter: brightness(1.06); }
+ .timing {
+ font-size: 0.82rem;
+ color: var(--mute);
+ margin: 0.25rem 0 0.65rem;
+ }
+ h3.bonnet {
+ margin: 0.5rem 0 0.35rem;
+ font-size: 1.15rem;
+ }
+ .probe-box {
+ background: #0a0f1e;
+ border: 2px solid #1e40af;
+ border-radius: 10px;
+ padding: 14px 16px;
+ margin: 8px 0 8px;
+ font-family: var(--mono);
+ color: #bae6fd;
+ }
+ .probe-title {
+ font-size: 15px;
+ font-weight: 600;
+ color: #67e8f9;
+ margin-bottom: 6px;
+ }
+ .probe-note {
+ font-size: 10px;
+ color: #64748b;
+ margin-bottom: 8px;
+ line-height: 1.4;
+ }
+ .probe-foot {
+ margin-top: 6px;
+ font-size: 9px;
+ color: #475569;
+ }
+ .prob-row {
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ margin: 4px 0;
+ }
+ .prob-lab {
+ width: 110px;
+ font-size: 12px;
+ color: #bae6fd;
+ text-align: right;
+ font-family: var(--mono);
+ }
+ .prob-track {
+ flex: 1;
+ background: #1e2937;
+ height: 22px;
+ border-radius: 3px;
+ overflow: hidden;
+ border: 1px solid #334155;
+ position: relative;
+ }
+ .prob-fill {
+ height: 100%;
+ width: 0%;
+ background: linear-gradient(90deg, #22d3ee, #67e8f9);
+ box-shadow: 0 0 8px #67e8f9;
+ transition: width 1200ms cubic-bezier(0.23, 1, 0.32, 1);
+ }
+ .prob-pct {
+ width: 60px;
+ font-size: 12px;
+ color: #e0f2fe;
+ font-family: var(--mono);
+ text-align: left;
+ }
+ .state-line {
+ font-family: var(--mono);
+ font-size: 12px;
+ color: #334155;
+ margin-bottom: 6px;
+ }
+ .grid-frame {
+ display: flex;
+ flex-direction: column;
+ gap: 3px;
+ background: #0f172a;
+ padding: 8px;
+ border-radius: 8px;
+ width: fit-content;
+ }
+ .grid-row {
+ display: flex;
+ gap: 3px;
+ justify-content: center;
+ }
+ .cell {
+ width: 52px;
+ height: 52px;
+ border-radius: 4px;
+ border: 1px solid #94a3b8;
+ background: #f1f5f9;
+ }
+ .cell.visited {
+ background: #e0e7ff;
+ border: 1px solid #64748b;
+ border-radius: 4px;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ font-size: 11px;
+ color: #64748b;
+ }
+ .cell.bot {
+ background: #60a5fa;
+ border: 3px solid #1e40af;
+ border-radius: 6px;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ font-size: 22px;
+ }
+ .cell.bot.lit {
+ background: #fde047;
+ border-color: #ca8a04;
+ box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.35);
+ }
+ details.replay {
+ margin-top: 1.25rem;
+ border: 1px solid var(--border);
+ border-radius: 0.5rem;
+ background: rgba(38, 39, 48, 0.45);
+ padding: 0.35rem 0.75rem 0.75rem;
+ }
+ details.replay > summary {
+ cursor: pointer;
+ font-weight: 600;
+ padding: 0.55rem 0;
+ list-style: none;
+ }
+ details.replay > summary::-webkit-details-marker { display: none; }
+ .replay-body { padding-bottom: 0.35rem; }
+ select#replaySel {
+ width: 100%;
+ padding: 0.45rem;
+ border-radius: 0.4rem;
+ border: 1px solid var(--border);
+ background: #0e1117;
+ color: var(--text);
+ font: inherit;
+ margin: 0.35rem 0 0.55rem;
+ }
+ pre.json {
+ background: #0e1117;
+ border: 1px solid var(--border);
+ border-radius: 0.4rem;
+ padding: 0.65rem 0.75rem;
+ font-family: var(--mono);
+ font-size: 0.78rem;
+ overflow: auto;
+ color: var(--dim);
+ }
+ pre.ascii {
+ background: #0e1117;
+ border: 1px solid var(--border);
+ border-radius: 0.4rem;
+ padding: 0.65rem 0.75rem;
+ font-family: var(--mono);
+ font-size: 0.78rem;
+ color: var(--text);
+ overflow: auto;
+ }
+ .foot {
+ margin-top: 1.15rem;
+ font-size: 0.85rem;
+ color: var(--mute);
+ line-height: 1.45;
+ }
+ .foot a { color: var(--cyan); }
+ .result-line {
+ font-family: var(--mono);
+ font-size: 0.82rem;
+ color: var(--dim);
+ margin: 0.35rem 0 0.55rem;
+ min-height: 1.2em;
+ }
+ </style>
+ </head>
+ <body>
+ <main>
+ <a class="back" href="../"><- Portfolio</a>
 
-      <div class="header">
-        <div class="title">Tiny Latent Control Lab</div>
-        <div class="sub">zero-generation â€¢ frozen activations â†’ typed actions</div>
-      </div>
+ <div class="header">
+ <div class="title">Tiny Latent Control Lab</div>
+ <div class="sub">zero-generation * frozen activations -> typed actions</div>
+ </div>
 
-      <h3 class="section">Try these commands</h3>
-      <div class="chips" id="chips"></div>
+ <h3 class="section">Try these commands</h3>
+ <div class="chips" id="chips"></div>
 
-      <div class="layout">
-        <section>
-          <p class="label-strong">Natural language command</p>
-          <input id="cmd" type="text" value="go north" spellcheck="false" />
-          <div class="actions">
-            <button class="btn primary" id="routeBtn" type="button">ðŸš€ Route with Latent Vector</button>
-            <button class="btn" id="resetBtn" type="button">â†º Reset grid</button>
-          </div>
-          <div class="result-line" id="resultLine"></div>
-          <div class="timing" id="timing"></div>
+ <div class="layout">
+ <section>
+ <p class="label-strong">Natural language command</p>
+ <input id="cmd" type="text" value="go north" spellcheck="false" />
+ <div class="actions">
+ <button class="btn primary" id="routeBtn" type="button">Route with Latent Vector</button>
+ <button class="btn" id="resetBtn" type="button">Reset grid</button>
+ </div>
+ <div class="result-line" id="resultLine"></div>
+ <div class="timing" id="timing"></div>
 
-          <h3 class="bonnet">ðŸ§  What's happening under the bonnet</h3>
-          <div class="probe-box">
-            <div class="probe-title">Probe output â€” predicted probability distribution</div>
-            <div class="probe-note">
-              The linear probe turns the 768-dimensional activation vector into a distribution over
-              the 7 possible actions (sums to ~100%).
-            </div>
-            <div id="bars"></div>
-            <div class="probe-foot">
-              These are the model's "beliefs" right after the forward pass. The gate then decides
-              whether to act or ABSTAIN.
-            </div>
-          </div>
-          <p class="timing">
-            The linear probe's softmax output â€” the model's current belief over every possible action.
-          </p>
-        </section>
+ <h3 class="bonnet">What's happening under the bonnet</h3>
+ <div class="probe-box">
+ <div class="probe-title">Probe output - predicted probability distribution</div>
+ <div class="probe-note">
+ The linear probe turns the 768-dimensional activation vector into a distribution over
+ the 7 possible actions (sums to ~100%).
+ </div>
+ <div id="bars"></div>
+ <div class="probe-foot">
+ These are the model's "beliefs" right after the forward pass. The gate then decides
+ whether to act or ABSTAIN.
+ </div>
+ </div>
+ <p class="timing">
+ The linear probe's softmax output - the model's current belief over every possible action.
+ </p>
+ </section>
 
-        <section>
-          <p class="label-strong">Current state (latent-routed)</p>
-          <div class="state-line" id="stateLine">VectorBot | step=0 | light=OFF</div>
-          <div class="grid-frame" id="grid"></div>
-        </section>
-      </div>
+ <section>
+ <p class="label-strong">Current state (latent-routed)</p>
+ <div class="state-line" id="stateLine">VectorBot | step=0 | light=OFF</div>
+ <div class="grid-frame" id="grid"></div>
+ </section>
+ </div>
 
-      <details class="replay">
-        <summary>ðŸ“¼ Replay log (optional)</summary>
-        <div class="replay-body">
-          <label for="replaySel" class="timing">Select replay entry</label>
-          <select id="replaySel"></select>
-          <button class="btn" id="loadReplay" type="button">Load this replay into grid</button>
-          <pre class="json" id="replayJson">{}</pre>
-          <p class="label-strong" style="margin-top:0.75rem">State after (replayed)</p>
-          <pre class="ascii" id="replayAscii"></pre>
-        </div>
-      </details>
+ <details class="replay">
+ <summary>Replay log (optional)</summary>
+ <div class="replay-body">
+ <label for="replaySel" class="timing">Select replay entry</label>
+ <select id="replaySel"></select>
+ <button class="btn" id="loadReplay" type="button">Load this replay into grid</button>
+ <pre class="json" id="replayJson">{}</pre>
+ <p class="label-strong" style="margin-top:0.75rem">State after (replayed)</p>
+ <pre class="ascii" id="replayAscii"></pre>
+ </div>
+ </details>
 
-      <p class="foot">
-        Core invariant: action is chosen exclusively from the activation vector + probe. Raw text is
-        logged only for audit. The kernel never sees or parses natural language.
-        Â· Source:
-        <a href="https://github.com/FiNdAlMkSkInDaL/latent-control-lab">latent-control-lab</a>
-        Â· file: <code>streamlit_app.py</code>
-      </p>
-    </main>
+ <p class="foot">
+ Core invariant: action is chosen exclusively from the activation vector + probe. Raw text is
+ logged only for audit. The kernel never sees or parses natural language.
+ * Source:
+ <a href="https://github.com/FiNdAlMkSkInDaL/latent-control-lab">latent-control-lab</a>
+ * file: <code>streamlit_app.py</code>
+ </p>
+ </main>
 
-    <script>
-      /**
-       * Exact command set + layout behaviour from streamlit_app.py (3c0a996).
-       * Routing for chips uses artifacts/vectorbot_routes_full.jsonl (via vectorbot_data.json).
-       */
-      const DEMO_COMMANDS = [
-        ["go north", "MOVE_UP"],
-        ["take one step south", "MOVE_DOWN"],
-        ["slide left", "MOVE_LEFT"],
-        ["move the bot right", "MOVE_RIGHT"],
-        ["toggle the lamp", "TOGGLE_LIGHT"],
-        ["reset the board", "RESET"],
-        ["what is the weather tomorrow?", "ABSTAIN"],
-        ["delete all files on this laptop", "ABSTAIN"],
-        ["move up and then right", "ABSTAIN"],
-        ["paint the robot purple", "ABSTAIN"],
-      ];
-      const LABEL_ORDER = [
-        "MOVE_UP",
-        "MOVE_DOWN",
-        "MOVE_LEFT",
-        "MOVE_RIGHT",
-        "TOGGLE_LIGHT",
-        "RESET",
-        "ABSTAIN",
-      ];
+ <script>
+ /**
+ * Exact command set + layout behaviour from streamlit_app.py (3c0a996).
+ * Routing for chips uses artifacts/vectorbot_routes_full.jsonl (via vectorbot_data.json).
+ */
+ const DEMO_COMMANDS = [
+ ["go north", "MOVE_UP"],
+ ["take one step south", "MOVE_DOWN"],
+ ["slide left", "MOVE_LEFT"],
+ ["move the bot right", "MOVE_RIGHT"],
+ ["toggle the lamp", "TOGGLE_LIGHT"],
+ ["reset the board", "RESET"],
+ ["what is the weather tomorrow?", "ABSTAIN"],
+ ["delete all files on this laptop", "ABSTAIN"],
+ ["move up and then right", "ABSTAIN"],
+ ["paint the robot purple", "ABSTAIN"],
+ ];
+ const LABEL_ORDER = [
+ "MOVE_UP",
+ "MOVE_DOWN",
+ "MOVE_LEFT",
+ "MOVE_RIGHT",
+ "TOGGLE_LIGHT",
+ "RESET",
+ "ABSTAIN",
+ ];
 
-      let DATA = { examples: [], routes: [] };
-      let state = {
-        width: 5,
-        height: 5,
-        x: 2,
-        y: 2,
-        light_on: false,
-        mode: "idle",
-        step_count: 0,
-        trail: [],
-        action_history: [],
-      };
+ let DATA = { examples: [], routes: [] };
+ let state = {
+ width: 5,
+ height: 5,
+ x: 2,
+ y: 2,
+ light_on: false,
+ mode: "idle",
+ step_count: 0,
+ trail: [],
+ action_history: [],
+ };
 
-      function freshState() {
-        return {
-          width: 5,
-          height: 5,
-          x: 2,
-          y: 2,
-          light_on: false,
-          mode: "idle",
-          step_count: 0,
-          trail: [],
-          action_history: [],
-        };
-      }
+ function freshState() {
+ return {
+ width: 5,
+ height: 5,
+ x: 2,
+ y: 2,
+ light_on: false,
+ mode: "idle",
+ step_count: 0,
+ trail: [],
+ action_history: [],
+ };
+ }
 
-      function renderGrid() {
-        const trail = new Set((state.trail || []).map((p) => p[0] + "," + p[1]));
-        const trailNote = state.trail && state.trail.length ? `trail length: ${state.trail.length}` : "";
-        document.getElementById("stateLine").textContent =
-          `VectorBot | step=${state.step_count} | light=${state.light_on ? "ON" : "OFF"} | ${trailNote}`;
-        // Match neural_native.vectorbot.render.render_grid_html cell styling
-        const grid = document.getElementById("grid");
-        grid.innerHTML = "";
-        for (let y = 0; y < 5; y++) {
-          const row = document.createElement("div");
-          row.className = "grid-row";
-          for (let x = 0; x < 5; x++) {
-            const cell = document.createElement("div");
-            const isBot = x === state.x && y === state.y;
-            const visited = trail.has(x + "," + y) && !isBot;
-            if (isBot) {
-              cell.className = "cell bot" + (state.light_on ? " lit" : "");
-              cell.textContent = state.light_on ? "âœ¨" : "ðŸ¤–";
-            } else if (visited) {
-              cell.className = "cell visited";
-              cell.textContent = "Â·";
-            } else {
-              cell.className = "cell";
-            }
-            row.appendChild(cell);
-          }
-          grid.appendChild(row);
-        }
-      }
+ function renderGrid() {
+ const trail = new Set((state.trail || []).map((p) => p[0] + "," + p[1]));
+ const trailNote = state.trail && state.trail.length ? `trail length: ${state.trail.length}` : "";
+ document.getElementById("stateLine").textContent =
+ `VectorBot | step=${state.step_count} | light=${state.light_on ? "ON" : "OFF"} | ${trailNote}`;
+ // Match neural_native.vectorbot.render.render_grid_html cell styling
+ const grid = document.getElementById("grid");
+ grid.innerHTML = "";
+ for (let y = 0; y < 5; y++) {
+ const row = document.createElement("div");
+ row.className = "grid-row";
+ for (let x = 0; x < 5; x++) {
+ const cell = document.createElement("div");
+ const isBot = x === state.x && y === state.y;
+ const visited = trail.has(x + "," + y) && !isBot;
+ if (isBot) {
+ cell.className = "cell bot" + (state.light_on ? " lit" : "");
+ cell.textContent = state.light_on ? "*" : "B";
+ } else if (visited) {
+ cell.className = "cell visited";
+ cell.textContent = "*";
+ } else {
+ cell.className = "cell";
+ }
+ row.appendChild(cell);
+ }
+ grid.appendChild(row);
+ }
+ }
 
-      function renderBars(probs) {
-        const box = document.getElementById("bars");
-        box.innerHTML = "";
-        const pm = {};
-        (probs || []).forEach((p) => {
-          pm[p.label] = p.probability;
-        });
-        LABEL_ORDER.forEach((lab) => {
-          const prob = pm[lab] != null ? pm[lab] : 0;
-          const pct = prob * 100;
-          const row = document.createElement("div");
-          row.className = "prob-row";
-          row.innerHTML =
-            `<div class="prob-lab">${lab}</div>` +
-            `<div class="prob-track"><div class="prob-fill" data-pct="${pct}" style="width:0%"></div></div>` +
-            `<div class="prob-pct">${pct.toFixed(2)}%</div>`;
-          box.appendChild(row);
-        });
-        // Two rAFs so the 0% width paints before animating (works on repeated same command).
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            box.querySelectorAll(".prob-fill").forEach((bar) => {
-              bar.style.width = (bar.getAttribute("data-pct") || "0") + "%";
-            });
-          });
-        });
-      }
+ function renderBars(probs) {
+ const box = document.getElementById("bars");
+ box.innerHTML = "";
+ const pm = {};
+ (probs || []).forEach((p) => {
+ pm[p.label] = p.probability;
+ });
+ LABEL_ORDER.forEach((lab) => {
+ const prob = pm[lab] != null ? pm[lab] : 0;
+ const pct = prob * 100;
+ const row = document.createElement("div");
+ row.className = "prob-row";
+ row.innerHTML =
+ `<div class="prob-lab">${lab}</div>` +
+ `<div class="prob-track"><div class="prob-fill" data-pct="${pct}" style="width:0%"></div></div>` +
+ `<div class="prob-pct">${pct.toFixed(2)}%</div>`;
+ box.appendChild(row);
+ });
+ // Two rAFs so the 0% width paints before animating (works on repeated same command).
+ requestAnimationFrame(() => {
+ requestAnimationFrame(() => {
+ box.querySelectorAll(".prob-fill").forEach((bar) => {
+ bar.style.width = (bar.getAttribute("data-pct") || "0") + "%";
+ });
+ });
+ });
+ }
 
-      function findExample(text) {
-        // Exact match only â€” fuzzy partials caused wrong / double-feeling routes.
-        const t = (text || "").trim().toLowerCase();
-        return DATA.examples.find((e) => e.text.toLowerCase() === t) || null;
-      }
+ function findExample(text) {
+ // Exact match only - fuzzy partials caused wrong / double-feeling routes.
+ const t = (text || "").trim().toLowerCase();
+ return DATA.examples.find((e) => e.text.toLowerCase() === t) || null;
+ }
 
-      /** Load absolute snapshot (replay log only â€” not used for interactive routing). */
-      function applyStateAfter(sa) {
-        if (!sa) return;
-        state.x = Number(sa.x ?? state.x);
-        state.y = Number(sa.y ?? state.y);
-        state.light_on = !!sa.light_on;
-        state.mode = sa.mode || state.mode;
-        state.step_count = Number(sa.step_count ?? state.step_count);
-        state.action_history = sa.action_history || [];
-        if (sa.trail && sa.trail.length) {
-          state.trail = sa.trail.map((p) => (Array.isArray(p) ? [p[0], p[1]] : p));
-        }
-      }
+ /** Load absolute snapshot (replay log only - not used for interactive routing). */
+ function applyStateAfter(sa) {
+ if (!sa) return;
+ state.x = Number(sa.x ?? state.x);
+ state.y = Number(sa.y ?? state.y);
+ state.light_on = !!sa.light_on;
+ state.mode = sa.mode || state.mode;
+ state.step_count = Number(sa.step_count ?? state.step_count);
+ state.action_history = sa.action_history || [];
+ if (sa.trail && sa.trail.length) {
+ state.trail = sa.trail.map((p) => (Array.isArray(p) ? [p[0], p[1]] : p));
+ }
+ }
 
-      /**
-       * Apply one typed enum to the *live* kernel state â€” same semantics as VectorBotKernel.
-       * Probe artifacts only supply label + probs; they must NOT snap absolute coordinates
-       * (that broke consecutive identical commands and caused teleports/double-steps).
-       */
-      function applyLabel(label) {
-        if (!label || label === "ABSTAIN") return { moved: false, blocked: false };
+ /**
+ * Apply one typed enum to the *live* kernel state - same semantics as VectorBotKernel.
+ * Probe artifacts only supply label + probs; they must NOT snap absolute coordinates
+ * (that broke consecutive identical commands and caused teleports/double-steps).
+ */
+ function applyLabel(label) {
+ if (!label || label === "ABSTAIN") return { moved: false, blocked: false };
 
-        if (label === "RESET") {
-          state = freshState();
-          return { moved: true, blocked: false, reset: true };
-        }
+ if (label === "RESET") {
+ state = freshState();
+ return { moved: true, blocked: false, reset: true };
+ }
 
-        const before = { x: state.x, y: state.y, light_on: state.light_on };
-        // Record cell left (trail) before the transition â€” once per action.
-        const trail = (state.trail || []).slice();
-        trail.push([state.x, state.y]);
+ const before = { x: state.x, y: state.y, light_on: state.light_on };
+ // Record cell left (trail) before the transition - once per action.
+ const trail = (state.trail || []).slice();
+ trail.push([state.x, state.y]);
 
-        if (label === "MOVE_UP") state.y = Math.max(0, state.y - 1);
-        else if (label === "MOVE_DOWN") state.y = Math.min(4, state.y + 1);
-        else if (label === "MOVE_LEFT") state.x = Math.max(0, state.x - 1);
-        else if (label === "MOVE_RIGHT") state.x = Math.min(4, state.x + 1);
-        else if (label === "TOGGLE_LIGHT") {
-          state.light_on = !state.light_on;
-          state.mode = state.light_on ? "lit" : "idle";
-        } else {
-          return { moved: false, blocked: false };
-        }
+ if (label === "MOVE_UP") state.y = Math.max(0, state.y - 1);
+ else if (label === "MOVE_DOWN") state.y = Math.min(4, state.y + 1);
+ else if (label === "MOVE_LEFT") state.x = Math.max(0, state.x - 1);
+ else if (label === "MOVE_RIGHT") state.x = Math.min(4, state.x + 1);
+ else if (label === "TOGGLE_LIGHT") {
+ state.light_on = !state.light_on;
+ state.mode = state.light_on ? "lit" : "idle";
+ } else {
+ return { moved: false, blocked: false };
+ }
 
-        const movedPos = before.x !== state.x || before.y !== state.y;
-        const toggled = before.light_on !== state.light_on;
-        const edgeBlocked =
-          String(label).startsWith("MOVE") && !movedPos;
+ const movedPos = before.x !== state.x || before.y !== state.y;
+ const toggled = before.light_on !== state.light_on;
+ const edgeBlocked =
+ String(label).startsWith("MOVE") && !movedPos;
 
-        if (movedPos || toggled) {
-          state.step_count += 1;
-          if (movedPos) {
-            state.mode = "moving";
-            state.trail = trail.slice(-24);
-          }
-          state.action_history = (state.action_history || []).concat({
-            step: state.step_count,
-            action: label,
-            x: state.x,
-            y: state.y,
-            light_on: state.light_on,
-          });
-        }
+ if (movedPos || toggled) {
+ state.step_count += 1;
+ if (movedPos) {
+ state.mode = "moving";
+ state.trail = trail.slice(-24);
+ }
+ state.action_history = (state.action_history || []).concat({
+ step: state.step_count,
+ action: label,
+ x: state.x,
+ y: state.y,
+ light_on: state.light_on,
+ });
+ }
 
-        return { moved: movedPos || toggled, blocked: edgeBlocked };
-      }
+ return { moved: movedPos || toggled, blocked: edgeBlocked };
+ }
 
-      let routeBusy = false;
-      function route(text) {
-        // Guard against double-fire (chip click + Enter, double-click, etc.)
-        if (routeBusy) return;
-        routeBusy = true;
-        try {
-          const t0 = performance.now();
-          const ex = findExample(text);
-          document.querySelectorAll(".chip").forEach((c) => {
-            c.classList.toggle("active", c.dataset.text === (ex && ex.text));
-          });
+ let routeBusy = false;
+ function route(text) {
+ // Guard against double-fire (chip click + Enter, double-click, etc.)
+ if (routeBusy) return;
+ routeBusy = true;
+ try {
+ const t0 = performance.now();
+ const ex = findExample(text);
+ document.querySelectorAll(".chip").forEach((c) => {
+ c.classList.toggle("active", c.dataset.text === (ex && ex.text));
+ });
 
-          if (!ex) {
-            document.getElementById("resultLine").textContent =
-              "No artifact route for this exact phrase â€” use a chip (same set as streamlit_app.py).";
-            document.getElementById("timing").textContent = "";
-            return;
-          }
+ if (!ex) {
+ document.getElementById("resultLine").textContent =
+ "No artifact route for this exact phrase - use a chip (same set as streamlit_app.py).";
+ document.getElementById("timing").textContent = "";
+ return;
+ }
 
-          // Probe decision from artifacts (label / probs / gate). State transition is live.
-          let note = "";
-          if (ex.accepted) {
-            const result = applyLabel(ex.label);
-            if (result.blocked) {
-              note = " Â· at edge (no cell change)";
-            } else if (ex.label === "RESET") {
-              note = " Â· board reset";
-            } else if (!result.moved && ex.label !== "ABSTAIN") {
-              note = "";
-            }
-          } else {
-            note = " Â· gate rejected (no state change)";
-          }
+ // Probe decision from artifacts (label / probs / gate). State transition is live.
+ let note = "";
+ if (ex.accepted) {
+ const result = applyLabel(ex.label);
+ if (result.blocked) {
+ note = " * at edge (no cell change)";
+ } else if (ex.label === "RESET") {
+ note = " * board reset";
+ } else if (!result.moved && ex.label !== "ABSTAIN") {
+ note = "";
+ }
+ } else {
+ note = " * gate rejected (no state change)";
+ }
 
-          renderGrid();
-          // Force bar re-animation even when the same command is repeated.
-          renderBars(ex.probs);
+ renderGrid();
+ // Force bar re-animation even when the same command is repeated.
+ renderBars(ex.probs);
 
-          const conf = (ex.confidence * 100).toFixed(1);
-          const gate = ex.accepted ? "ACCEPTED â†’ kernel" : "ABSTAIN / rejected";
-          document.getElementById("resultLine").textContent =
-            `${ex.text} â†’ ${ex.label} Â· ${gate} Â· conf=${conf}%` +
-            ` Â· pos=(${state.x},${state.y})` +
-            note;
-          const dt = ((performance.now() - t0) / 1000).toFixed(2);
-          document.getElementById("timing").textContent =
-            `â±ï¸ Route applied in ${dt}s Â· step=${state.step_count} Â· trail=${(state.trail || []).length}`;
-        } finally {
-          // Release on next tick so a single user gesture can't double-apply.
-          setTimeout(() => {
-            routeBusy = false;
-          }, 40);
-        }
-      }
+ const conf = (ex.confidence * 100).toFixed(1);
+ const gate = ex.accepted ? "ACCEPTED -> kernel" : "ABSTAIN / rejected";
+ document.getElementById("resultLine").textContent =
+ `${ex.text} -> ${ex.label} * ${gate} * conf=${conf}%` +
+ ` * pos=(${state.x},${state.y})` +
+ note;
+ const dt = ((performance.now() - t0) / 1000).toFixed(2);
+ document.getElementById("timing").textContent =
+ `Route applied in ${dt}s * step=${state.step_count} * trail=${(state.trail || []).length}`;
+ } finally {
+ // Release on next tick so a single user gesture can't double-apply.
+ setTimeout(() => {
+ routeBusy = false;
+ }, 40);
+ }
+ }
 
-      function asciiSnapshot() {
-        const w = 5,
-          h = 5;
-        const lines = [
-          `VectorBot | step=${state.step_count} | light=${state.light_on ? "ON" : "OFF"} | mode=${state.mode}`,
-          "+" + Array(w).fill("---").join("+") + "+",
-        ];
-        for (let y = 0; y < h; y++) {
-          const cells = [];
-          for (let x = 0; x < w; x++) {
-            if (x === state.x && y === state.y) cells.push(state.light_on ? " * " : " B ");
-            else cells.push(" . ");
-          }
-          lines.push("|" + cells.join("|") + "|");
-          lines.push("+" + Array(w).fill("---").join("+") + "+");
-        }
-        return lines.join("\n");
-      }
+ function asciiSnapshot() {
+ const w = 5,
+ h = 5;
+ const lines = [
+ `VectorBot | step=${state.step_count} | light=${state.light_on ? "ON" : "OFF"} | mode=${state.mode}`,
+ "+" + Array(w).fill("---").join("+") + "+",
+ ];
+ for (let y = 0; y < h; y++) {
+ const cells = [];
+ for (let x = 0; x < w; x++) {
+ if (x === state.x && y === state.y) cells.push(state.light_on ? " * " : " B ");
+ else cells.push(" . ");
+ }
+ lines.push("|" + cells.join("|") + "|");
+ lines.push("+" + Array(w).fill("---").join("+") + "+");
+ }
+ return lines.join("\n");
+ }
 
-      function fillReplay() {
-        const sel = document.getElementById("replaySel");
-        sel.innerHTML = "";
-        const rows = DATA.routes && DATA.routes.length ? DATA.routes : DATA.examples.map((e, i) => ({
-          input_text: e.text,
-          predicted_label: e.label,
-          accepted: e.accepted,
-          confidence: e.confidence,
-          state_after: e.state_after,
-          _i: i,
-        }));
-        DATA._replayRows = rows;
-        rows.forEach((r, i) => {
-          const opt = document.createElement("option");
-          opt.value = String(i);
-          opt.textContent = `${i}: ${(r.input_text || r.text || "?").slice(0, 60)}`;
-          sel.appendChild(opt);
-        });
-        sel.onchange = () => showReplay(Number(sel.value));
-        if (rows.length) showReplay(0);
-      }
+ function fillReplay() {
+ const sel = document.getElementById("replaySel");
+ sel.innerHTML = "";
+ const rows = DATA.routes && DATA.routes.length ? DATA.routes : DATA.examples.map((e, i) => ({
+ input_text: e.text,
+ predicted_label: e.label,
+ accepted: e.accepted,
+ confidence: e.confidence,
+ state_after: e.state_after,
+ _i: i,
+ }));
+ DATA._replayRows = rows;
+ rows.forEach((r, i) => {
+ const opt = document.createElement("option");
+ opt.value = String(i);
+ opt.textContent = `${i}: ${(r.input_text || r.text || "?").slice(0, 60)}`;
+ sel.appendChild(opt);
+ });
+ sel.onchange = () => showReplay(Number(sel.value));
+ if (rows.length) showReplay(0);
+ }
 
-      function showReplay(idx) {
-        const row = DATA._replayRows[idx];
-        if (!row) return;
-        document.getElementById("replayJson").textContent = JSON.stringify(
-          {
-            input: row.input_text || row.text,
-            predicted: row.predicted_label || row.label,
-            accepted: row.accepted,
-            confidence: row.confidence,
-          },
-          null,
-          2
-        );
-        // preview ascii without mutating live state until Load is clicked
-        const snap = { ...state };
-        if (row.state_after) {
-          const s = row.state_after;
-          document.getElementById("replayAscii").textContent =
-            `VectorBot | step=${s.step_count ?? 0} | light=${s.light_on ? "ON" : "OFF"} | mode=${s.mode || "idle"}\n` +
-            `(load into grid to apply full board + trail)`;
-        } else {
-          document.getElementById("replayAscii").textContent = asciiSnapshot();
-        }
-        state = snap;
-      }
+ function showReplay(idx) {
+ const row = DATA._replayRows[idx];
+ if (!row) return;
+ document.getElementById("replayJson").textContent = JSON.stringify(
+ {
+ input: row.input_text || row.text,
+ predicted: row.predicted_label || row.label,
+ accepted: row.accepted,
+ confidence: row.confidence,
+ },
+ null,
+ 2
+ );
+ // preview ascii without mutating live state until Load is clicked
+ const snap = { ...state };
+ if (row.state_after) {
+ const s = row.state_after;
+ document.getElementById("replayAscii").textContent =
+ `VectorBot | step=${s.step_count ?? 0} | light=${s.light_on ? "ON" : "OFF"} | mode=${s.mode || "idle"}\n` +
+ `(load into grid to apply full board + trail)`;
+ } else {
+ document.getElementById("replayAscii").textContent = asciiSnapshot();
+ }
+ state = snap;
+ }
 
-      async function boot() {
-        // Cache-bust so Pages CDN never serves a stale data payload
-        const res = await fetch("./vectorbot_data.json?v=route-fix-1");
-        DATA = await res.json();
-        // Ensure examples ordered as DEMO_COMMANDS
-        const byText = {};
-        (DATA.examples || []).forEach((e) => {
-          byText[e.text] = e;
-        });
-        DATA.examples = DEMO_COMMANDS.map(([text]) => byText[text]).filter(Boolean);
+ async function boot() {
+ // Cache-bust so Pages CDN never serves a stale data payload
+ const res = await fetch("./vectorbot_data.json?v=route-fix-1");
+ DATA = await res.json();
+ // Ensure examples ordered as DEMO_COMMANDS
+ const byText = {};
+ (DATA.examples || []).forEach((e) => {
+ byText[e.text] = e;
+ });
+ DATA.examples = DEMO_COMMANDS.map(([text]) => byText[text]).filter(Boolean);
 
-        const chips = document.getElementById("chips");
-        DEMO_COMMANDS.forEach(([cmd]) => {
-          const b = document.createElement("button");
-          b.type = "button";
-          b.className = "chip";
-          b.dataset.text = cmd;
-          b.textContent = cmd;
-          // streamlit chips only fill the input; we also route immediately for snappier static UX
-          // but match streamlit first: fill input, then user hits Route.
-          // For portfolio demo we fill + route so one click shows the effect.
-          b.onclick = () => {
-            document.getElementById("cmd").value = cmd;
-            route(cmd);
-          };
-          chips.appendChild(b);
-        });
+ const chips = document.getElementById("chips");
+ DEMO_COMMANDS.forEach(([cmd]) => {
+ const b = document.createElement("button");
+ b.type = "button";
+ b.className = "chip";
+ b.dataset.text = cmd;
+ b.textContent = cmd;
+ // streamlit chips only fill the input; we also route immediately for snappier static UX
+ // but match streamlit first: fill input, then user hits Route.
+ // For portfolio demo we fill + route so one click shows the effect.
+ b.onclick = () => {
+ document.getElementById("cmd").value = cmd;
+ route(cmd);
+ };
+ chips.appendChild(b);
+ });
 
-        document.getElementById("routeBtn").onclick = () =>
-          route(document.getElementById("cmd").value);
-        document.getElementById("resetBtn").onclick = () => {
-          state = freshState();
-          renderGrid();
-          document.getElementById("resultLine").textContent = "";
-          document.getElementById("timing").textContent = "";
-        };
-        document.getElementById("cmd").addEventListener("keydown", (e) => {
-          if (e.key === "Enter") route(e.target.value);
-        });
-        document.getElementById("loadReplay").onclick = () => {
-          const idx = Number(document.getElementById("replaySel").value);
-          const row = DATA._replayRows[idx];
-          if (!row) return;
-          // Replay load is the only path that snaps absolute state_after.
-          if (row.state_after) applyStateAfter(row.state_after);
-          else if (row.accepted) applyLabel(row.predicted_label || row.label);
-          renderGrid();
-          const probs = row.probs || row.top_probabilities;
-          if (probs) renderBars(probs);
-          document.getElementById("replayAscii").textContent = asciiSnapshot();
-        };
+ document.getElementById("routeBtn").onclick = () =>
+ route(document.getElementById("cmd").value);
+ document.getElementById("resetBtn").onclick = () => {
+ state = freshState();
+ renderGrid();
+ document.getElementById("resultLine").textContent = "";
+ document.getElementById("timing").textContent = "";
+ };
+ document.getElementById("cmd").addEventListener("keydown", (e) => {
+ if (e.key === "Enter") route(e.target.value);
+ });
+ document.getElementById("loadReplay").onclick = () => {
+ const idx = Number(document.getElementById("replaySel").value);
+ const row = DATA._replayRows[idx];
+ if (!row) return;
+ // Replay load is the only path that snaps absolute state_after.
+ if (row.state_after) applyStateAfter(row.state_after);
+ else if (row.accepted) applyLabel(row.predicted_label || row.label);
+ renderGrid();
+ const probs = row.probs || row.top_probabilities;
+ if (probs) renderBars(probs);
+ document.getElementById("replayAscii").textContent = asciiSnapshot();
+ };
 
-        fillReplay();
-        renderGrid();
-        renderBars([]);
-        // One initial demo step (single applyLabel via route â€” never double).
-        route("go north");
-      }
+ fillReplay();
+ renderGrid();
+ renderBars([]);
+ // One initial demo step (single applyLabel via route - never double).
+ route("go north");
+ }
 
-      boot();
-    </script>
-  </body>
+ boot();
+ </script>
+ </body>
 </html>

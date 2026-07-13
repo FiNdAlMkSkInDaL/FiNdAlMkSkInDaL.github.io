@@ -1,341 +1,341 @@
 <!DOCTYPE html>
 <html lang="en" data-build="five-demos">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="description"
-      content="Pixel bush portfolio — hover and click the flowers."
-    />
-    <title>Finlay · Pixel Bush</title>
-    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css?v=five-demos" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
-    <div class="world">
-      <div class="sky-peek" aria-hidden="true"></div>
-      <canvas id="bush" class="bush-canvas" aria-hidden="true"></canvas>
+ <head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1" />
+ <meta
+ name="description"
+ content="Pixel bush portfolio — hover and click the flowers."
+ />
+ <title>Finlay · Pixel Bush</title>
+ <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+ <link rel="stylesheet" href="./styles.css?v=five-demos" />
+ <link rel="preconnect" href="https://fonts.googleapis.com" />
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+ <link
+ href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+ rel="stylesheet"
+ />
+ </head>
+ <body>
+ <div class="world">
+ <div class="sky-peek" aria-hidden="true"></div>
+ <canvas id="bush" class="bush-canvas" aria-hidden="true"></canvas>
 
-      <!-- Critters: positions re-rolled on every refresh (see spawnCritters) -->
-      <div id="critters" class="critters" aria-hidden="true"></div>
+ <!-- Critters: positions re-rolled on every refresh (see spawnCritters) -->
+ <div id="critters" class="critters" aria-hidden="true"></div>
 
-      <header class="hud">
-        <img
-          class="avatar"
-          src="./assets/photo.jpg"
-          alt="Finlay"
-          width="40"
-          height="40"
-        />
-        <div class="hud-text">
-          <p class="name">FINLAY</p>
-          <p class="tip">HOVER A FLOWER · CLICK TO OPEN</p>
-        </div>
-      </header>
+ <header class="hud">
+ <img
+ class="avatar"
+ src="./assets/photo.jpg"
+ alt="Finlay"
+ width="40"
+ height="40"
+ />
+ <div class="hud-text">
+ <p class="name">FINLAY</p>
+ <p class="tip">HOVER A FLOWER · CLICK TO OPEN</p>
+ </div>
+ </header>
 
-      <nav class="boss-flowers" aria-label="Projects">
-        <a
-          class="boss b-tick theme-tickforge"
-          href="https://findalmkskindal.github.io/tickforge/explorer/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <span class="name-tag">TICKFORGE</span>
-          <span class="boss-bloom" aria-hidden="true"></span>
-        </a>
+ <nav class="boss-flowers" aria-label="Projects">
+ <a
+ class="boss b-tick theme-tickforge"
+ href="https://findalmkskindal.github.io/tickforge/explorer/"
+ target="_blank"
+ rel="noopener noreferrer"
+ >
+ <span class="name-tag">TICKFORGE</span>
+ <span class="boss-bloom" aria-hidden="true"></span>
+ </a>
 
-        <a
-          class="boss b-poly theme-poly"
-          href="./demos/polymarket.html"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <span class="name-tag">POLYMARKET</span>
-          <span class="boss-bloom" aria-hidden="true"></span>
-        </a>
+ <a
+ class="boss b-poly theme-poly"
+ href="./demos/polymarket.html"
+ target="_blank"
+ rel="noopener noreferrer"
+ >
+ <span class="name-tag">POLYMARKET</span>
+ <span class="boss-bloom" aria-hidden="true"></span>
+ </a>
 
-        <a
-          class="boss b-macro theme-macro"
-          href="./demos/macro-bias.html"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <span class="name-tag">MACRO BIAS</span>
-          <span class="boss-bloom" aria-hidden="true"></span>
-        </a>
+ <a
+ class="boss b-macro theme-macro"
+ href="./demos/macro-bias.html"
+ target="_blank"
+ rel="noopener noreferrer"
+ >
+ <span class="name-tag">MACRO BIAS</span>
+ <span class="boss-bloom" aria-hidden="true"></span>
+ </a>
 
-        <a
-          class="boss b-identity theme-identity"
-          href="./demos/identity.html"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <span class="name-tag">IDENTITY</span>
-          <span class="boss-bloom" aria-hidden="true"></span>
-        </a>
+ <a
+ class="boss b-identity theme-identity"
+ href="./demos/identity.html"
+ target="_blank"
+ rel="noopener noreferrer"
+ >
+ <span class="name-tag">IDENTITY</span>
+ <span class="boss-bloom" aria-hidden="true"></span>
+ </a>
 
-        <a
-          class="boss b-vector theme-vectorbot"
-          href="./demos/vectorbot.html"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <span class="name-tag">VECTORBOT</span>
-          <span class="boss-bloom" aria-hidden="true"></span>
-        </a>
-      </nav>
+ <a
+ class="boss b-vector theme-vectorbot"
+ href="./demos/vectorbot.html"
+ target="_blank"
+ rel="noopener noreferrer"
+ >
+ <span class="name-tag">VECTORBOT</span>
+ <span class="boss-bloom" aria-hidden="true"></span>
+ </a>
+ </nav>
 
-      <footer class="hud-foot">
-        <a
-          href="https://github.com/FiNdAlMkSkInDaL"
-          target="_blank"
-          rel="noopener noreferrer"
-          >GITHUB</a
-        >
-      </footer>
-    </div>
+ <footer class="hud-foot">
+ <a
+ href="https://github.com/FiNdAlMkSkInDaL"
+ target="_blank"
+ rel="noopener noreferrer"
+ >GITHUB</a
+ >
+ </footer>
+ </div>
 
-    <script>
-      (function () {
-        const canvas = document.getElementById("bush");
-        const ctx = canvas.getContext("2d");
+ <script>
+ (function () {
+ const canvas = document.getElementById("bush");
+ const ctx = canvas.getContext("2d");
 
-        const LEAF_LIGHT = ["#86efac", "#4ade80", "#6ee7b7", "#a3e635", "#84cc16", "#bbf7d0"];
-        const LEAF_MID = ["#22c55e", "#16a34a", "#4ade80", "#65a30d", "#15803d"];
-        const LEAF_DARK = ["#166534", "#14532d", "#15803d", "#3f6212", "#1a2e05"];
-        const BARK = ["#3f2a1e", "#5c3d2e", "#4a3224", "#6b4423"];
+ const LEAF_LIGHT = ["#86efac", "#4ade80", "#6ee7b7", "#a3e635", "#84cc16", "#bbf7d0"];
+ const LEAF_MID = ["#22c55e", "#16a34a", "#4ade80", "#65a30d", "#15803d"];
+ const LEAF_DARK = ["#166534", "#14532d", "#15803d", "#3f6212", "#1a2e05"];
+ const BARK = ["#3f2a1e", "#5c3d2e", "#4a3224", "#6b4423"];
 
-        // Multi-colour petal palettes for sparse background blooms
-        const FLOWER_PALETTES = [
-          { petals: ["#ff6b8a", "#ff8fab", "#ffb3c6"], center: "#ffe566" }, // pink
-          { petals: ["#f472b6", "#ec4899", "#f9a8d4"], center: "#fde68a" }, // hot pink
-          { petals: ["#fb7185", "#fda4af", "#fecdd3"], center: "#fef08a" }, // rose
-          { petals: ["#c084fc", "#a78bfa", "#e9d5ff"], center: "#fef08a" }, // purple
-          { petals: ["#e879f9", "#d946ef", "#f0abfc"], center: "#22d3ee" }, // magenta
-          { petals: ["#60a5fa", "#38bdf8", "#93c5fd"], center: "#fde047" }, // blue
-          { petals: ["#22d3ee", "#67e8f9", "#a5f3fc"], center: "#fef9c3" }, // cyan
-          { petals: ["#34d399", "#6ee7b7", "#a7f3d0"], center: "#fef08a" }, // mint
-          { petals: ["#fbbf24", "#fcd34d", "#fde68a"], center: "#f97316" }, // gold
-          { petals: ["#fb923c", "#fdba74", "#fed7aa"], center: "#fef08a" }, // orange
-          { petals: ["#f87171", "#fca5a5", "#fecaca"], center: "#fde047" }, // coral
-          { petals: ["#a3e635", "#bef264", "#d9f99d"], center: "#fef08a" }, // lime
-          { petals: ["#f0abfc", "#c4b5fd", "#ddd6fe"], center: "#fde047" }, // lavender
-          { petals: ["#fda4af", "#f9a8d4", "#fbcfe8"], center: "#fef9c3" }, // blush
-          { petals: ["#5eead4", "#2dd4bf", "#99f6e4"], center: "#fef08a" }, // teal
-        ];
+ // Multi-colour petal palettes for sparse background blooms
+ const FLOWER_PALETTES = [
+ { petals: ["#ff6b8a", "#ff8fab", "#ffb3c6"], center: "#ffe566" }, // pink
+ { petals: ["#f472b6", "#ec4899", "#f9a8d4"], center: "#fde68a" }, // hot pink
+ { petals: ["#fb7185", "#fda4af", "#fecdd3"], center: "#fef08a" }, // rose
+ { petals: ["#c084fc", "#a78bfa", "#e9d5ff"], center: "#fef08a" }, // purple
+ { petals: ["#e879f9", "#d946ef", "#f0abfc"], center: "#22d3ee" }, // magenta
+ { petals: ["#60a5fa", "#38bdf8", "#93c5fd"], center: "#fde047" }, // blue
+ { petals: ["#22d3ee", "#67e8f9", "#a5f3fc"], center: "#fef9c3" }, // cyan
+ { petals: ["#34d399", "#6ee7b7", "#a7f3d0"], center: "#fef08a" }, // mint
+ { petals: ["#fbbf24", "#fcd34d", "#fde68a"], center: "#f97316" }, // gold
+ { petals: ["#fb923c", "#fdba74", "#fed7aa"], center: "#fef08a" }, // orange
+ { petals: ["#f87171", "#fca5a5", "#fecaca"], center: "#fde047" }, // coral
+ { petals: ["#a3e635", "#bef264", "#d9f99d"], center: "#fef08a" }, // lime
+ { petals: ["#f0abfc", "#c4b5fd", "#ddd6fe"], center: "#fde047" }, // lavender
+ { petals: ["#fda4af", "#f9a8d4", "#fbcfe8"], center: "#fef9c3" }, // blush
+ { petals: ["#5eead4", "#2dd4bf", "#99f6e4"], center: "#fef08a" }, // teal
+ ];
 
-        function leafColor(yNorm) {
-          const r = Math.random();
-          if (yNorm < 0.35) {
-            return LEAF_LIGHT[Math.floor(r * LEAF_LIGHT.length)];
-          }
-          if (yNorm < 0.65) {
-            return r < 0.55
-              ? LEAF_MID[Math.floor(r * LEAF_MID.length)]
-              : LEAF_LIGHT[Math.floor(r * LEAF_LIGHT.length)];
-          }
-          return r < 0.65
-            ? LEAF_DARK[Math.floor(r * LEAF_DARK.length)]
-            : LEAF_MID[Math.floor(r * LEAF_MID.length)];
-        }
+ function leafColor(yNorm) {
+ const r = Math.random();
+ if (yNorm < 0.35) {
+ return LEAF_LIGHT[Math.floor(r * LEAF_LIGHT.length)];
+ }
+ if (yNorm < 0.65) {
+ return r < 0.55
+ ? LEAF_MID[Math.floor(r * LEAF_MID.length)]
+ : LEAF_LIGHT[Math.floor(r * LEAF_LIGHT.length)];
+ }
+ return r < 0.65
+ ? LEAF_DARK[Math.floor(r * LEAF_DARK.length)]
+ : LEAF_MID[Math.floor(r * LEAF_MID.length)];
+ }
 
-        /** Tiny pixel flower (cross + diagonals), size 1–2 base pixels */
-        function drawTinyFlower(cx, cy, size, pal) {
-          const s = size;
-          const p0 = pal.petals[0];
-          const p1 = pal.petals[1] || p0;
-          const p2 = pal.petals[2] || p1;
-          // N S E W petals
-          ctx.fillStyle = p0;
-          ctx.fillRect(cx, cy - s * 2, s, s);
-          ctx.fillRect(cx, cy + s * 2, s, s);
-          ctx.fillRect(cx - s * 2, cy, s, s);
-          ctx.fillRect(cx + s * 2, cy, s, s);
-          // diagonals
-          ctx.fillStyle = p1;
-          ctx.fillRect(cx - s, cy - s, s, s);
-          ctx.fillRect(cx + s, cy - s, s, s);
-          ctx.fillRect(cx - s, cy + s, s, s);
-          ctx.fillRect(cx + s, cy + s, s, s);
-          // outer soft tips
-          ctx.fillStyle = p2;
-          ctx.fillRect(cx, cy - s * 3, s, s);
-          ctx.fillRect(cx, cy + s * 3, s, s);
-          // center
-          ctx.fillStyle = pal.center;
-          ctx.fillRect(cx, cy, s, s);
-        }
+ /** Tiny pixel flower (cross + diagonals), size 1–2 base pixels */
+ function drawTinyFlower(cx, cy, size, pal) {
+ const s = size;
+ const p0 = pal.petals[0];
+ const p1 = pal.petals[1] || p0;
+ const p2 = pal.petals[2] || p1;
+ // N S E W petals
+ ctx.fillStyle = p0;
+ ctx.fillRect(cx, cy - s * 2, s, s);
+ ctx.fillRect(cx, cy + s * 2, s, s);
+ ctx.fillRect(cx - s * 2, cy, s, s);
+ ctx.fillRect(cx + s * 2, cy, s, s);
+ // diagonals
+ ctx.fillStyle = p1;
+ ctx.fillRect(cx - s, cy - s, s, s);
+ ctx.fillRect(cx + s, cy - s, s, s);
+ ctx.fillRect(cx - s, cy + s, s, s);
+ ctx.fillRect(cx + s, cy + s, s, s);
+ // outer soft tips
+ ctx.fillStyle = p2;
+ ctx.fillRect(cx, cy - s * 3, s, s);
+ ctx.fillRect(cx, cy + s * 3, s, s);
+ // center
+ ctx.fillStyle = pal.center;
+ ctx.fillRect(cx, cy, s, s);
+ }
 
-        function resize() {
-          const w = Math.ceil(window.innerWidth / 4);
-          const h = Math.ceil(window.innerHeight / 4);
-          canvas.width = w;
-          canvas.height = h;
-          canvas.style.width = window.innerWidth + "px";
-          canvas.style.height = window.innerHeight + "px";
-          paint(w, h);
-        }
+ function resize() {
+ const w = Math.ceil(window.innerWidth / 4);
+ const h = Math.ceil(window.innerHeight / 4);
+ canvas.width = w;
+ canvas.height = h;
+ canvas.style.width = window.innerWidth + "px";
+ canvas.style.height = window.innerHeight + "px";
+ paint(w, h);
+ }
 
-        function paint(w, h) {
-          // Base gradient: light top → deep bottom
-          for (let y = 0; y < h; y++) {
-            const t = y / h;
-            const g = Math.floor(180 - t * 100);
-            const r = Math.floor(40 + (1 - t) * 50);
-            const b = Math.floor(50 + (1 - t) * 40);
-            ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
-            ctx.fillRect(0, y, w, 1);
-          }
+ function paint(w, h) {
+ // Base gradient: light top → deep bottom
+ for (let y = 0; y < h; y++) {
+ const t = y / h;
+ const g = Math.floor(180 - t * 100);
+ const r = Math.floor(40 + (1 - t) * 50);
+ const b = Math.floor(50 + (1 - t) * 40);
+ ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
+ ctx.fillRect(0, y, w, 1);
+ }
 
-          // Branches
-          for (let i = 0; i < 22; i++) {
-            let x = Math.floor((i / 22) * w + Math.sin(i * 1.7) * 6);
-            let y = h;
-            ctx.fillStyle = BARK[i % BARK.length];
-            const steps = Math.floor(h * (0.5 + (i % 6) * 0.08));
-            for (let s = 0; s < steps; s++) {
-              const thick = 2 + ((i + s) % 3);
-              ctx.fillRect(x, y - s, thick, 2);
-              if (s % 6 === 0) x += ((i + s) % 2 === 0 ? 1 : -1) * (1 + (s % 2));
-              if (s % 9 === 0) {
-                const dir = s % 18 === 0 ? 1 : -1;
-                for (let t = 0; t < 10; t++) {
-                  ctx.fillRect(x + dir * t, y - s - Math.floor(t / 2), 2, 2);
-                }
-              }
-            }
-          }
+ // Branches
+ for (let i = 0; i < 22; i++) {
+ let x = Math.floor((i / 22) * w + Math.sin(i * 1.7) * 6);
+ let y = h;
+ ctx.fillStyle = BARK[i % BARK.length];
+ const steps = Math.floor(h * (0.5 + (i % 6) * 0.08));
+ for (let s = 0; s < steps; s++) {
+ const thick = 2 + ((i + s) % 3);
+ ctx.fillRect(x, y - s, thick, 2);
+ if (s % 6 === 0) x += ((i + s) % 2 === 0 ? 1 : -1) * (1 + (s % 2));
+ if (s % 9 === 0) {
+ const dir = s % 18 === 0 ? 1 : -1;
+ for (let t = 0; t < 10; t++) {
+ ctx.fillRect(x + dir * t, y - s - Math.floor(t / 2), 2, 2);
+ }
+ }
+ }
+ }
 
-          // Dense leaves
-          const leafCount = Math.floor((w * h) / 5.5);
-          for (let i = 0; i < leafCount; i++) {
-            const x = (i * 19 + (i * i) % 17) % w;
-            const y = (i * 29 + i * 5) % h;
-            const yNorm = y / h;
-            ctx.fillStyle = leafColor(yNorm);
-            const s = yNorm < 0.3 ? 2 + ((x + y) % 2) : 2 + ((x + y) % 3);
-            ctx.fillRect(x, y, s, s);
-            if ((i + y) % 3 === 0) ctx.fillRect(x - 1, y + 1, s, s);
-          }
+ // Dense leaves
+ const leafCount = Math.floor((w * h) / 5.5);
+ for (let i = 0; i < leafCount; i++) {
+ const x = (i * 19 + (i * i) % 17) % w;
+ const y = (i * 29 + i * 5) % h;
+ const yNorm = y / h;
+ ctx.fillStyle = leafColor(yNorm);
+ const s = yNorm < 0.3 ? 2 + ((x + y) % 2) : 2 + ((x + y) % 3);
+ ctx.fillRect(x, y, s, s);
+ if ((i + y) % 3 === 0) ctx.fillRect(x - 1, y + 1, s, s);
+ }
 
-          // Multi-colour flowers — ~60% of prior density; re-randomised each paint
-          // (refresh / resize), same as leaf tint + sun speckles.
-          const flowerCount = Math.max(10, Math.floor(((w * h) / 320) * 0.6));
-          for (let i = 0; i < flowerCount; i++) {
-            const x = 3 + Math.floor(Math.random() * Math.max(1, w - 8));
-            const y = 3 + Math.floor(Math.random() * Math.max(1, h - 8));
-            // Prefer canopy (skip deepest ground strip)
-            if (y > h * 0.92) continue;
-            const pal =
-              FLOWER_PALETTES[Math.floor(Math.random() * FLOWER_PALETTES.length)];
-            const size = Math.random() < 0.55 ? 1 : 2;
-            drawTinyFlower(x, y, size, pal);
-          }
+ // Multi-colour flowers — ~60% of prior density; re-randomised each paint
+ // (refresh / resize), same as leaf tint + sun speckles.
+ const flowerCount = Math.max(10, Math.floor(((w * h) / 320) * 0.6));
+ for (let i = 0; i < flowerCount; i++) {
+ const x = 3 + Math.floor(Math.random() * Math.max(1, w - 8));
+ const y = 3 + Math.floor(Math.random() * Math.max(1, h - 8));
+ // Prefer canopy (skip deepest ground strip)
+ if (y > h * 0.92) continue;
+ const pal =
+ FLOWER_PALETTES[Math.floor(Math.random() * FLOWER_PALETTES.length)];
+ const size = Math.random() < 0.55 ? 1 : 2;
+ drawTinyFlower(x, y, size, pal);
+ }
 
-          // Sun through canopy speckles
-          ctx.globalAlpha = 0.35;
-          for (let i = 0; i < Math.floor(w * 1.5); i++) {
-            const x = Math.floor(Math.random() * w);
-            const y = Math.floor(Math.random() * h * 0.4);
-            ctx.fillStyle = "#bbf7d0";
-            ctx.fillRect(x, y, 2, 2);
-          }
-          ctx.globalAlpha = 1;
-        }
+ // Sun through canopy speckles
+ ctx.globalAlpha = 0.35;
+ for (let i = 0; i < Math.floor(w * 1.5); i++) {
+ const x = Math.floor(Math.random() * w);
+ const y = Math.floor(Math.random() * h * 0.4);
+ ctx.fillStyle = "#bbf7d0";
+ ctx.fillRect(x, y, 2, 2);
+ }
+ ctx.globalAlpha = 1;
+ }
 
-        resize();
-        window.addEventListener("resize", resize);
-      })();
+ resize();
+ window.addEventListener("resize", resize);
+ })();
 
-      // —— Pixel critters: snake, ladybirds, ants ——
-      // Positions + facing re-randomised on every page load (like flowers).
-      (function spawnCritters() {
-        const host = document.getElementById("critters");
-        if (!host) return;
+ // —— Pixel critters: snake, ladybirds, ants ——
+ // Positions + facing re-randomised on every page load (like flowers).
+ (function spawnCritters() {
+ const host = document.getElementById("critters");
+ if (!host) return;
 
-        function rand(min, max) {
-          return min + Math.random() * (max - min);
-        }
-        function pick(arr) {
-          return arr[Math.floor(Math.random() * arr.length)];
-        }
+ function rand(min, max) {
+ return min + Math.random() * (max - min);
+ }
+ function pick(arr) {
+ return arr[Math.floor(Math.random() * arr.length)];
+ }
 
-        function place(el, opts) {
-          const left = rand(opts.leftMin, opts.leftMax);
-          const top = rand(opts.topMin, opts.topMax);
-          el.style.left = left.toFixed(1) + "%";
-          el.style.top = top.toFixed(1) + "%";
-          el.style.right = "auto";
-          el.style.bottom = "auto";
-          if (opts.flip) el.classList.add("flip");
-          if (opts.scale) el.style.setProperty("--s", String(opts.scale));
-          if (opts.delay) el.style.animationDelay = opts.delay + "s";
-          host.appendChild(el);
-        }
+ function place(el, opts) {
+ const left = rand(opts.leftMin, opts.leftMax);
+ const top = rand(opts.topMin, opts.topMax);
+ el.style.left = left.toFixed(1) + "%";
+ el.style.top = top.toFixed(1) + "%";
+ el.style.right = "auto";
+ el.style.bottom = "auto";
+ if (opts.flip) el.classList.add("flip");
+ if (opts.scale) el.style.setProperty("--s", String(opts.scale));
+ if (opts.delay) el.style.animationDelay = opts.delay + "s";
+ host.appendChild(el);
+ }
 
-        // Snake (1)
-        const snake = document.createElement("div");
-        snake.className = "snake critter";
-        snake.title = "sss";
-        snake.innerHTML =
-          '<div class="snake-body"></div>' +
-          '<div class="snake-head">' +
-          '<span class="eye e1"></span><span class="eye e2"></span>' +
-          '<span class="tongue"></span></div>';
-        place(snake, {
-          leftMin: 55,
-          leftMax: 88,
-          topMin: 6,
-          topMax: 28,
-          flip: Math.random() < 0.45,
-          scale: rand(0.85, 1.1),
-          delay: rand(0, 0.8),
-        });
+ // Snake (1)
+ const snake = document.createElement("div");
+ snake.className = "snake critter";
+ snake.title = "sss";
+ snake.innerHTML =
+ '<div class="snake-body"></div>' +
+ '<div class="snake-head">' +
+ '<span class="eye e1"></span><span class="eye e2"></span>' +
+ '<span class="tongue"></span></div>';
+ place(snake, {
+ leftMin: 55,
+ leftMax: 88,
+ topMin: 6,
+ topMax: 28,
+ flip: Math.random() < 0.45,
+ scale: rand(0.85, 1.1),
+ delay: rand(0, 0.8),
+ });
 
-        // Ladybirds (6) — mixed shell colours, short snout heads
-        const ladyPalettes = [
-          { shell: "#ef4444", shell2: "#dc2626", edge: "#7f1d1d" }, // classic red
-          { shell: "#f97316", shell2: "#ea580c", edge: "#9a3412" }, // orange
-          { shell: "#fbbf24", shell2: "#f59e0b", edge: "#92400e" }, // gold
-          { shell: "#e11d48", shell2: "#be123c", edge: "#881337" }, // rose
-          { shell: "#a855f7", shell2: "#9333ea", edge: "#581c87" }, // purple
-          { shell: "#22c55e", shell2: "#16a34a", edge: "#14532d" }, // green
-          { shell: "#38bdf8", shell2: "#0ea5e9", edge: "#0c4a6e" }, // sky
-          { shell: "#f472b6", shell2: "#ec4899", edge: "#9d174d" }, // pink
-        ];
-        for (let i = 0; i < 6; i++) {
-          const pal = pick(ladyPalettes);
-          const bug = document.createElement("div");
-          bug.className = "ladybird critter";
-          bug.title = "ladybird";
-          bug.style.setProperty("--lb", pal.shell);
-          bug.style.setProperty("--lb2", pal.shell2);
-          bug.style.setProperty("--lb-edge", pal.edge);
-          bug.innerHTML =
-            '<span class="lb-shell"></span>' +
-            '<span class="lb-line"></span>' +
-            '<span class="lb-head"></span>' +
-            '<span class="lb-spot s1"></span>' +
-            '<span class="lb-spot s2"></span>' +
-            '<span class="lb-spot s3"></span>' +
-            '<span class="lb-spot s4"></span>';
-          place(bug, {
-            leftMin: 6,
-            leftMax: 92,
-            topMin: 14,
-            topMax: 82,
-            flip: Math.random() < 0.5,
-            scale: rand(0.8, 1.2),
-            delay: rand(0, 1.2),
-          });
-        }
-      })();
-    </script>
-  </body>
+ // Ladybirds (6) — mixed shell colours, short snout heads
+ const ladyPalettes = [
+ { shell: "#ef4444", shell2: "#dc2626", edge: "#7f1d1d" }, // classic red
+ { shell: "#f97316", shell2: "#ea580c", edge: "#9a3412" }, // orange
+ { shell: "#fbbf24", shell2: "#f59e0b", edge: "#92400e" }, // gold
+ { shell: "#e11d48", shell2: "#be123c", edge: "#881337" }, // rose
+ { shell: "#a855f7", shell2: "#9333ea", edge: "#581c87" }, // purple
+ { shell: "#22c55e", shell2: "#16a34a", edge: "#14532d" }, // green
+ { shell: "#38bdf8", shell2: "#0ea5e9", edge: "#0c4a6e" }, // sky
+ { shell: "#f472b6", shell2: "#ec4899", edge: "#9d174d" }, // pink
+ ];
+ for (let i = 0; i < 6; i++) {
+ const pal = pick(ladyPalettes);
+ const bug = document.createElement("div");
+ bug.className = "ladybird critter";
+ bug.title = "ladybird";
+ bug.style.setProperty("--lb", pal.shell);
+ bug.style.setProperty("--lb2", pal.shell2);
+ bug.style.setProperty("--lb-edge", pal.edge);
+ bug.innerHTML =
+ '<span class="lb-shell"></span>' +
+ '<span class="lb-line"></span>' +
+ '<span class="lb-head"></span>' +
+ '<span class="lb-spot s1"></span>' +
+ '<span class="lb-spot s2"></span>' +
+ '<span class="lb-spot s3"></span>' +
+ '<span class="lb-spot s4"></span>';
+ place(bug, {
+ leftMin: 6,
+ leftMax: 92,
+ topMin: 14,
+ topMax: 82,
+ flip: Math.random() < 0.5,
+ scale: rand(0.8, 1.2),
+ delay: rand(0, 1.2),
+ });
+ }
+ })();
+ </script>
+ </body>
 </html>
