@@ -1,8 +1,8 @@
 /* Fixed pixel "Back to Garden" — demos when opened standalone (matches garden shell) */
 .garden-back {
   position: fixed;
-  top: 10px;
-  left: 10px;
+  top: max(10px, env(safe-area-inset-top, 0px));
+  left: max(10px, env(safe-area-inset-left, 0px));
   z-index: 9999;
   font-family: "Press Start 2P", system-ui, monospace;
   font-size: 8px;
@@ -11,14 +11,18 @@
   text-decoration: none;
   background: linear-gradient(180deg, #bbf7d0, #86efac);
   border: 3px solid #3f2a1e;
-  padding: 10px 12px;
+  padding: 12px 14px;
   min-height: 48px;
-  min-width: 44px;
+  min-width: 48px;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   box-shadow:
     3px 3px 0 rgba(63, 42, 30, 0.3),
     0 0 0 2px #15803d;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(134, 239, 172, 0.35);
+  transition: transform 0.1s steps(2), background 0.1s steps(2);
 }
 .garden-back:hover,
 .garden-back:focus-visible {
@@ -26,8 +30,23 @@
   outline: 3px solid #22d3ee;
   outline-offset: 1px;
 }
+.garden-back:active {
+  transform: scale(0.96);
+  background: #22c55e;
+}
 
 /* Hide when embedded in garden iframe */
 html.in-garden-frame .garden-back {
   display: none;
+}
+
+@media (max-width: 768px) {
+  .garden-back {
+    font-size: 7px;
+    padding: 12px 12px;
+    box-shadow:
+      3px 3px 0 rgba(63, 42, 30, 0.35),
+      0 0 0 2px #15803d,
+      0 0 16px rgba(34, 197, 94, 0.25);
+  }
 }

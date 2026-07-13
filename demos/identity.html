@@ -414,6 +414,25 @@
       @media (max-width: 700px) {
         .gate-row-inner { grid-template-columns: 1fr; }
       }
+      @media (max-width: 768px) {
+        .app { overflow: auto; height: auto; min-height: 100dvh; }
+        .stage {
+          grid-template-columns: 1fr !important;
+          height: auto !important;
+          overflow: visible !important;
+          padding-bottom: 5rem;
+        }
+        .top { padding-left: 4.25rem; min-height: 52px; flex-wrap: wrap; }
+        .sample {
+          min-height: 44px;
+          padding: 0.55rem 0.75rem !important;
+          font-size: 0.78rem !important;
+        }
+        .gate-input { min-height: 52px; font-size: 16px !important; }
+        .btn, button.btn { min-height: 48px; }
+        .compare, .vault, .dump { font-size: 0.85rem; }
+        .panel { padding: 0.85rem; }
+      }
       .gate-input {
         width: 100%;
         background: rgba(0, 0, 0, 0.28);
@@ -506,8 +525,9 @@
       }
     </style>
   </head>
+  <link rel="stylesheet" href="./mobile-polish.css?v=m1" />
   <body>
-    <link rel="stylesheet" href="./garden-back.css" />
+    <link rel="stylesheet" href="./garden-back.css?v=m1" />
     <a class="garden-back" href="../">← GARDEN</a>
     <script>
       try {

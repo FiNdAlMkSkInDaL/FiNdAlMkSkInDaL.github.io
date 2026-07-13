@@ -126,6 +126,19 @@
         .stage { grid-template-columns: 1fr; overflow: auto; height: auto; }
         .app { overflow: auto; }
       }
+      @media (max-width: 768px) {
+        .signals { grid-template-columns: 1fr !important; padding: 0.5rem 0.55rem 0; }
+        .sig { padding: 0.65rem 0.7rem; }
+        .sig .title { font-size: 0.9rem; }
+        .decision .big { font-size: 1.5rem; }
+        .btn { min-height: 48px; font-size: 0.85rem; }
+        .dial label { font-size: 0.82rem; margin-bottom: 0.25rem; }
+        input[type="range"] { height: 32px; }
+        .book { min-height: 180px; }
+        .ladder { font-size: 0.9rem; }
+        .log { font-size: 0.75rem; min-height: 120px; }
+        .top { padding-left: 4.25rem; min-height: 52px; }
+      }
 
       .panel {
         background: var(--panel);
@@ -381,8 +394,9 @@
       }
     </style>
   </head>
+  <link rel="stylesheet" href="./mobile-polish.css?v=m1" />
   <body>
-    <link rel="stylesheet" href="./garden-back.css" />
+    <link rel="stylesheet" href="./garden-back.css?v=m1" />
     <a class="garden-back" href="../">← GARDEN</a>
     <script>
       try {

@@ -1,0 +1,198 @@
+/**
+ * Shared mobile-first polish for all garden demos.
+ * Linked after each demo’s own styles.
+ */
+
+/* Touch defaults */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+button,
+a,
+input,
+select,
+textarea,
+label,
+[role="button"] {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(134, 239, 172, 0.25);
+}
+
+/* Bigger native control affordances */
+input[type="range"] {
+  height: 28px;
+  accent-color: #22c55e;
+}
+input[type="range"]::-webkit-slider-thumb {
+  width: 28px;
+  height: 28px;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+}
+
+/* Active / press feedback */
+button:active,
+.btn:active,
+.chip:active,
+.sample:active,
+.nav-btn:active {
+  transform: scale(0.97);
+  filter: brightness(1.08);
+}
+
+/* ── Mobile shell ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Prefer page scroll over cramped fixed layouts */
+  html,
+  body {
+    overflow-x: hidden;
+    overflow-y: auto !important;
+    min-height: 100%;
+    min-height: 100dvh;
+    height: auto !important;
+  }
+
+  .app {
+    height: auto !important;
+    min-height: 100dvh;
+    overflow: visible !important;
+    grid-template-rows: auto auto minmax(0, auto) !important;
+  }
+
+  .stage {
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: 0;
+    overflow: visible !important;
+    gap: 0.75rem !important;
+    padding: 0.65rem 0.65rem calc(5.5rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .panel,
+  .col-controls,
+  .col-chart,
+  .col-neighbours,
+  .right-col {
+    min-height: 0;
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  .panel-body {
+    overflow: visible !important;
+  }
+
+  /* Top bars: room for garden chip + thumb reach */
+  .top {
+    min-height: 52px;
+    padding: 0.55rem 0.65rem 0.55rem 4.5rem !important;
+    flex-wrap: wrap;
+    row-gap: 0.35rem;
+  }
+
+  .brand h1 {
+    font-size: 0.78rem !important;
+  }
+
+  .brand p {
+    font-size: 0.58rem !important;
+    white-space: normal !important;
+    max-width: 42ch;
+  }
+
+  /* Touch targets */
+  .btn,
+  button.btn,
+  .chip,
+  .sample,
+  .nav-btn {
+    min-height: 48px !important;
+    min-width: 48px;
+    padding: 0.7rem 0.85rem !important;
+    font-size: 0.85rem !important;
+  }
+
+  .btn-row,
+  .btn-row.three {
+    grid-template-columns: 1fr !important;
+    gap: 0.5rem !important;
+  }
+
+  input[type="text"],
+  input[type="search"],
+  textarea,
+  .gate-input,
+  select {
+    min-height: 48px !important;
+    font-size: 16px !important; /* prevents iOS zoom */
+    padding: 0.7rem 0.75rem !important;
+  }
+
+  /* Blurbs: don’t cover primary actions on small screens */
+  .blurb {
+    position: static !important;
+    max-width: none !important;
+    margin: 0.5rem 0.65rem 1rem !important;
+    pointer-events: none;
+    font-size: 0.78rem !important;
+    line-height: 1.5 !important;
+  }
+
+  /* Signals / strips stack */
+  .signals {
+    grid-template-columns: 1fr !important;
+    gap: 0.5rem !important;
+  }
+
+  .kv {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* Light garden-tinted edge (cheap, no particles) */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: auto 0 0 0;
+    height: 48px;
+    pointer-events: none;
+    z-index: 5;
+    background: linear-gradient(
+      0deg,
+      rgba(20, 83, 45, 0.35),
+      transparent
+    );
+  }
+}
+
+/* Very small phones */
+@media (max-width: 380px) {
+  .top {
+    padding-left: 4rem !important;
+  }
+  .brand h1 {
+    font-size: 0.7rem !important;
+  }
+}
+
+/* Prefer reduced motion still */
+@media (prefers-reduced-motion: reduce) {
+  button:active,
+  .btn:active,
+  .chip:active,
+  .sample:active {
+    transform: none;
+  }
+}
+
+/* Embedded in garden iframe: slightly denser top padding (shell has its own bar) */
+html.in-garden-frame .top {
+  padding-left: 0.65rem !important;
+}
+html.in-garden-frame .garden-back {
+  display: none !important;
+}

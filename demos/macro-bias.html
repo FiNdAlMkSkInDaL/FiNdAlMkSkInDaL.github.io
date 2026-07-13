@@ -148,6 +148,24 @@
       @media (max-width: 640px) {
         .stage { grid-template-columns: 1fr; }
       }
+      @media (max-width: 768px) {
+        .app { overflow: auto; height: auto; min-height: 100dvh; }
+        .stage {
+          grid-template-columns: 1fr !important;
+          height: auto !important;
+          overflow: visible !important;
+          padding-bottom: 5rem;
+        }
+        .col-neighbours { grid-column: auto !important; }
+        .top { padding-left: 4.25rem; min-height: 52px; flex-wrap: wrap; }
+        .btn, button { min-height: 48px; }
+        input[type="range"] { height: 32px; }
+        .dial label { font-size: 0.82rem; }
+        .neighbour, .n-card, .card {
+          min-height: 48px;
+        }
+        .panel { padding: 0.85rem; }
+      }
 
       .panel {
         background: var(--panel);
@@ -451,8 +469,9 @@
       }
     </style>
   </head>
+  <link rel="stylesheet" href="./mobile-polish.css?v=m1" />
   <body>
-    <link rel="stylesheet" href="./garden-back.css" />
+    <link rel="stylesheet" href="./garden-back.css?v=m1" />
     <a class="garden-back" href="../">← GARDEN</a>
     <script>
       try {
