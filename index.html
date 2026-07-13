@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-build="flowers-no-stems">
+<html lang="en" data-build="flowers-60-random">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -9,7 +9,7 @@
     />
     <title>Finlay · Pixel Bush</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css?v=flowers-2" />
+    <link rel="stylesheet" href="./styles.css?v=flowers-60" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -214,20 +214,18 @@
             if ((i + y) % 3 === 0) ctx.fillRect(x - 1, y + 1, s, s);
           }
 
-          // Semi-sparse multi-colour flowers dotted across the bush
-          // ~1 flower per ~280–380 canvas px² → sparse but visible
-          const flowerCount = Math.max(18, Math.floor((w * h) / 320));
+          // Multi-colour flowers — ~60% of prior density; re-randomised each paint
+          // (refresh / resize), same as leaf tint + sun speckles.
+          const flowerCount = Math.max(10, Math.floor(((w * h) / 320) * 0.6));
           for (let i = 0; i < flowerCount; i++) {
-            // Deterministic scatter (stable on resize within same dimensions)
-            const x = (i * 73 + (i * i * 13) % 97 + 11) % Math.max(1, w - 8);
-            const y = (i * 47 + (i * 19) % 53 + 7) % Math.max(1, h - 8);
-            // Skip a few randomly-ish so it's not a perfect grid
-            if ((i * 17 + x + y) % 5 === 0) continue;
-            // Slightly prefer mid/upper canopy (where blossoms read better)
+            const x = 3 + Math.floor(Math.random() * Math.max(1, w - 8));
+            const y = 3 + Math.floor(Math.random() * Math.max(1, h - 8));
+            // Prefer canopy (skip deepest ground strip)
             if (y > h * 0.92) continue;
-            const pal = FLOWER_PALETTES[i % FLOWER_PALETTES.length];
-            const size = 1 + ((i + x) % 2); // 1 or 2 px base
-            drawTinyFlower(x + 3, y + 3, size, pal);
+            const pal =
+              FLOWER_PALETTES[Math.floor(Math.random() * FLOWER_PALETTES.length)];
+            const size = Math.random() < 0.55 ? 1 : 2;
+            drawTinyFlower(x, y, size, pal);
           }
 
           // Sun through canopy speckles
