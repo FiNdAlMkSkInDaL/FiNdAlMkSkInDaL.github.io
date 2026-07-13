@@ -1,485 +1,810 @@
 <!DOCTYPE html>
 <html lang="en">
- <head>
- <meta charset="utf-8" />
- <meta name="viewport" content="width=device-width, initial-scale=1" />
- <title>Identity · .me Handshake</title>
- <meta
- name="description"
- content="Interactive demo of the Identity .me protocol — scoped context handshake, safety gate, ephemeral agent memory."
- />
- <link rel="icon" href="./favicon-identity.svg" type="image/svg+xml" />
- <link rel="preconnect" href="https://fonts.googleapis.com" />
- <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
- <link
- href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap"
- rel="stylesheet"
- />
- <style>
- :root {
- --bg: #07070c;
- --panel: #101018;
- --elev: #181824;
- --border: rgba(167, 139, 250, 0.2);
- --text: #f4f4f5;
- --dim: #a1a1aa;
- --mute: #71717a;
- --violet: #a78bfa;
- --violet2: #c4b5fd;
- --mint: #34d399;
- --rose: #fb7185;
- --cyan: #22d3ee;
- --font: "Space Grotesk", system-ui, sans-serif;
- --mono: "JetBrains Mono", ui-monospace, monospace;
- }
- * { box-sizing: border-box; }
- html, body { margin: 0; min-height: 100%; }
- body {
- font-family: var(--font);
- color: var(--text);
- background: var(--bg);
- background-image:
- radial-gradient(ellipse 55% 40% at 15% 0%, rgba(167, 139, 250, 0.12), transparent 50%),
- radial-gradient(ellipse 45% 30% at 90% 30%, rgba(34, 211, 238, 0.06), transparent 45%);
- }
- main { max-width: 1120px; margin: 0 auto; padding: 1.25rem 1.15rem 2.5rem; }
- .back { color: var(--mute); text-decoration: none; font-size: 0.85rem; }
- .back:hover { color: var(--violet2); }
- h1 { margin: 0.75rem 0 0.2rem; font-size: 1.6rem; }
- .sub { color: var(--mute); font-size: 0.9rem; margin: 0 0 1.1rem; line-height: 1.45; }
- .sub a { color: var(--violet2); }
- .layout { display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 0.85rem; align-items: stretch; }
- @media (max-width: 960px) { .layout { grid-template-columns: 1fr; } }
- .panel {
- background: var(--panel);
- border: 1px solid var(--border);
- border-radius: 14px;
- padding: 0.95rem 1rem;
- min-height: 320px;
- display: flex;
- flex-direction: column;
- }
- .panel h2 {
- margin: 0 0 0.65rem;
- font-size: 0.7rem;
- letter-spacing: 0.1em;
- text-transform: uppercase;
- color: var(--mute);
- }
- .vault {
- flex: 1;
- display: grid;
- grid-template-columns: repeat(3, 1fr);
- gap: 0.45rem;
- align-content: start;
- }
- .node {
- background: var(--elev);
- border: 1px solid rgba(255,255,255,0.06);
- border-radius: 8px;
- padding: 0.45rem;
- font-size: 0.68rem;
- color: var(--dim);
- position: relative;
- overflow: hidden;
- transition: 0.35s ease;
- }
- .node.locked::after {
- content: "🔒";
- position: absolute;
- inset: 0;
- display: grid;
- place-items: center;
- background: rgba(7, 7, 12, 0.72);
- font-size: 0.9rem;
- }
- .node.selected {
- border-color: var(--violet);
- box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.4), 0 0 16px rgba(167, 139, 250, 0.25);
- color: var(--text);
- }
- .node.selected::after { display: none; }
- .node .tag { display: block; font-family: var(--mono); font-size: 0.58rem; color: var(--violet2); margin-bottom: 0.2rem; }
- .center { text-align: center; }
- .prompt {
- width: 100%;
- background: var(--elev);
- border: 1px solid var(--border);
- border-radius: 10px;
- color: var(--text);
- font: inherit;
- font-size: 0.88rem;
- padding: 0.65rem 0.75rem;
- resize: vertical;
- min-height: 72px;
- }
- .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; margin: 0.65rem 0; }
- .btn {
- font: inherit;
- font-weight: 600;
- font-size: 0.85rem;
- padding: 0.55rem 0.7rem;
- border-radius: 10px;
- border: 1px solid var(--border);
- background: var(--elev);
- color: var(--dim);
- cursor: pointer;
- }
- .btn.primary {
- background: linear-gradient(135deg, rgba(167, 139, 250, 0.35), rgba(34, 211, 238, 0.2));
- border-color: rgba(167, 139, 250, 0.5);
- color: var(--violet2);
- }
- .btn:hover { filter: brightness(1.08); }
- .stream {
- flex: 1;
- display: flex;
- flex-direction: column;
- gap: 0.4rem;
- justify-content: center;
- min-height: 100px;
- }
- .chip-fly {
- font-size: 0.75rem;
- padding: 0.4rem 0.55rem;
- border-radius: 8px;
- background: rgba(167, 139, 250, 0.12);
- border: 1px solid rgba(167, 139, 250, 0.35);
- color: var(--text);
- opacity: 0;
- transform: translateY(8px);
- transition: 0.4s ease;
- }
- .chip-fly.show { opacity: 1; transform: translateY(0); }
- .chip-fly.gone { opacity: 0; transform: scale(0.9); }
- .agent-box {
- flex: 1;
- background: #0a0a12;
- border: 1px dashed rgba(34, 211, 238, 0.3);
- border-radius: 10px;
- padding: 0.7rem;
- font-family: var(--mono);
- font-size: 0.72rem;
- color: var(--dim);
- line-height: 1.45;
- min-height: 140px;
- }
- .agent-box.empty { color: var(--mute); }
- .agent-box .hdr { color: var(--cyan); margin-bottom: 0.4rem; }
- .gate {
- margin-top: 1rem;
- display: grid;
- grid-template-columns: 1.2fr 1fr;
- gap: 0.85rem;
- }
- @media (max-width: 860px) { .gate { grid-template-columns: 1fr; } }
- .gate-input {
- width: 100%;
- background: var(--elev);
- border: 1px solid var(--border);
- border-radius: 10px;
- color: var(--text);
- font: inherit;
- font-size: 0.88rem;
- padding: 0.6rem 0.75rem;
- }
- .pipeline { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.55rem; }
- .step {
- font-family: var(--mono);
- font-size: 0.65rem;
- padding: 0.3rem 0.45rem;
- border-radius: 6px;
- border: 1px solid var(--border);
- color: var(--mute);
- background: rgba(0,0,0,0.2);
- }
- .step.on { color: var(--mint); border-color: rgba(52, 211, 153, 0.45); background: rgba(52, 211, 153, 0.08); }
- .step.fail { color: var(--rose); border-color: rgba(251, 113, 133, 0.45); background: rgba(251, 113, 133, 0.08); }
- .gate-msg { font-family: var(--mono); font-size: 0.78rem; margin-top: 0.55rem; color: var(--dim); min-height: 1.2em; }
- .gate-msg.ok { color: var(--mint); }
- .gate-msg.bad { color: var(--rose); }
- .budget {
- margin-top: 0.75rem;
- height: 10px;
- background: #181824;
- border-radius: 4px;
- overflow: hidden;
- border: 1px solid var(--border);
- }
- .budget > i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--violet), var(--cyan)); transition: width 0.45s ease; }
- .foot { margin-top: 1rem; font-size: 0.78rem; color: var(--mute); line-height: 1.5; }
- .foot a { color: var(--violet2); }
- .samples { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.4rem; }
- .sample {
- font-size: 0.72rem;
- padding: 0.3rem 0.5rem;
- border-radius: 999px;
- border: 1px solid var(--border);
- background: var(--elev);
- color: var(--dim);
- cursor: pointer;
- font-family: inherit;
- }
- .sample:hover { color: var(--violet2); border-color: rgba(167,139,250,0.45); }
- </style>
- </head>
- <body>
- <main>
- <a class="back" href="../">← Portfolio</a>
- <h1>Identity · .me Handshake</h1>
- <p class="sub">
- Local vault stays sealed. Only narrowly scoped facts stream to the agent — then agent memory clears.
- Protocol:
- <a href="https://github.com/FiNdAlMkSkInDaL/Identity" target="_blank" rel="noopener">Identity / .me</a>
- </p>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <title>Identity · .me Protocol</title>
+    <meta
+      name="description"
+      content="Identity .me demo: local vault, scoped handshake to agents, and a capture safety gate."
+    />
+    <link rel="icon" href="./favicon-identity.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #07070c;
+        --panel: rgba(16, 16, 24, 0.94);
+        --elev: #181824;
+        --border: rgba(167, 139, 250, 0.16);
+        --text: #f4f4f5;
+        --muted: #a1a1aa;
+        --mute2: #71717a;
+        --violet: #a78bfa;
+        --violet2: #c4b5fd;
+        --mint: #34d399;
+        --rose: #fb7185;
+        --cyan: #22d3ee;
+        --font: Inter, system-ui, sans-serif;
+        --mono: "JetBrains Mono", ui-monospace, monospace;
+      }
+      *, *::before, *::after { box-sizing: border-box; }
+      html, body {
+        height: 100%;
+        height: 100dvh;
+        margin: 0;
+        overflow: hidden;
+      }
+      body {
+        font-family: var(--font);
+        color: var(--text);
+        background: var(--bg);
+        -webkit-font-smoothing: antialiased;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(ellipse 70% 40% at 12% 0%, rgba(167, 139, 250, 0.1), transparent 50%),
+          radial-gradient(ellipse 45% 30% at 90% 15%, rgba(34, 211, 238, 0.05), transparent 45%);
+      }
+      * { scrollbar-width: none; }
+      *::-webkit-scrollbar { display: none; }
 
- <div class="layout">
- <section class="panel">
- <h2>Local .me vault</h2>
- <div class="vault" id="vault"></div>
- <div class="budget" title="context budget"><i id="budgetFill"></i></div>
- <p style="margin:0.4rem 0 0;font-size:0.7rem;color:var(--mute);font-family:var(--mono)" id="budgetLabel">budget 0 / 5 facts</p>
- </section>
+      .app {
+        position: relative;
+        z-index: 1;
+        height: 100%;
+        height: 100dvh;
+        display: grid;
+        grid-template-rows: 48px minmax(0, 1fr) minmax(160px, 0.42fr);
+        overflow: hidden;
+      }
 
- <section class="panel center">
- <h2>Task → scoped stream</h2>
- <textarea class="prompt" id="prompt">Draft outreach to three founders in my tone from last week.</textarea>
- <div class="actions">
- <button class="btn primary" id="handshake" type="button">Handshake</button>
- <button class="btn" id="clearAgent" type="button">Clear agent</button>
- </div>
- <div class="stream" id="stream"></div>
- </section>
+      /* Top bar */
+      .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 0.85rem;
+        border-bottom: 1px solid var(--border);
+        background: rgba(7, 7, 12, 0.94);
+        backdrop-filter: blur(10px);
+        gap: 0.75rem;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        min-width: 0;
+      }
+      .mark {
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        display: grid;
+        place-items: center;
+        font-family: var(--mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        color: #0a0a12;
+        background: linear-gradient(135deg, #a78bfa, #22d3ee);
+        flex-shrink: 0;
+      }
+      .brand h1 {
+        margin: 0;
+        font-size: 0.85rem;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .brand p {
+        margin: 0;
+        font-size: 0.62rem;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .top-links {
+        display: flex;
+        gap: 0.65rem;
+        flex-shrink: 0;
+      }
+      .top-links a {
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        color: var(--mute2);
+        text-decoration: none;
+      }
+      .top-links a:hover { color: var(--violet2); }
 
- <section class="panel">
- <h2>Agent session (ephemeral)</h2>
- <div class="agent-box empty" id="agent">
- <div class="hdr">session memory</div>
- empty — waiting for scoped context
- </div>
- </section>
- </div>
+      /* Stage */
+      .stage {
+        display: grid;
+        grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.15fr) minmax(0, 1.05fr);
+        gap: 0.55rem;
+        padding: 0.55rem 0.55rem 0.35rem;
+        min-height: 0;
+        overflow: hidden;
+      }
+      @media (max-width: 980px) {
+        .app { grid-template-rows: 48px minmax(0, 1fr); overflow: auto; }
+        .stage { grid-template-columns: 1fr; overflow: visible; height: auto; }
+        .gate-row { min-height: 220px; }
+      }
 
- <div class="gate">
- <section class="panel" style="min-height:auto">
- <h2>Capture → safety gate → promote</h2>
- <input class="gate-input" id="capture" placeholder="Paste capture text (try a fake API key)…" />
- <div class="samples">
- <button type="button" class="sample" data-t="Met with Acme founder; they liked the local-first pitch.">safe note</button>
- <button type="button" class="sample" data-t="sk-live-51a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6">api key (reject)</button>
- <button type="button" class="sample" data-t="Card 4111 1111 1111 1111 expires 09/28">card (reject)</button>
- <button type="button" class="sample" data-t="Prefer short emails; no exclamation marks.">tone fact</button>
- </div>
- <div class="pipeline" id="pipeline">
- <span class="step" data-s="capture">capture</span>
- <span class="step" data-s="size">size cap</span>
- <span class="step" data-s="secret">secret scan</span>
- <span class="step" data-s="lock">at-rest lock</span>
- <span class="step" data-s="embed">embed</span>
- <span class="step" data-s="graph">graph node</span>
- </div>
- <div class="gate-msg" id="gateMsg"></div>
- <button class="btn primary" id="runGate" type="button" style="margin-top:0.65rem;width:100%">Run gate</button>
- </section>
- <section class="panel" style="min-height:auto">
- <h2>What this demo shows</h2>
- <p style="margin:0;font-size:0.85rem;color:var(--dim);line-height:1.5">
- Identity keeps preferences, network, and memory in an encrypted local <code>.me</code> bank.
- Agents receive a <strong>budgeted</strong> context slice only. Captures hit a deterministic
- safety gate (size + secret reject) before promotion — matching the real
- <code>identityd</code> pipeline.
- </p>
- </section>
- </div>
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.7rem 0.75rem;
+        min-height: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .panel-h {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        flex-shrink: 0;
+      }
+      .panel-h h2 {
+        margin: 0;
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--mute2);
+      }
+      .panel-h .hint {
+        font-family: var(--mono);
+        font-size: 0.6rem;
+        color: var(--mute2);
+      }
+      .panel-body {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+      }
 
- <p class="foot">
- Interactive protocol sketch — synthetic vault data, no live OS capture in-browser.
- Source: <a href="https://github.com/FiNdAlMkSkInDaL/Identity">FiNdAlMkSkInDaL/Identity</a>
- </p>
- </main>
- <script>
- const VAULT = [
- { id: "n1", domain: "network", text: "Founder: Maya Chen · robotics hiring Q3", tags: ["network"] },
- { id: "n2", domain: "network", text: "Founder: Omar R. · infra tooling, London", tags: ["network"] },
- { id: "n3", domain: "network", text: "Founder: Priya S. · climate fintech", tags: ["network"] },
- { id: "n4", domain: "tone", text: "Writing tone: short, dry, no hype adjectives", tags: ["tone"] },
- { id: "n5", domain: "tone", text: "Sign-off: Best, Finlay — never Thanks!!", tags: ["tone"] },
- { id: "n6", domain: "project", text: "Active: Identity .me protocol (Rust daemon)", tags: ["project"] },
- { id: "n7", domain: "project", text: "Active: TickForge LOB / A–S demo", tags: ["project"] },
- { id: "n8", domain: "window", text: "Foreground: VS Code · identityd/src", tags: ["window"] },
- { id: "n9", domain: "prefs", text: "Prefer async email over calls", tags: ["prefs"] },
- ];
+      .mono { font-family: var(--mono); font-feature-settings: "tnum"; }
 
- const BUDGET = 5;
- let selected = [];
+      /* Task column */
+      .prompt {
+        width: 100%;
+        min-height: 88px;
+        resize: vertical;
+        background: rgba(0, 0, 0, 0.28);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        font: inherit;
+        font-size: 0.85rem;
+        padding: 0.6rem 0.7rem;
+        line-height: 1.4;
+      }
+      .prompt:focus {
+        outline: none;
+        border-color: rgba(167, 139, 250, 0.45);
+      }
+      .presets {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+      .preset {
+        text-align: left;
+        font: inherit;
+        font-size: 0.78rem;
+        padding: 0.45rem 0.55rem;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        background: rgba(0, 0, 0, 0.22);
+        color: var(--muted);
+        cursor: pointer;
+      }
+      .preset:hover { border-color: rgba(167, 139, 250, 0.3); color: var(--text); }
+      .preset.active {
+        border-color: rgba(167, 139, 250, 0.45);
+        background: rgba(167, 139, 250, 0.1);
+        color: var(--text);
+      }
+      .actions {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 0.4rem;
+        margin-top: auto;
+      }
+      .btn {
+        font: inherit;
+        font-weight: 600;
+        font-size: 0.8rem;
+        padding: 0.55rem 0.65rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.25);
+        color: var(--muted);
+        cursor: pointer;
+      }
+      .btn.primary {
+        background: linear-gradient(135deg, rgba(167, 139, 250, 0.35), rgba(34, 211, 238, 0.18));
+        border-color: rgba(167, 139, 250, 0.5);
+        color: var(--violet2);
+      }
+      .btn:hover { filter: brightness(1.08); }
 
- function renderVault() {
- const box = document.getElementById("vault");
- box.innerHTML = "";
- VAULT.forEach((n) => {
- const el = document.createElement("div");
- el.className = "node locked" + (selected.includes(n.id) ? " selected" : "");
- el.innerHTML = `<span class="tag">${n.domain}</span>${n.text}`;
- box.appendChild(el);
- });
- const fill = (selected.length / BUDGET) * 100;
- document.getElementById("budgetFill").style.width = fill + "%";
- document.getElementById("budgetLabel").textContent =
- `budget ${selected.length} / ${BUDGET} facts`;
- }
+      .budget {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-family: var(--mono);
+        font-size: 0.68rem;
+        color: var(--mute2);
+      }
+      .budget-bar {
+        flex: 1;
+        height: 8px;
+        border-radius: 4px;
+        background: #12121a;
+        border: 1px solid var(--border);
+        overflow: hidden;
+      }
+      .budget-bar > i {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, var(--violet), var(--cyan));
+        transition: width 0.4s ease;
+      }
 
- function rankForTask(prompt) {
- const t = prompt.toLowerCase();
- const scores = VAULT.map((n) => {
- let s = 0;
- if (t.includes("founder") || t.includes("outreach") || t.includes("network")) {
- if (n.domain === "network") s += 3;
- }
- if (t.includes("tone") || t.includes("writing") || t.includes("email") || t.includes("outreach")) {
- if (n.domain === "tone") s += 3;
- }
- if (t.includes("identity") || t.includes("project") || t.includes("code")) {
- if (n.domain === "project") s += 2;
- }
- if (n.domain === "window") s += 0.5;
- if (n.domain === "prefs" && (t.includes("email") || t.includes("outreach"))) s += 1.5;
- // diversity: mild prior
- s += Math.random() * 0.2;
- return { n, s };
- });
- scores.sort((a, b) => b.s - a.s);
- // domain diversity: don't take all from one domain first
- const picked = [];
- const domains = new Set();
- for (const row of scores) {
- if (picked.length >= BUDGET) break;
- if (domains.has(row.n.domain) && domains.size < 3 && picked.length < BUDGET - 1) {
- // allow second of same domain only after 2 domains present
- if (domains.size < 2) continue;
- }
- picked.push(row.n);
- domains.add(row.n.domain);
- }
- return picked;
- }
+      /* Vault table */
+      .vault-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.78rem;
+      }
+      .vault-table th {
+        text-align: left;
+        font-family: var(--mono);
+        font-size: 0.6rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--mute2);
+        padding: 0.25rem 0.4rem 0.45rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .vault-table td {
+        padding: 0.45rem 0.4rem;
+        border-bottom: 1px solid rgba(167, 139, 250, 0.06);
+        vertical-align: top;
+      }
+      .vault-table tr.locked td { color: var(--mute2); }
+      .vault-table tr.selected td {
+        color: var(--text);
+        background: rgba(167, 139, 250, 0.08);
+      }
+      .dom {
+        font-family: var(--mono);
+        font-size: 0.65rem;
+        color: var(--violet2);
+        white-space: nowrap;
+      }
+      .status {
+        font-family: var(--mono);
+        font-size: 0.62rem;
+        white-space: nowrap;
+      }
+      .status.locked { color: var(--mute2); }
+      .status.open { color: var(--mint); }
 
- function handshake() {
- const prompt = document.getElementById("prompt").value;
- const picks = rankForTask(prompt);
- selected = picks.map((p) => p.id);
- renderVault();
+      /* Agent column */
+      .agent {
+        flex: 1;
+        min-height: 0;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px dashed rgba(34, 211, 238, 0.28);
+        border-radius: 10px;
+        padding: 0.7rem 0.75rem;
+        font-family: var(--mono);
+        font-size: 0.75rem;
+        line-height: 1.5;
+        color: var(--muted);
+        overflow: auto;
+      }
+      .agent .hdr {
+        color: var(--cyan);
+        font-size: 0.65rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 0.45rem;
+      }
+      .agent.empty { color: var(--mute2); }
+      .agent .fact {
+        margin: 0.25rem 0;
+        color: var(--text);
+        opacity: 0;
+        transform: translateY(6px);
+        transition: 0.35s ease;
+      }
+      .agent .fact.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .stream-note {
+        font-size: 0.72rem;
+        color: var(--mute2);
+        line-height: 1.4;
+        margin: 0;
+      }
 
- const stream = document.getElementById("stream");
- stream.innerHTML = "";
- const agent = document.getElementById("agent");
- agent.classList.remove("empty");
- agent.innerHTML = '<div class="hdr">session memory · scoped only</div>';
+      /* Safety gate row — kept style */
+      .gate-row {
+        padding: 0 0.55rem 0.55rem;
+        min-height: 0;
+      }
+      .gate-panel {
+        height: 100%;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.7rem 0.8rem;
+        display: grid;
+        grid-template-columns: 1.15fr 1fr;
+        gap: 0.85rem;
+        min-height: 0;
+      }
+      @media (max-width: 860px) {
+        .gate-panel { grid-template-columns: 1fr; }
+      }
+      .gate-panel h2 {
+        margin: 0 0 0.45rem;
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--mute2);
+      }
+      .gate-input {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.28);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        font: inherit;
+        font-size: 0.85rem;
+        padding: 0.55rem 0.65rem;
+      }
+      .gate-input:focus {
+        outline: none;
+        border-color: rgba(167, 139, 250, 0.45);
+      }
+      .samples {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        margin: 0.4rem 0 0.5rem;
+      }
+      .sample {
+        font: inherit;
+        font-size: 0.68rem;
+        padding: 0.28rem 0.45rem;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.22);
+        color: var(--muted);
+        cursor: pointer;
+      }
+      .sample:hover {
+        color: var(--violet2);
+        border-color: rgba(167, 139, 250, 0.4);
+      }
+      .pipeline {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        margin: 0.45rem 0;
+      }
+      .step {
+        font-family: var(--mono);
+        font-size: 0.62rem;
+        padding: 0.28rem 0.42rem;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        color: var(--mute2);
+        background: rgba(0, 0, 0, 0.22);
+      }
+      .step.on {
+        color: var(--mint);
+        border-color: rgba(52, 211, 153, 0.45);
+        background: rgba(52, 211, 153, 0.08);
+      }
+      .step.fail {
+        color: var(--rose);
+        border-color: rgba(251, 113, 133, 0.45);
+        background: rgba(251, 113, 133, 0.08);
+      }
+      .gate-msg {
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        color: var(--muted);
+        min-height: 1.2em;
+        margin: 0.35rem 0 0.5rem;
+      }
+      .gate-msg.ok { color: var(--mint); }
+      .gate-msg.bad { color: var(--rose); }
+      .gate-copy {
+        margin: 0;
+        font-size: 0.78rem;
+        color: var(--muted);
+        line-height: 1.45;
+      }
 
- picks.forEach((p, i) => {
- const chip = document.createElement("div");
- chip.className = "chip-fly";
- chip.textContent = p.text;
- stream.appendChild(chip);
- setTimeout(() => chip.classList.add("show"), 80 + i * 160);
- setTimeout(() => {
- const line = document.createElement("div");
- line.textContent = "• " + p.text;
- agent.appendChild(line);
- }, 200 + i * 160);
- });
- }
+      .blurb {
+        position: fixed;
+        right: 12px;
+        bottom: 12px;
+        z-index: 30;
+        max-width: min(320px, calc(100vw - 24px));
+        padding: 0.65rem 0.75rem;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(7, 7, 12, 0.95);
+        color: var(--muted);
+        font-size: 0.68rem;
+        line-height: 1.45;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+        pointer-events: none;
+      }
+      .blurb strong {
+        display: block;
+        color: var(--text);
+        font-size: 0.72rem;
+        margin-bottom: 0.2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header class="top">
+        <div class="brand">
+          <span class="mark">.me</span>
+          <div>
+            <h1>Identity</h1>
+            <p>local vault · scoped handshake · capture safety gate</p>
+          </div>
+        </div>
+        <div class="top-links">
+          <a href="https://github.com/FiNdAlMkSkInDaL/Identity" target="_blank" rel="noopener">repo</a>
+          <a href="../">portfolio</a>
+        </div>
+      </header>
 
- function clearAgent() {
- selected = [];
- renderVault();
- const stream = document.getElementById("stream");
- stream.querySelectorAll(".chip-fly").forEach((c) => c.classList.add("gone"));
- setTimeout(() => {
- stream.innerHTML = "";
- }, 350);
- const agent = document.getElementById("agent");
- agent.classList.add("empty");
- agent.innerHTML =
- '<div class="hdr">session memory</div>empty — context dropped (stateless execution)';
- }
+      <main class="stage">
+        <!-- Task -->
+        <section class="panel">
+          <div class="panel-h">
+            <h2>1 · Task</h2>
+            <span class="hint mono">what the agent is asked to do</span>
+          </div>
+          <div class="panel-body">
+            <textarea class="prompt" id="prompt">Draft outreach to three founders in my tone from last week.</textarea>
+            <div class="presets" id="presets"></div>
+            <div class="budget">
+              <span id="budgetLabel">0 / 5 facts</span>
+              <div class="budget-bar"><i id="budgetFill"></i></div>
+            </div>
+            <div class="actions">
+              <button class="btn primary" id="run" type="button">Run handshake</button>
+              <button class="btn" id="clear" type="button">Clear agent</button>
+            </div>
+          </div>
+        </section>
 
- function secretScan(text) {
- const patterns = [
- { re: /\bsk-[a-zA-Z0-9]{10,}\b/, why: "API key pattern" },
- { re: /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/, why: "payment card pattern" },
- { re: /\b(AKIA|ASIA)[A-Z0-9]{16}\b/, why: "cloud access key" },
- { re: /-----BEGIN (RSA |OPENSSH )?PRIVATE KEY-----/, why: "private key block" },
- { re: /\bpassword\s*=\s*\S+/i, why: "password assignment" },
- ];
- for (const p of patterns) {
- if (p.re.test(text)) return p.why;
- }
- return null;
- }
+        <!-- Vault -->
+        <section class="panel">
+          <div class="panel-h">
+            <h2>2 · Local .me vault</h2>
+            <span class="hint mono">stays sealed · only selected rows leave</span>
+          </div>
+          <div class="panel-body">
+            <table class="vault-table">
+              <thead>
+                <tr>
+                  <th>Domain</th>
+                  <th>Memory</th>
+                  <th>State</th>
+                </tr>
+              </thead>
+              <tbody id="vaultBody"></tbody>
+            </table>
+          </div>
+        </section>
 
- function runGate() {
- const text = document.getElementById("capture").value || "";
- const steps = [...document.querySelectorAll("#pipeline .step")];
- steps.forEach((s) => s.classList.remove("on", "fail"));
- const msg = document.getElementById("gateMsg");
- msg.className = "gate-msg";
- msg.textContent = "";
+        <!-- Agent -->
+        <section class="panel">
+          <div class="panel-h">
+            <h2>3 · Agent session</h2>
+            <span class="hint mono">ephemeral · cleared on demand</span>
+          </div>
+          <div class="panel-body">
+            <p class="stream-note" id="streamNote">
+              Press <strong style="color:var(--violet2)">Run handshake</strong>. Ranked facts stream in; the rest of the vault stays locked.
+            </p>
+            <div class="agent empty" id="agent">
+              <div class="hdr">session memory</div>
+              empty
+            </div>
+          </div>
+        </section>
+      </main>
 
- const order = ["capture", "size", "secret", "lock", "embed", "graph"];
- let i = 0;
- const tick = () => {
- if (i >= order.length) return;
- const name = order[i];
- const el = steps.find((s) => s.dataset.s === name);
- // checks
- if (name === "capture") {
- if (!text.trim()) {
- el.classList.add("fail");
- msg.className = "gate-msg bad";
- msg.textContent = "reject — empty capture";
- return;
- }
- el.classList.add("on");
- } else if (name === "size") {
- if (text.length > 1_000_000) {
- el.classList.add("fail");
- msg.className = "gate-msg bad";
- msg.textContent = "reject — exceeds 1MB cap";
- return;
- }
- el.classList.add("on");
- } else if (name === "secret") {
- const why = secretScan(text);
- if (why) {
- el.classList.add("fail");
- msg.className = "gate-msg bad";
- msg.textContent = "reject — " + why;
- return;
- }
- el.classList.add("on");
- } else {
- el.classList.add("on");
- }
- i++;
- if (i >= order.length) {
- msg.className = "gate-msg ok";
- msg.textContent = "accepted → locked → embedded → graph node (demo)";
- return;
- }
- setTimeout(tick, 220);
- };
- tick();
- }
+      <!-- Safety gate (kept) -->
+      <div class="gate-row">
+        <div class="gate-panel">
+          <div>
+            <h2>Capture → safety gate → promote</h2>
+            <input class="gate-input" id="capture" placeholder="Paste a capture (try a fake API key)…" />
+            <div class="samples">
+              <button type="button" class="sample" data-t="Met with Acme founder; they liked the local-first pitch.">safe note</button>
+              <button type="button" class="sample" data-t="sk-live-51a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6">api key (reject)</button>
+              <button type="button" class="sample" data-t="Card 4111 1111 1111 1111 expires 09/28">card (reject)</button>
+              <button type="button" class="sample" data-t="Prefer short emails; no exclamation marks.">tone fact</button>
+            </div>
+            <div class="pipeline" id="pipeline">
+              <span class="step" data-s="capture">capture</span>
+              <span class="step" data-s="size">size cap</span>
+              <span class="step" data-s="secret">secret scan</span>
+              <span class="step" data-s="lock">at-rest lock</span>
+              <span class="step" data-s="embed">embed</span>
+              <span class="step" data-s="graph">graph node</span>
+            </div>
+            <div class="gate-msg" id="gateMsg"></div>
+            <button class="btn primary" id="runGate" type="button" style="width:100%">Run gate</button>
+          </div>
+          <div>
+            <h2>Why the gate exists</h2>
+            <p class="gate-copy">
+              Every capture path hits one deterministic gate before persistence: size limits,
+              secret/credential/payment rejects, then at-rest protection and promote into local
+              memory. Agents never see raw captures that fail the gate — matching the real
+              <span class="mono">identityd</span> pipeline.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
 
- document.getElementById("handshake").onclick = handshake;
- document.getElementById("clearAgent").onclick = clearAgent;
- document.getElementById("runGate").onclick = runGate;
- document.querySelectorAll(".sample").forEach((b) => {
- b.onclick = () => {
- document.getElementById("capture").value = b.dataset.t;
- };
- });
- renderVault();
- </script>
- </body>
+    <aside class="blurb" aria-label="About Identity">
+      <strong>What is this?</strong>
+      Identity keeps user context in a local encrypted <span class="mono">.me</span> vault.
+      Agents only receive a small ranked slice of facts for a task, then drop session state.
+      Captures are filtered by a safety gate before they can enter memory.
+    </aside>
+
+    <script>
+      const BUDGET = 5;
+      const VAULT = [
+        { id: "n1", domain: "network", text: "Founder: Maya Chen · robotics hiring Q3" },
+        { id: "n2", domain: "network", text: "Founder: Omar R. · infra tooling, London" },
+        { id: "n3", domain: "network", text: "Founder: Priya S. · climate fintech" },
+        { id: "n4", domain: "tone", text: "Writing tone: short, dry, no hype adjectives" },
+        { id: "n5", domain: "tone", text: "Sign-off: Best, Finlay — never Thanks!!" },
+        { id: "n6", domain: "project", text: "Active: Identity .me protocol (Rust daemon)" },
+        { id: "n7", domain: "project", text: "Active: TickForge LOB / A–S demo" },
+        { id: "n8", domain: "window", text: "Foreground: VS Code · identityd/src" },
+        { id: "n9", domain: "prefs", text: "Prefer async email over calls" },
+      ];
+
+      const PRESETS = [
+        {
+          label: "Outreach in my tone",
+          text: "Draft outreach to three founders in my tone from last week.",
+        },
+        {
+          label: "Summarise my projects",
+          text: "Summarise my active engineering projects for a recruiter intro.",
+        },
+        {
+          label: "Who is in my network?",
+          text: "List founders in my network relevant to infra tooling.",
+        },
+      ];
+
+      let selected = [];
+
+      function renderVault() {
+        const body = document.getElementById("vaultBody");
+        body.innerHTML = "";
+        VAULT.forEach((n) => {
+          const open = selected.includes(n.id);
+          const tr = document.createElement("tr");
+          tr.className = open ? "selected" : "locked";
+          tr.innerHTML =
+            '<td class="dom">' +
+            n.domain +
+            "</td>" +
+            "<td>" +
+            n.text +
+            "</td>" +
+            '<td class="status ' +
+            (open ? "open" : "locked") +
+            '">' +
+            (open ? "scoped out" : "sealed") +
+            "</td>";
+          body.appendChild(tr);
+        });
+        document.getElementById("budgetFill").style.width =
+          (selected.length / BUDGET) * 100 + "%";
+        document.getElementById("budgetLabel").textContent =
+          selected.length + " / " + BUDGET + " facts";
+      }
+
+      function rankForTask(prompt) {
+        const t = (prompt || "").toLowerCase();
+        const scores = VAULT.map((n) => {
+          let s = 0;
+          if (/founder|outreach|network|email/.test(t) && n.domain === "network") s += 3;
+          if (/tone|writing|outreach|email|intro/.test(t) && n.domain === "tone") s += 3;
+          if (/project|recruiter|engineering|code/.test(t) && n.domain === "project") s += 3;
+          if (/network|infra/.test(t) && n.domain === "network") s += 1;
+          if (n.domain === "prefs" && /email|outreach|async/.test(t)) s += 1.5;
+          if (n.domain === "window") s += 0.4;
+          s += Math.random() * 0.15;
+          return { n, s };
+        }).sort((a, b) => b.s - a.s);
+
+        const picked = [];
+        const domains = new Set();
+        for (const row of scores) {
+          if (picked.length >= BUDGET) break;
+          if (domains.has(row.n.domain) && domains.size < 2 && picked.length < BUDGET - 1) {
+            continue;
+          }
+          picked.push(row.n);
+          domains.add(row.n.domain);
+        }
+        return picked;
+      }
+
+      function handshake() {
+        const prompt = document.getElementById("prompt").value;
+        const picks = rankForTask(prompt);
+        selected = picks.map((p) => p.id);
+        renderVault();
+
+        const agent = document.getElementById("agent");
+        agent.classList.remove("empty");
+        agent.innerHTML = '<div class="hdr">session memory · scoped only</div>';
+        document.getElementById("streamNote").textContent =
+          "Vault stays sealed. Only the ranked slice below was allowed out.";
+
+        picks.forEach((p, i) => {
+          const line = document.createElement("div");
+          line.className = "fact";
+          line.textContent = "• [" + p.domain + "] " + p.text;
+          agent.appendChild(line);
+          setTimeout(() => line.classList.add("show"), 90 + i * 140);
+        });
+      }
+
+      function clearAgent() {
+        selected = [];
+        renderVault();
+        const agent = document.getElementById("agent");
+        agent.classList.add("empty");
+        agent.innerHTML =
+          '<div class="hdr">session memory</div>empty — context dropped (stateless execution)';
+        document.getElementById("streamNote").textContent =
+          "Agent session cleared. Press Run handshake to scope a new slice.";
+      }
+
+      function secretScan(text) {
+        const patterns = [
+          { re: /\bsk-[a-zA-Z0-9]{10,}\b/, why: "API key pattern" },
+          { re: /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/, why: "payment card pattern" },
+          { re: /\b(AKIA|ASIA)[A-Z0-9]{16}\b/, why: "cloud access key" },
+          { re: /-----BEGIN (RSA |OPENSSH )?PRIVATE KEY-----/, why: "private key block" },
+          { re: /\bpassword\s*=\s*\S+/i, why: "password assignment" },
+        ];
+        for (const p of patterns) {
+          if (p.re.test(text)) return p.why;
+        }
+        return null;
+      }
+
+      function runGate() {
+        const text = document.getElementById("capture").value || "";
+        const steps = [...document.querySelectorAll("#pipeline .step")];
+        steps.forEach((s) => s.classList.remove("on", "fail"));
+        const msg = document.getElementById("gateMsg");
+        msg.className = "gate-msg";
+        msg.textContent = "";
+
+        const order = ["capture", "size", "secret", "lock", "embed", "graph"];
+        let i = 0;
+        const tick = () => {
+          if (i >= order.length) return;
+          const name = order[i];
+          const el = steps.find((s) => s.dataset.s === name);
+          if (name === "capture") {
+            if (!text.trim()) {
+              el.classList.add("fail");
+              msg.className = "gate-msg bad";
+              msg.textContent = "reject — empty capture";
+              return;
+            }
+            el.classList.add("on");
+          } else if (name === "size") {
+            if (text.length > 1_000_000) {
+              el.classList.add("fail");
+              msg.className = "gate-msg bad";
+              msg.textContent = "reject — exceeds 1MB cap";
+              return;
+            }
+            el.classList.add("on");
+          } else if (name === "secret") {
+            const why = secretScan(text);
+            if (why) {
+              el.classList.add("fail");
+              msg.className = "gate-msg bad";
+              msg.textContent = "reject — " + why;
+              return;
+            }
+            el.classList.add("on");
+          } else {
+            el.classList.add("on");
+          }
+          i++;
+          if (i >= order.length) {
+            msg.className = "gate-msg ok";
+            msg.textContent = "accepted → locked → embedded → graph node (demo)";
+            return;
+          }
+          setTimeout(tick, 200);
+        };
+        tick();
+      }
+
+      function boot() {
+        const presets = document.getElementById("presets");
+        PRESETS.forEach((p, idx) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "preset" + (idx === 0 ? " active" : "");
+          b.textContent = p.label;
+          b.onclick = () => {
+            document.getElementById("prompt").value = p.text;
+            presets.querySelectorAll(".preset").forEach((x) => x.classList.remove("active"));
+            b.classList.add("active");
+          };
+          presets.appendChild(b);
+        });
+
+        document.getElementById("run").onclick = handshake;
+        document.getElementById("clear").onclick = clearAgent;
+        document.getElementById("runGate").onclick = runGate;
+        document.querySelectorAll(".sample").forEach((b) => {
+          b.onclick = () => {
+            document.getElementById("capture").value = b.dataset.t;
+          };
+        });
+        renderVault();
+      }
+
+      boot();
+    </script>
+  </body>
 </html>
