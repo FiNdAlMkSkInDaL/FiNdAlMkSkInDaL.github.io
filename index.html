@@ -5,143 +5,170 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="A spring meadow portfolio — hover the flowers to explore projects."
+      content="Pixel meadow portfolio — click the big flowers to open projects."
     />
-    <title>Finlay · Meadow</title>
+    <title>Finlay · Pixel Meadow</title>
     <link rel="stylesheet" href="./styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Outfit:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
       rel="stylesheet"
     />
   </head>
   <body>
-    <div class="sky" aria-hidden="true"></div>
-    <div class="haze" aria-hidden="true"></div>
-
-    <!-- Distant meadow (background layer) -->
-    <div class="meadow far" aria-hidden="true">
-      <div class="grass-strip g1"></div>
-      <div class="grass-strip g2"></div>
-      <div class="grass-strip g3"></div>
-      <!-- Soft background blooms (non-interactive) -->
-      <span class="wild w1"></span>
-      <span class="wild w2"></span>
-      <span class="wild w3"></span>
-      <span class="wild w4"></span>
-      <span class="wild w5"></span>
-      <span class="wild w6"></span>
-      <span class="wild w7"></span>
-      <span class="wild w8"></span>
-      <span class="wild w9"></span>
-      <span class="wild w10"></span>
-      <span class="wild w11"></span>
-      <span class="wild w12"></span>
-    </div>
-
-    <!-- Mid grass -->
-    <div class="meadow mid" aria-hidden="true">
-      <div class="blade-layer b-a"></div>
-      <div class="blade-layer b-b"></div>
-      <span class="wild m1"></span>
-      <span class="wild m2"></span>
-      <span class="wild m3"></span>
-      <span class="wild m4"></span>
-      <span class="wild m5"></span>
-      <span class="wild m6"></span>
-      <span class="wild m7"></span>
-      <span class="wild m8"></span>
-    </div>
-
-    <header class="identity">
-      <img class="avatar" src="./assets/photo.jpg" alt="Finlay" width="72" height="72" />
-      <div>
-        <p class="hello">Finlay</p>
-        <p class="hint">Hover a flower · click to open a project</p>
+    <div class="world" id="world">
+      <!-- Sky + sun -->
+      <div class="sky">
+        <div class="sun" aria-hidden="true">
+          <span class="sun-core"></span>
+          <span class="ray r1"></span>
+          <span class="ray r2"></span>
+          <span class="ray r3"></span>
+          <span class="ray r4"></span>
+        </div>
+        <div class="cloud c1" aria-hidden="true"></div>
+        <div class="cloud c2" aria-hidden="true"></div>
+        <div class="cloud c3" aria-hidden="true"></div>
       </div>
-    </header>
 
-    <!-- Interactive project flowers (foreground) -->
-    <nav class="projects-field" aria-label="Projects">
-      <a
-        class="flower-link f-tickforge"
-        href="https://findalmkskindal.github.io/tickforge/explorer/"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <span class="label">TickForge</span>
-        <span class="stem" aria-hidden="true"></span>
-        <span class="bloom" aria-hidden="true">
-          <span class="petal p1"></span>
-          <span class="petal p2"></span>
-          <span class="petal p3"></span>
-          <span class="petal p4"></span>
-          <span class="petal p5"></span>
-          <span class="petal p6"></span>
-          <span class="center"></span>
-        </span>
-        <span class="leaf l1" aria-hidden="true"></span>
-        <span class="leaf l2" aria-hidden="true"></span>
-      </a>
+      <!-- Dense meadow filled by JS for grass + tiny flowers -->
+      <div class="field" id="field" aria-hidden="true"></div>
 
-      <a
-        class="flower-link f-vectorbot"
-        href="./demos/vectorbot.html"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <span class="label">VectorBot</span>
-        <span class="stem" aria-hidden="true"></span>
-        <span class="bloom" aria-hidden="true">
-          <span class="petal p1"></span>
-          <span class="petal p2"></span>
-          <span class="petal p3"></span>
-          <span class="petal p4"></span>
-          <span class="petal p5"></span>
-          <span class="petal p6"></span>
-          <span class="center"></span>
-        </span>
-        <span class="leaf l1" aria-hidden="true"></span>
-        <span class="leaf l2" aria-hidden="true"></span>
-      </a>
+      <!-- Frolicking dog -->
+      <div class="dog" id="dog" aria-hidden="true" title="good dog">
+        <div class="dog-sprite"></div>
+      </div>
 
-      <a
-        class="flower-link f-macro"
-        href="https://github.com/FiNdAlMkSkInDaL"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <span class="label">Macro Bias</span>
-        <span class="stem" aria-hidden="true"></span>
-        <span class="bloom" aria-hidden="true">
-          <span class="petal p1"></span>
-          <span class="petal p2"></span>
-          <span class="petal p3"></span>
-          <span class="petal p4"></span>
-          <span class="petal p5"></span>
-          <span class="petal p6"></span>
-          <span class="center"></span>
-        </span>
-        <span class="leaf l1" aria-hidden="true"></span>
-        <span class="leaf l2" aria-hidden="true"></span>
-      </a>
-    </nav>
+      <!-- Identity HUD -->
+      <header class="hud">
+        <img class="avatar" src="./assets/photo.jpg" alt="Finlay" width="40" height="40" />
+        <div class="hud-text">
+          <p class="name">FINLAY</p>
+          <p class="tip">HOVER FLOWERS · CLICK TO PLAY</p>
+        </div>
+      </header>
 
-    <!-- Foreground grass tufts (in front of stems slightly) -->
-    <div class="meadow front" aria-hidden="true">
-      <div class="blade-layer b-c"></div>
-      <div class="tuft t1"></div>
-      <div class="tuft t2"></div>
-      <div class="tuft t3"></div>
-      <div class="tuft t4"></div>
-      <div class="tuft t5"></div>
+      <!-- Project flowers (interactive) -->
+      <nav class="boss-flowers" aria-label="Projects">
+        <a
+          class="boss rose"
+          href="https://findalmkskindal.github.io/tickforge/explorer/"
+          target="_blank"
+          rel="noopener noreferrer"
+          data-name="TICKFORGE"
+        >
+          <span class="name-tag">TICKFORGE</span>
+          <span class="boss-bloom" aria-hidden="true"></span>
+          <span class="boss-stem" aria-hidden="true"></span>
+        </a>
+
+        <a
+          class="boss lilac"
+          href="./demos/vectorbot.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          data-name="VECTORBOT"
+        >
+          <span class="name-tag">VECTORBOT</span>
+          <span class="boss-bloom" aria-hidden="true"></span>
+          <span class="boss-stem" aria-hidden="true"></span>
+        </a>
+
+        <a
+          class="boss sage"
+          href="https://github.com/FiNdAlMkSkInDaL"
+          target="_blank"
+          rel="noopener noreferrer"
+          data-name="MACRO BIAS"
+        >
+          <span class="name-tag">MACRO BIAS</span>
+          <span class="boss-bloom" aria-hidden="true"></span>
+          <span class="boss-stem" aria-hidden="true"></span>
+        </a>
+      </nav>
+
+      <footer class="hud-foot">
+        <a href="https://github.com/FiNdAlMkSkInDaL" target="_blank" rel="noopener noreferrer"
+          >GITHUB</a
+        >
+      </footer>
     </div>
 
-    <footer class="foot">
-      <a href="https://github.com/FiNdAlMkSkInDaL" target="_blank" rel="noopener noreferrer"
-        >GitHub</a
-      >
-    </footer>
+    <script>
+      (function () {
+        const field = document.getElementById("field");
+        const W = 48; // tile cols
+        const H = 22; // tile rows (lower half is denser meadow)
+        const colors = {
+          g: ["#5cb85c", "#4caf50", "#66bb6a", "#43a047", "#7cb342", "#8bc34a"],
+          f: [
+            "#ff8a80",
+            "#ff80ab",
+            "#ea80fc",
+            "#b388ff",
+            "#82b1ff",
+            "#ffd180",
+            "#ffff8d",
+            "#ccff90",
+            "#ffab91",
+            "#f8bbd0",
+          ],
+        };
+
+        const frag = document.createDocumentFragment();
+        for (let y = 0; y < H; y++) {
+          for (let x = 0; x < W; x++) {
+            const cell = document.createElement("div");
+            cell.className = "tile";
+            // More flowers toward mid meadow, grass everywhere
+            const flowerChance = y < 4 ? 0.12 : y < 10 ? 0.28 : 0.38;
+            if (Math.random() < flowerChance) {
+              cell.classList.add("flower");
+              cell.style.setProperty(
+                "--fc",
+                colors.f[(x * 7 + y * 3) % colors.f.length]
+              );
+              cell.style.setProperty(
+                "--gc",
+                colors.g[(x + y) % colors.g.length]
+              );
+            } else {
+              cell.classList.add("grass");
+              cell.style.setProperty(
+                "--gc",
+                colors.g[(x * 3 + y * 5) % colors.g.length]
+              );
+              // tall blade variant
+              if (Math.random() < 0.45) cell.classList.add("tall");
+            }
+            // slight random sway delay
+            cell.style.animationDelay = ((x + y) % 8) * 0.12 + "s";
+            frag.appendChild(cell);
+          }
+        }
+        field.style.setProperty("--cols", W);
+        field.style.setProperty("--rows", H);
+        field.appendChild(frag);
+
+        // Dog frolic path
+        const dog = document.getElementById("dog");
+        let t = 0;
+        function hop() {
+          t += 0.016;
+          const x = 8 + ((t * 12) % 84);
+          const bounce = Math.abs(Math.sin(t * 6)) * 10;
+          const flip = Math.floor(t * 12) % 84 > 70 ? 1 : 0;
+          // reverse direction mid-loop
+          const dir = Math.floor((t * 12) / 84) % 2 === 0 ? 1 : -1;
+          const px = dir === 1 ? x : 92 - x;
+          dog.style.left = px + "%";
+          dog.style.bottom = 28 + bounce * 0.15 + "%";
+          dog.style.transform = "scaleX(" + (dir === 1 ? 1 : -1) + ")";
+          requestAnimationFrame(hop);
+        }
+        requestAnimationFrame(hop);
+      })();
+    </script>
   </body>
 </html>
