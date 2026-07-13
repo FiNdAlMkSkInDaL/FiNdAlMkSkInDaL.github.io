@@ -19,13 +19,19 @@
   </head>
   <body>
     <div class="world">
-      <!-- Soft sky peeking through canopy gaps -->
       <div class="sky-peek" aria-hidden="true"></div>
-
-      <!-- Full-frame pixel bush (leaves + dense same-colour blossoms) -->
       <canvas id="bush" class="bush-canvas" aria-hidden="true"></canvas>
 
-      <!-- Identity HUD -->
+      <!-- Pixel snake (top-right) -->
+      <div class="snake" aria-hidden="true" title="sss">
+        <div class="snake-body"></div>
+        <div class="snake-head">
+          <span class="eye e1"></span>
+          <span class="eye e2"></span>
+          <span class="tongue"></span>
+        </div>
+      </div>
+
       <header class="hud">
         <img
           class="avatar"
@@ -40,39 +46,89 @@
         </div>
       </header>
 
-      <!-- A few larger blooms on the same bush = projects (same pink family) -->
       <nav class="boss-flowers" aria-label="Projects">
+        <!-- left ~60% up screen -->
         <a
-          class="boss"
+          class="boss b-left"
           href="https://findalmkskindal.github.io/tickforge/explorer/"
           target="_blank"
           rel="noopener noreferrer"
         >
           <span class="name-tag">TICKFORGE</span>
           <span class="boss-bloom" aria-hidden="true"></span>
-          <span class="boss-stem" aria-hidden="true"></span>
+          <svg class="wiggle-stem" viewBox="0 0 40 120" aria-hidden="true">
+            <path
+              d="M20 8 C 8 28, 32 42, 14 58 C 2 72, 30 88, 18 118"
+              fill="none"
+              stroke="#166534"
+              stroke-width="5"
+              stroke-linecap="square"
+            />
+            <path
+              d="M20 8 C 8 28, 32 42, 14 58 C 2 72, 30 88, 18 118"
+              fill="none"
+              stroke="#4ade80"
+              stroke-width="2"
+              stroke-linecap="square"
+              opacity="0.5"
+            />
+          </svg>
         </a>
 
+        <!-- middle ~30% up -->
         <a
-          class="boss boss-mid"
+          class="boss b-mid"
           href="./demos/vectorbot.html"
           target="_blank"
           rel="noopener noreferrer"
         >
           <span class="name-tag">VECTORBOT</span>
           <span class="boss-bloom" aria-hidden="true"></span>
-          <span class="boss-stem" aria-hidden="true"></span>
+          <svg class="wiggle-stem" viewBox="0 0 48 100" aria-hidden="true">
+            <path
+              d="M28 10 C 40 30, 10 40, 36 55 C 48 68, 12 80, 24 100"
+              fill="none"
+              stroke="#166534"
+              stroke-width="5"
+              stroke-linecap="square"
+            />
+            <path
+              d="M28 10 C 40 30, 10 40, 36 55 C 48 68, 12 80, 24 100"
+              fill="none"
+              stroke="#4ade80"
+              stroke-width="2"
+              stroke-linecap="square"
+              opacity="0.5"
+            />
+          </svg>
         </a>
 
+        <!-- right ~80% up -->
         <a
-          class="boss boss-right"
+          class="boss b-right"
           href="https://github.com/FiNdAlMkSkInDaL"
           target="_blank"
           rel="noopener noreferrer"
         >
           <span class="name-tag">MACRO BIAS</span>
           <span class="boss-bloom" aria-hidden="true"></span>
-          <span class="boss-stem" aria-hidden="true"></span>
+          <svg class="wiggle-stem" viewBox="0 0 44 130" aria-hidden="true">
+            <path
+              d="M22 6 C 4 22, 38 36, 10 52 C 36 70, 6 90, 26 128"
+              fill="none"
+              stroke="#166534"
+              stroke-width="5"
+              stroke-linecap="square"
+            />
+            <path
+              d="M22 6 C 4 22, 38 36, 10 52 C 36 70, 6 90, 26 128"
+              fill="none"
+              stroke="#4ade80"
+              stroke-width="2"
+              stroke-linecap="square"
+              opacity="0.5"
+            />
+          </svg>
         </a>
       </nav>
 
@@ -91,30 +147,29 @@
         const canvas = document.getElementById("bush");
         const ctx = canvas.getContext("2d");
 
-        // Same-colour blossom palette (pink family, slight shade variance)
-        const PINK = [
-          "#ff8fab",
-          "#ff6b8a",
-          "#ffb3c6",
-          "#ff99b0",
-          "#f472b6",
-          "#fda4af",
-          "#fb7185",
-        ];
-        const LEAF = [
-          "#1b4332",
-          "#2d6a4f",
-          "#40916c",
-          "#52b788",
-          "#166534",
-          "#14532d",
-          "#15803d",
-        ];
+        // Lighter greens toward top of screen
+        const LEAF_LIGHT = ["#86efac", "#4ade80", "#6ee7b7", "#a3e635", "#84cc16", "#bbf7d0"];
+        const LEAF_MID = ["#22c55e", "#16a34a", "#4ade80", "#65a30d", "#15803d"];
+        const LEAF_DARK = ["#166534", "#14532d", "#15803d", "#3f6212", "#1a2e05"];
         const BARK = ["#3f2a1e", "#5c3d2e", "#4a3224", "#6b4423"];
 
+        function leafColor(yNorm) {
+          // yNorm 0 = top, 1 = bottom
+          const r = Math.random();
+          if (yNorm < 0.35) {
+            return LEAF_LIGHT[Math.floor(r * LEAF_LIGHT.length)];
+          }
+          if (yNorm < 0.65) {
+            return r < 0.55
+              ? LEAF_MID[Math.floor(r * LEAF_MID.length)]
+              : LEAF_LIGHT[Math.floor(r * LEAF_LIGHT.length)];
+          }
+          return r < 0.65
+            ? LEAF_DARK[Math.floor(r * LEAF_DARK.length)]
+            : LEAF_MID[Math.floor(r * LEAF_MID.length)];
+        }
+
         function resize() {
-          const dpr = Math.min(window.devicePixelRatio || 1, 2);
-          // Low-res pixel buffer scaled up
           const w = Math.ceil(window.innerWidth / 4);
           const h = Math.ceil(window.innerHeight / 4);
           canvas.width = w;
@@ -125,87 +180,56 @@
         }
 
         function paint(w, h) {
-          // Deep foliage fill
-          ctx.fillStyle = "#14532d";
-          ctx.fillRect(0, 0, w, h);
+          // Base gradient: light top → deep bottom
+          for (let y = 0; y < h; y++) {
+            const t = y / h;
+            const g = Math.floor(180 - t * 100);
+            const r = Math.floor(40 + (1 - t) * 50);
+            const b = Math.floor(50 + (1 - t) * 40);
+            ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
+            ctx.fillRect(0, y, w, 1);
+          }
 
-          // Branch structure (thick pixel trunks across frame)
-          for (let i = 0; i < 18; i++) {
-            const x0 = Math.floor((i / 18) * w + (Math.sin(i * 2.1) * w) / 20);
-            let x = x0;
+          // Branches
+          for (let i = 0; i < 22; i++) {
+            let x = Math.floor((i / 22) * w + Math.sin(i * 1.7) * 6);
             let y = h;
             ctx.fillStyle = BARK[i % BARK.length];
-            const steps = Math.floor(h * (0.55 + (i % 5) * 0.08));
+            const steps = Math.floor(h * (0.5 + (i % 6) * 0.08));
             for (let s = 0; s < steps; s++) {
               const thick = 2 + ((i + s) % 3);
               ctx.fillRect(x, y - s, thick, 2);
-              if (s % 7 === 0) x += (i % 2 === 0 ? 1 : -1) * ((s % 3) + 1);
-              // side twigs
-              if (s % 11 === 0) {
-                const dir = s % 22 === 0 ? 1 : -1;
-                for (let t = 0; t < 8; t++) {
+              if (s % 6 === 0) x += ((i + s) % 2 === 0 ? 1 : -1) * (1 + (s % 2));
+              if (s % 9 === 0) {
+                const dir = s % 18 === 0 ? 1 : -1;
+                for (let t = 0; t < 10; t++) {
                   ctx.fillRect(x + dir * t, y - s - Math.floor(t / 2), 2, 2);
                 }
               }
             }
           }
 
-          // Leaf clusters — dense, whole frame
-          const leafCount = Math.floor((w * h) / 9);
+          // Dense leaves — NO pink flowers
+          const leafCount = Math.floor((w * h) / 5.5);
           for (let i = 0; i < leafCount; i++) {
-            const x = (i * 17 + (i * i) % 13) % w;
-            const y = (i * 31 + i * 3) % h;
-            // Prefer upper/mid canopy density but cover all
-            if (Math.random() > 0.92 && y > h * 0.85) continue;
-            ctx.fillStyle = LEAF[(x + y + i) % LEAF.length];
-            const s = 2 + ((x + y) % 3);
+            const x = (i * 19 + (i * i) % 17) % w;
+            const y = (i * 29 + i * 5) % h;
+            const yNorm = y / h;
+            ctx.fillStyle = leafColor(yNorm);
+            const s = yNorm < 0.3 ? 2 + ((x + y) % 2) : 2 + ((x + y) % 3);
             ctx.fillRect(x, y, s, s);
-            if ((i + y) % 4 === 0) ctx.fillRect(x + 1, y - 1, s, s);
+            if ((i + y) % 3 === 0) ctx.fillRect(x - 1, y + 1, s, s);
           }
 
-          // Blossoms — same colour family, denser toward center of bush
-          const bloomCount = Math.floor((w * h) / 14);
-          for (let i = 0; i < bloomCount; i++) {
-            // Cluster toward middle of frame (side-of-bush zoom)
-            const cx = w * 0.5 + (Math.random() - 0.5) * w * 0.95;
-            const cy = h * 0.48 + (Math.random() - 0.5) * h * 0.9;
-            const x = Math.floor(Math.max(1, Math.min(w - 4, cx)));
-            const y = Math.floor(Math.max(1, Math.min(h - 4, cy)));
-            // Depth: slightly smaller near edges / top (further into canopy)
-            const dist =
-              Math.hypot(x - w * 0.5, y - h * 0.55) /
-              (Math.hypot(w, h) * 0.5);
-            const depth = Math.min(1, dist);
-            const scale = depth > 0.75 ? 1 : depth > 0.45 ? 2 : 2 + (Math.random() > 0.6 ? 1 : 0);
-            // invert: closer to viewer (bottom-center) a bit larger
-            const near = y / h;
-            const r = near > 0.55 ? 2 + (scale > 1 ? 1 : 0) : near > 0.3 ? 2 : 1;
-
-            const pink = PINK[(i + x) % PINK.length];
-            drawPixelFlower(ctx, x, y, r, pink);
-          }
-
-          // Extra dense patch of same-colour blooms (bush volume)
-          for (let i = 0; i < Math.floor(w * 2.2); i++) {
+          // Lighter highlight speckles near top (sun through canopy)
+          ctx.globalAlpha = 0.35;
+          for (let i = 0; i < Math.floor(w * 1.5); i++) {
             const x = Math.floor(Math.random() * w);
-            const y = Math.floor(h * 0.15 + Math.random() * h * 0.7);
-            drawPixelFlower(ctx, x, y, 1 + (Math.random() > 0.7 ? 1 : 0), PINK[i % PINK.length]);
+            const y = Math.floor(Math.random() * h * 0.4);
+            ctx.fillStyle = "#bbf7d0";
+            ctx.fillRect(x, y, 2, 2);
           }
-        }
-
-        function drawPixelFlower(ctx, x, y, r, pink) {
-          // cross petals + yellow center
-          ctx.fillStyle = pink;
-          ctx.fillRect(x - r, y, r * 2 + 1, 1);
-          ctx.fillRect(x, y - r, 1, r * 2 + 1);
-          if (r >= 2) {
-            ctx.fillRect(x - r + 1, y - r + 1, 1, 1);
-            ctx.fillRect(x + r - 1, y - r + 1, 1, 1);
-            ctx.fillRect(x - r + 1, y + r - 1, 1, 1);
-            ctx.fillRect(x + r - 1, y + r - 1, 1, 1);
-          }
-          ctx.fillStyle = "#ffe566";
-          ctx.fillRect(x, y, 1, 1);
+          ctx.globalAlpha = 1;
         }
 
         resize();

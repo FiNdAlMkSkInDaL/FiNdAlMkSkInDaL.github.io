@@ -1,4 +1,4 @@
-/* Zoomed-in pixel bush — one plant, pink blossoms, big project blooms */
+/* Pixel bush zoom — green only, wiggly stems, snake friend */
 
 :root {
   --ink: #1a1424;
@@ -40,11 +40,11 @@ body {
   inset: 0;
   z-index: 0;
   background: linear-gradient(
-    165deg,
-    #7ec8e8 0%,
-    #a8d8ea 25%,
-    #c5e4c8 55%,
-    #14532d 100%
+    180deg,
+    #87ceeb 0%,
+    #b8e0a8 35%,
+    #6ab87a 70%,
+    #2d6a4f 100%
   );
 }
 
@@ -56,6 +56,101 @@ body {
   height: 100%;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+}
+
+/* —— Cute pixel snake (top-right) —— */
+.snake {
+  position: absolute;
+  top: 11%;
+  right: 8%;
+  z-index: 8;
+  width: 72px;
+  height: 48px;
+  pointer-events: none;
+  filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.2));
+}
+
+.snake-body {
+  position: absolute;
+  right: 28px;
+  top: 18px;
+  width: 10px;
+  height: 10px;
+  background: #4ade80;
+  box-shadow:
+    /* coiled body into bush */
+    8px 2px 0 #22c55e,
+    14px 6px 0 #4ade80,
+    18px 12px 0 #16a34a,
+    14px 18px 0 #22c55e,
+    6px 20px 0 #4ade80,
+    -2px 16px 0 #16a34a,
+    -6px 10px 0 #22c55e,
+    /* spots */
+    8px 2px 0 0 #166534;
+}
+
+.snake-head {
+  position: absolute;
+  right: 0;
+  top: 8px;
+  width: 28px;
+  height: 22px;
+  background: #4ade80;
+  border: 2px solid #14532d;
+  box-shadow:
+    inset -4px -2px 0 #22c55e,
+    4px 0 0 #86efac;
+  animation: snake-bob 1.2s steps(2, end) infinite;
+}
+
+.snake-head .eye {
+  position: absolute;
+  top: 4px;
+  width: 4px;
+  height: 4px;
+  background: #1a1424;
+}
+
+.snake-head .e1 {
+  left: 6px;
+}
+.snake-head .e2 {
+  left: 14px;
+}
+
+.snake-head .tongue {
+  position: absolute;
+  right: -10px;
+  top: 10px;
+  width: 10px;
+  height: 4px;
+  background: #fb7185;
+  box-shadow:
+    6px -3px 0 #fb7185,
+    6px 3px 0 #fb7185;
+  animation: tongue 0.5s steps(2, end) infinite;
+  transform-origin: left center;
+}
+
+@keyframes snake-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(2px);
+  }
+}
+
+@keyframes tongue {
+  0%,
+  100% {
+    transform: scaleX(1);
+  }
+  50% {
+    transform: scaleX(1.35);
+  }
 }
 
 /* —— HUD —— */
@@ -120,7 +215,7 @@ body {
   background: #5c4a7a;
 }
 
-/* —— Project blooms on the bush (same pink family) —— */
+/* —— Project flowers —— */
 .boss-flowers {
   position: absolute;
   inset: 0;
@@ -130,79 +225,104 @@ body {
 
 .boss {
   position: absolute;
-  bottom: 28%;
-  left: 18%;
-  width: 80px;
-  height: 130px;
+  width: 100px;
+  height: 160px;
   pointer-events: auto;
   text-decoration: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
+  display: block;
   cursor: pointer;
   outline: none;
 }
 
-.boss-mid {
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 32%;
-  height: 150px;
+/* Vertical placement: % of the way UP the screen (bloom near that height) */
+.b-left {
+  left: 12%;
+  top: 40%; /* ~60% up */
   width: 90px;
+  height: 150px;
+}
+
+.b-mid {
+  left: 50%;
+  top: 70%; /* ~30% up */
+  width: 110px;
+  height: 170px;
+  margin-left: -55px;
   z-index: 2;
 }
 
-.boss-right {
+.b-right {
+  right: 10%;
   left: auto;
-  right: 16%;
-  bottom: 26%;
-  height: 125px;
+  top: 20%; /* ~80% up */
+  width: 95px;
+  height: 155px;
 }
 
-.boss-stem {
-  width: 8px;
-  height: 42%;
-  background: #166534;
-  border: 2px solid #052e16;
-  box-shadow: 2px 0 0 #4ade80;
+.wiggle-stem {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  width: 48px;
+  height: 70%;
+  margin-left: -24px;
   z-index: 0;
+  overflow: visible;
+  image-rendering: pixelated;
 }
 
-/* Same pink as bush blossoms, larger & clearer */
+.b-left .wiggle-stem {
+  transform: rotate(-25deg);
+  margin-left: -10px;
+}
+
+.b-mid .wiggle-stem {
+  transform: rotate(18deg);
+  margin-left: -30px;
+  height: 75%;
+}
+
+.b-right .wiggle-stem {
+  transform: rotate(42deg);
+  margin-left: -28px;
+  top: 45%;
+}
+
 .boss-bloom {
   position: absolute;
-  bottom: 40%;
-  width: 60px;
-  height: 60px;
+  top: 0;
+  left: 50%;
+  width: 56px;
+  height: 56px;
+  margin-left: -28px;
   background: var(--pink2);
   box-shadow:
-    0 -18px 0 var(--pink3),
-    0 18px 0 var(--pink3),
-    -18px 0 0 var(--pink3),
-    18px 0 0 var(--pink3),
-    -14px -14px 0 var(--pink),
-    14px -14px 0 var(--pink),
-    -14px 14px 0 var(--pink),
-    14px 14px 0 var(--pink),
+    0 -16px 0 var(--pink3),
+    0 16px 0 var(--pink3),
+    -16px 0 0 var(--pink3),
+    16px 0 0 var(--pink3),
+    -12px -12px 0 var(--pink),
+    12px -12px 0 var(--pink),
+    -12px 12px 0 var(--pink),
+    12px 12px 0 var(--pink),
     0 0 0 4px var(--center);
   z-index: 2;
   image-rendering: pixelated;
 }
 
-.boss-mid .boss-bloom {
-  width: 72px;
-  height: 72px;
-  bottom: 42%;
+.b-mid .boss-bloom {
+  width: 68px;
+  height: 68px;
+  margin-left: -34px;
   box-shadow:
-    0 -22px 0 var(--pink3),
-    0 22px 0 var(--pink3),
-    -22px 0 0 var(--pink3),
-    22px 0 0 var(--pink3),
-    -16px -16px 0 var(--pink),
-    16px -16px 0 var(--pink),
-    -16px 16px 0 var(--pink),
-    16px 16px 0 var(--pink),
+    0 -20px 0 var(--pink3),
+    0 20px 0 var(--pink3),
+    -20px 0 0 var(--pink3),
+    20px 0 0 var(--pink3),
+    -15px -15px 0 var(--pink),
+    15px -15px 0 var(--pink),
+    -15px 15px 0 var(--pink),
+    15px 15px 0 var(--pink),
     0 0 0 5px var(--center);
 }
 
@@ -211,16 +331,16 @@ body {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 14px;
-  height: 14px;
-  margin: -7px 0 0 -7px;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
   background: var(--center);
   box-shadow: 0 0 0 2px #eab308;
 }
 
 .name-tag {
   position: absolute;
-  bottom: calc(40% + 78px);
+  top: -28px;
   left: 50%;
   transform: translateX(-50%) translateY(6px);
   padding: 6px 8px;
@@ -236,22 +356,22 @@ body {
   transition: opacity 0.05s steps(1);
 }
 
-.boss-mid .name-tag {
-  bottom: calc(42% + 90px);
+.b-mid .name-tag {
+  top: -32px;
   font-size: 9px;
 }
 
 .boss:hover .boss-bloom,
 .boss:focus-visible .boss-bloom {
   box-shadow:
-    0 -18px 0 var(--pink3),
-    0 18px 0 var(--pink3),
-    -18px 0 0 var(--pink3),
-    18px 0 0 var(--pink3),
-    -14px -14px 0 var(--pink),
-    14px -14px 0 var(--pink),
-    -14px 14px 0 var(--pink),
-    14px 14px 0 var(--pink),
+    0 -16px 0 var(--pink3),
+    0 16px 0 var(--pink3),
+    -16px 0 0 var(--pink3),
+    16px 0 0 var(--pink3),
+    -12px -12px 0 var(--pink),
+    12px -12px 0 var(--pink),
+    -12px 12px 0 var(--pink),
+    12px 12px 0 var(--pink),
     0 0 0 4px var(--center),
     0 0 0 8px #fff,
     0 0 0 12px var(--ink),
@@ -259,17 +379,18 @@ body {
   transform: scale(1.1);
 }
 
-.boss-mid:hover .boss-bloom,
-.boss-mid:focus-visible .boss-bloom {
+.b-mid:hover .boss-bloom,
+.b-mid:focus-visible .boss-bloom {
+  transform: scale(1.1);
   box-shadow:
-    0 -22px 0 var(--pink3),
-    0 22px 0 var(--pink3),
-    -22px 0 0 var(--pink3),
-    22px 0 0 var(--pink3),
-    -16px -16px 0 var(--pink),
-    16px -16px 0 var(--pink),
-    -16px 16px 0 var(--pink),
-    16px 16px 0 var(--pink),
+    0 -20px 0 var(--pink3),
+    0 20px 0 var(--pink3),
+    -20px 0 0 var(--pink3),
+    20px 0 0 var(--pink3),
+    -15px -15px 0 var(--pink),
+    15px -15px 0 var(--pink),
+    -15px 15px 0 var(--pink),
+    15px 15px 0 var(--pink),
     0 0 0 5px var(--center),
     0 0 0 9px #fff,
     0 0 0 13px var(--ink),
@@ -287,40 +408,40 @@ body {
     font-size: 6px;
   }
 
-  .boss {
-    left: 4%;
-    bottom: 30%;
-    height: 110px;
-    width: 70px;
+  .b-left {
+    left: 2%;
   }
-
-  .boss-mid {
-    bottom: 34%;
-    height: 125px;
-  }
-
-  .boss-right {
-    right: 4%;
-    bottom: 29%;
+  .b-right {
+    right: 2%;
   }
 
   .boss-bloom {
     width: 48px;
     height: 48px;
+    margin-left: -24px;
   }
 
-  .boss-mid .boss-bloom {
+  .b-mid .boss-bloom {
     width: 56px;
     height: 56px;
+    margin-left: -28px;
   }
 
   .name-tag {
     font-size: 7px;
   }
+
+  .snake {
+    top: 14%;
+    right: 4%;
+    transform: scale(0.85);
+    transform-origin: top right;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .boss-bloom {
-    transition: none;
+  .snake-head,
+  .snake-head .tongue {
+    animation: none;
   }
 }
