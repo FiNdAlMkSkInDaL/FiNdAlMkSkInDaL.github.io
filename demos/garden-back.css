@@ -1,4 +1,4 @@
-/* Fixed pixel "Back to Garden" — demos when opened standalone */
+/* Fixed pixel "Back to Garden" — demos when opened standalone (matches garden shell) */
 .garden-back {
   position: fixed;
   top: 10px;
@@ -9,18 +9,20 @@
   line-height: 1.2;
   color: #1a1424;
   text-decoration: none;
-  background: #fff8e7;
-  border: 3px solid #1a1424;
+  background: linear-gradient(180deg, #bbf7d0, #86efac);
+  border: 3px solid #3f2a1e;
   padding: 10px 12px;
-  min-height: 44px;
+  min-height: 48px;
   min-width: 44px;
   display: inline-flex;
   align-items: center;
-  box-shadow: 3px 3px 0 rgba(26, 20, 36, 0.3);
+  box-shadow:
+    3px 3px 0 rgba(63, 42, 30, 0.3),
+    0 0 0 2px #15803d;
 }
 .garden-back:hover,
 .garden-back:focus-visible {
-  background: #dcfce7;
+  background: #4ade80;
   outline: 3px solid #22d3ee;
   outline-offset: 1px;
 }

@@ -97,27 +97,27 @@
         ctx.fillRect(0, y, w, 1);
       }
 
-      // Fewer branches (~40% fewer)
-      for (let i = 0; i < 13; i++) {
-        let x = Math.floor((i / 13) * w + Math.sin(i * 1.7) * 6);
+      // Branches (~20% fewer than v2)
+      for (let i = 0; i < 10; i++) {
+        let x = Math.floor((i / 10) * w + Math.sin(i * 1.7) * 5);
         let y = h;
         ctx.fillStyle = BARK[i % BARK.length];
-        const steps = Math.floor(h * (0.48 + (i % 5) * 0.08));
+        const steps = Math.floor(h * (0.45 + (i % 5) * 0.07));
         for (let s = 0; s < steps; s++) {
           const thick = 2 + ((i + s) % 3);
           ctx.fillRect(x, y - s, thick, 2);
           if (s % 6 === 0) x += ((i + s) % 2 === 0 ? 1 : -1) * (1 + (s % 2));
-          if (s % 9 === 0) {
-            const dir = s % 18 === 0 ? 1 : -1;
-            for (let t = 0; t < 8; t++) {
+          if (s % 10 === 0) {
+            const dir = s % 20 === 0 ? 1 : -1;
+            for (let t = 0; t < 7; t++) {
               ctx.fillRect(x + dir * t, y - s - Math.floor(t / 2), 2, 2);
             }
           }
         }
       }
 
-      // Leaves: ~65% fewer (was /5.5 → /16)
-      const leafCount = Math.floor((w * h) / 16);
+      // Leaves: another ~20% thinner than v2 (/16 → /20)
+      const leafCount = Math.floor((w * h) / 20);
       for (let i = 0; i < leafCount; i++) {
         const x = (i * 19 + (i * i) % 17) % w;
         const y = (i * 29 + i * 5) % h;
@@ -125,24 +125,24 @@
         ctx.fillStyle = leafColor(yNorm);
         const s = yNorm < 0.3 ? 2 + ((x + y) % 2) : 2 + ((x + y) % 3);
         ctx.fillRect(x, y, s, s);
-        if ((i + y) % 4 === 0) ctx.fillRect(x - 1, y + 1, s, s);
+        if ((i + y) % 5 === 0) ctx.fillRect(x - 1, y + 1, s, s);
       }
 
-      // Background flowers: ~65% fewer than prior reduced density
-      const flowerCount = Math.max(6, Math.floor((w * h) / 900));
+      // Sparse accent flowers
+      const flowerCount = Math.max(5, Math.floor((w * h) / 1150));
       for (let i = 0; i < flowerCount; i++) {
         const x = 3 + Math.floor(Math.random() * Math.max(1, w - 8));
         const y = 3 + Math.floor(Math.random() * Math.max(1, h - 8));
-        if (y > h * 0.9) continue;
+        if (y > h * 0.88) continue;
         const pal = FLOWER_PALETTES[Math.floor(Math.random() * FLOWER_PALETTES.length)];
-        const size = Math.random() < 0.6 ? 1 : 2;
+        const size = Math.random() < 0.65 ? 1 : 2;
         drawTinyFlower(x, y, size, pal);
       }
 
-      ctx.globalAlpha = 0.28;
-      for (let i = 0; i < Math.floor(w * 0.55); i++) {
+      ctx.globalAlpha = 0.24;
+      for (let i = 0; i < Math.floor(w * 0.42); i++) {
         const x = Math.floor(Math.random() * w);
-        const y = Math.floor(Math.random() * h * 0.38);
+        const y = Math.floor(Math.random() * h * 0.36);
         ctx.fillStyle = "#bbf7d0";
         ctx.fillRect(x, y, 2, 2);
       }
@@ -247,14 +247,14 @@
     window.addEventListener(
       "pointermove",
       (e) => {
-        mx = (e.clientX / window.innerWidth - 0.5) * 12;
-        my = (e.clientY / window.innerHeight - 0.5) * 8;
+        mx = (e.clientX / window.innerWidth - 0.5) * 16;
+        my = (e.clientY / window.innerHeight - 0.5) * 11;
       },
       { passive: true }
     );
     function tick() {
-      tx += (mx - tx) * 0.06;
-      ty += (my - ty) * 0.06;
+      tx += (mx - tx) * 0.05;
+      ty += (my - ty) * 0.05;
       layer.style.transform = "translate(" + tx.toFixed(2) + "px," + ty.toFixed(2) + "px)";
       requestAnimationFrame(tick);
     }
@@ -472,8 +472,39 @@
 
   viewToggle?.addEventListener("click", () => setListMode(!listMode));
 
-  // Auto list on narrow screens if preferred — keep garden default, toggle available
-  if (window.matchMedia("(max-width: 640px)").matches) {
-    // Leave garden default; toggle is visible
+  // Mobile default: LIST VIEW (<768px)
+  const mobileMq = window.matchMedia("(max-width: 768px)");
+  function applyMobileDefault(e) {
+    if (e.matches) setListMode(true);
   }
+  applyMobileDefault(mobileMq);
+  if (mobileMq.addEventListener) {
+    mobileMq.addEventListener("change", (e) => {
+      if (e.matches) setListMode(true);
+    });
+  }
+
+  /* ─── Hamburger nav ─────────────────────────────────────────── */
+  const navBurger = document.getElementById("navBurger");
+  function setNavOpen(on) {
+    document.body.classList.toggle("nav-open", on);
+    if (navBurger) {
+      navBurger.setAttribute("aria-expanded", on ? "true" : "false");
+      navBurger.setAttribute("aria-label", on ? "Close menu" : "Open menu");
+    }
+  }
+  navBurger?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    setNavOpen(!document.body.classList.contains("nav-open"));
+  });
+  document.addEventListener("click", (e) => {
+    if (!document.body.classList.contains("nav-open")) return;
+    if (!e.target.closest(".mini-nav")) setNavOpen(false);
+  });
+  // Close burger after choosing a nav action
+  document.getElementById("navLinks")?.addEventListener("click", (e) => {
+    if (e.target.closest("[data-modal], [data-open], .nav-ext, .view-toggle")) {
+      setNavOpen(false);
+    }
+  });
 })();

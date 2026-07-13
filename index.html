@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-build="garden-v2">
+<html lang="en" data-build="garden-v3">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -16,7 +16,7 @@
     <meta property="og:type" content="website" />
     <title>Finlay Phillips · Pixel Garden</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css?v=garden-v2" />
+    <link rel="stylesheet" href="./styles.css?v=garden-v3" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -36,13 +36,23 @@
       <div id="petals" class="petals" aria-hidden="true"></div>
       <div id="click-flash" class="click-flash" aria-hidden="true"></div>
 
-      <!-- Top mini-nav -->
+      <!-- Top mini-nav (wood/leaf pixel bar) -->
       <nav class="mini-nav" aria-label="Site">
         <button type="button" class="nav-brand" id="btnHome" aria-label="Home — Finlay Phillips">
           <img src="./assets/photo.jpg" alt="" width="28" height="28" class="nav-avatar" />
           <span>FINLAY</span>
         </button>
-        <div class="nav-links">
+        <button
+          type="button"
+          class="nav-burger"
+          id="navBurger"
+          aria-expanded="false"
+          aria-controls="navLinks"
+          aria-label="Open menu"
+        >
+          <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links" id="navLinks">
           <div class="nav-drop">
             <button type="button" class="nav-btn" id="btnProjects" aria-expanded="false" aria-controls="projectsMenu">
               PROJECTS ▾
@@ -65,17 +75,20 @@
             rel="noopener noreferrer"
             >GITHUB</a
           >
+          <button
+            type="button"
+            class="nav-btn view-toggle"
+            id="viewToggle"
+            aria-pressed="false"
+            title="Switch between garden and list"
+          >
+            LIST VIEW
+          </button>
         </div>
-        <button
-          type="button"
-          class="nav-btn view-toggle"
-          id="viewToggle"
-          aria-pressed="false"
-          title="Switch between garden and list"
-        >
-          LIST VIEW
-        </button>
       </nav>
+
+      <!-- Dim layer when modals / shell open -->
+      <div class="world-dim" id="worldDim" aria-hidden="true"></div>
 
       <!-- Center banner (also opens About) -->
       <header class="hud">
@@ -110,7 +123,12 @@
             <em>Live LOB + matching + Avellaneda–Stoikov MM explorer</em>
             <span class="tags">C++ · TypeScript · quant eng</span>
           </span>
-          <span class="boss-bloom" aria-hidden="true"></span>
+          <span class="plant" aria-hidden="true">
+            <span class="stem"></span>
+            <span class="leaf leaf-l"></span>
+            <span class="leaf leaf-r"></span>
+            <span class="boss-bloom shape-terminal"></span>
+          </span>
           <span class="sr-only">TickForge — open project</span>
         </a>
 
@@ -128,7 +146,12 @@
             <em>Shadow stack: L2 lake, gap detection, paper-only eval</em>
             <span class="tags">Python · data plane · risk</span>
           </span>
-          <span class="boss-bloom" aria-hidden="true"></span>
+          <span class="plant" aria-hidden="true">
+            <span class="stem"></span>
+            <span class="leaf leaf-l"></span>
+            <span class="leaf leaf-r"></span>
+            <span class="boss-bloom shape-daisy"></span>
+          </span>
           <span class="sr-only">Polymarket — open project</span>
         </a>
 
@@ -146,7 +169,12 @@
             <em>KNN regime neighbours on market factors</em>
             <span class="tags">Python · quant research</span>
           </span>
-          <span class="boss-bloom" aria-hidden="true"></span>
+          <span class="plant" aria-hidden="true">
+            <span class="stem"></span>
+            <span class="leaf leaf-l"></span>
+            <span class="leaf leaf-r"></span>
+            <span class="boss-bloom shape-star"></span>
+          </span>
           <span class="sr-only">Macro Bias — open project</span>
         </a>
 
@@ -164,7 +192,12 @@
             <em>Sealed vault vs naive dump — relevance-gated release</em>
             <span class="tags">privacy · agents · gating</span>
           </span>
-          <span class="boss-bloom" aria-hidden="true"></span>
+          <span class="plant" aria-hidden="true">
+            <span class="stem"></span>
+            <span class="leaf leaf-l"></span>
+            <span class="leaf leaf-r"></span>
+            <span class="boss-bloom shape-rose"></span>
+          </span>
           <span class="sr-only">Identity — open project</span>
         </a>
 
@@ -182,7 +215,12 @@
             <em>Latent-space control lab with free-text routing</em>
             <span class="tags">ML · vectors · offline demo</span>
           </span>
-          <span class="boss-bloom" aria-hidden="true"></span>
+          <span class="plant" aria-hidden="true">
+            <span class="stem"></span>
+            <span class="leaf leaf-l"></span>
+            <span class="leaf leaf-r"></span>
+            <span class="boss-bloom shape-neon"></span>
+          </span>
           <span class="sr-only">VectorBot — open project</span>
         </a>
       </nav>
@@ -193,7 +231,10 @@
         <ul class="project-list">
           <li>
             <button type="button" class="list-card theme-tickforge" data-open="tickforge">
-              <span class="list-dot" aria-hidden="true"></span>
+              <span class="list-flower" aria-hidden="true">
+                <span class="list-stem"></span>
+                <span class="list-bloom shape-terminal"></span>
+              </span>
               <span class="list-body">
                 <strong>TICKFORGE</strong>
                 <em>Live LOB + matching + Avellaneda–Stoikov MM explorer</em>
@@ -203,7 +244,10 @@
           </li>
           <li>
             <button type="button" class="list-card theme-poly" data-open="polymarket">
-              <span class="list-dot" aria-hidden="true"></span>
+              <span class="list-flower" aria-hidden="true">
+                <span class="list-stem"></span>
+                <span class="list-bloom shape-daisy"></span>
+              </span>
               <span class="list-body">
                 <strong>POLYMARKET</strong>
                 <em>Shadow stack: L2 lake, gap detection, paper-only eval</em>
@@ -213,7 +257,10 @@
           </li>
           <li>
             <button type="button" class="list-card theme-macro" data-open="macro">
-              <span class="list-dot" aria-hidden="true"></span>
+              <span class="list-flower" aria-hidden="true">
+                <span class="list-stem"></span>
+                <span class="list-bloom shape-star"></span>
+              </span>
               <span class="list-body">
                 <strong>MACRO BIAS</strong>
                 <em>KNN regime neighbours on market factors</em>
@@ -223,7 +270,10 @@
           </li>
           <li>
             <button type="button" class="list-card theme-identity" data-open="identity">
-              <span class="list-dot" aria-hidden="true"></span>
+              <span class="list-flower" aria-hidden="true">
+                <span class="list-stem"></span>
+                <span class="list-bloom shape-rose"></span>
+              </span>
               <span class="list-body">
                 <strong>IDENTITY</strong>
                 <em>Sealed vault vs naive dump — relevance-gated release</em>
@@ -233,7 +283,10 @@
           </li>
           <li>
             <button type="button" class="list-card theme-vectorbot" data-open="vectorbot">
-              <span class="list-dot" aria-hidden="true"></span>
+              <span class="list-flower" aria-hidden="true">
+                <span class="list-stem"></span>
+                <span class="list-bloom shape-neon"></span>
+              </span>
               <span class="list-body">
                 <strong>VECTORBOT</strong>
                 <em>Latent-space control lab with free-text routing</em>
@@ -349,6 +402,6 @@
       <iframe class="shell-frame" id="shellFrame" title="Project demo"></iframe>
     </div>
 
-    <script src="./garden.js?v=garden-v2"></script>
+    <script src="./garden.js?v=garden-v3"></script>
   </body>
 </html>
