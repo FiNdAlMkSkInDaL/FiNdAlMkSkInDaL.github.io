@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
+  <!-- pixel meadow flower favicon -->
+  <rect width="16" height="16" fill="#87ceeb"/>
+  <!-- grass strip -->
+  <rect x="0" y="12" width="16" height="4" fill="#5cb85c"/>
+  <rect x="1" y="11" width="2" height="2" fill="#66bb6a"/>
+  <rect x="5" y="11" width="2" height="2" fill="#43a047"/>
+  <rect x="10" y="11" width="2" height="2" fill="#7cb342"/>
+  <rect x="13" y="11" width="2" height="2" fill="#4caf50"/>
+  <!-- stem -->
+  <rect x="7" y="8" width="2" height="5" fill="#2e7d32"/>
+  <!-- petals (cross + diagonals) -->
+  <rect x="7" y="3" width="2" height="2" fill="#ff8fab"/>
+  <rect x="7" y="7" width="2" height="2" fill="#ff8fab"/>
+  <rect x="5" y="5" width="2" height="2" fill="#ff6b8a"/>
+  <rect x="9" y="5" width="2" height="2" fill="#ff6b8a"/>
+  <rect x="5" y="3" width="2" height="2" fill="#ff80ab"/>
+  <rect x="9" y="3" width="2" height="2" fill="#ff80ab"/>
+  <rect x="5" y="7" width="2" height="2" fill="#ff80ab"/>
+  <rect x="9" y="7" width="2" height="2" fill="#ff80ab"/>
+  <!-- center -->
+  <rect x="7" y="5" width="2" height="2" fill="#ffe566"/>
+  <!-- tiny sun -->
+  <rect x="12" y="1" width="3" height="3" fill="#ffcc33"/>
+</svg>
