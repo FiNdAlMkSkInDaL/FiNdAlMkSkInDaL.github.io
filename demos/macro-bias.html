@@ -7,435 +7,547 @@
     <title>Macro Bias · Daily Permission</title>
     <meta
       name="description"
-      content="Interactive Macro Bias demo: set market conditions, see LONG / SHORT / FLAT / NO_TRADE and the similar past days behind it."
+      content="TickForge-style Macro Bias explorer: set market conditions, match dated past sessions, print LONG/SHORT/FLAT/NO_TRADE."
     />
     <link rel="icon" href="./favicon-macro.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
     <style>
       :root {
         --bg: #0c0a09;
-        --panel: #1c1917;
-        --elev: #292524;
-        --border: rgba(251, 191, 36, 0.16);
-        --text: #fafaf9;
-        --dim: #a8a29e;
-        --mute: #78716c;
+        --panel: rgba(28, 25, 23, 0.92);
+        --elev: #1c1917;
+        --border: rgba(251, 191, 36, 0.14);
+        --text: #f5f5f4;
+        --muted: #a8a29e;
+        --mute2: #78716c;
         --gold: #fbbf24;
         --gold2: #fde68a;
         --long: #22c55e;
         --short: #ef4444;
         --flat: #a8a29e;
         --notrade: #818cf8;
-        --font: "IBM Plex Sans", system-ui, sans-serif;
-        --mono: "IBM Plex Mono", ui-monospace, monospace;
+        --font: Inter, system-ui, sans-serif;
+        --mono: "JetBrains Mono", ui-monospace, monospace;
       }
-      * { box-sizing: border-box; }
-      html, body { margin: 0; min-height: 100%; }
+      *, *::before, *::after { box-sizing: border-box; }
+      html, body {
+        height: 100%;
+        height: 100dvh;
+        margin: 0;
+        overflow: hidden;
+      }
       body {
         font-family: var(--font);
         color: var(--text);
         background: var(--bg);
-        background-image:
-          radial-gradient(ellipse 55% 35% at 15% 0%, rgba(251, 191, 36, 0.09), transparent 50%),
-          radial-gradient(ellipse 40% 30% at 90% 15%, rgba(34, 197, 94, 0.05), transparent 45%);
+        -webkit-font-smoothing: antialiased;
       }
-      main {
-        max-width: 980px;
-        margin: 0 auto;
-        padding: 1.15rem 1.1rem 6.5rem;
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(ellipse 70% 40% at 15% 0%, rgba(251, 191, 36, 0.07), transparent 50%),
+          radial-gradient(ellipse 50% 30% at 90% 10%, rgba(34, 197, 94, 0.04), transparent 45%);
       }
-      .back {
-        color: var(--mute);
-        text-decoration: none;
-        font-size: 0.85rem;
-      }
-      .back:hover { color: var(--gold); }
-      header { margin: 0.7rem 0 1.1rem; }
-      h1 {
-        margin: 0 0 0.35rem;
-        font-size: clamp(1.35rem, 3vw, 1.7rem);
-        letter-spacing: -0.02em;
-      }
-      .lede {
-        margin: 0;
-        color: var(--dim);
-        font-size: 0.95rem;
-        line-height: 1.5;
-        max-width: 52ch;
-      }
-      .lede a { color: var(--gold); }
+      * { scrollbar-width: none; }
+      *::-webkit-scrollbar { display: none; }
 
-      /* Step strip */
-      .steps {
+      .app {
+        position: relative;
+        z-index: 1;
+        height: 100%;
+        height: 100dvh;
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.5rem;
-        margin-bottom: 1rem;
+        grid-template-rows: 48px minmax(0, 1fr);
+        overflow: hidden;
       }
-      @media (max-width: 640px) { .steps { grid-template-columns: 1fr; } }
-      .step {
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 0.7rem 0.8rem;
-        font-size: 0.8rem;
-        color: var(--dim);
-        line-height: 1.4;
+
+      /* ── Top bar (TickForge-style) ── */
+      .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 0.85rem;
+        border-bottom: 1px solid var(--border);
+        background: rgba(12, 10, 9, 0.94);
+        backdrop-filter: blur(10px);
+        gap: 0.75rem;
       }
-      .step b {
-        display: block;
-        color: var(--gold2);
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        min-width: 0;
+      }
+      .mark {
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        display: grid;
+        place-items: center;
         font-family: var(--mono);
-        font-size: 0.68rem;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        margin-bottom: 0.25rem;
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: #1c1917;
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        flex-shrink: 0;
       }
+      .brand h1 {
+        margin: 0;
+        font-size: 0.85rem;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .brand p {
+        margin: 0;
+        font-size: 0.62rem;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .top-links {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        flex-shrink: 0;
+      }
+      .top-links a {
+        font-size: 0.72rem;
+        color: var(--mute2);
+        text-decoration: none;
+        font-family: var(--mono);
+      }
+      .top-links a:hover { color: var(--gold); }
 
-      .grid {
+      /* ── Stage ── */
+      .stage {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.9rem;
+        grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr) minmax(0, 1.05fr);
+        gap: 0.55rem;
+        padding: 0.55rem;
+        min-height: 0;
+        overflow: hidden;
+        height: 100%;
       }
-      @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+      @media (max-width: 980px) {
+        .stage {
+          grid-template-columns: 1fr 1fr;
+          grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+          overflow: auto;
+        }
+        .col-neighbours { grid-column: 1 / -1; }
+      }
+      @media (max-width: 640px) {
+        .stage { grid-template-columns: 1fr; }
+      }
 
-      .card {
+      .panel {
         background: var(--panel);
         border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 1rem 1.05rem;
+        border-radius: 10px;
+        padding: 0.65rem 0.7rem;
+        min-height: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
       }
-      .card h2 {
-        margin: 0 0 0.75rem;
-        font-size: 0.72rem;
-        letter-spacing: 0.1em;
+      .panel-h {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.55rem;
+        flex-shrink: 0;
+      }
+      .panel-h h2 {
+        margin: 0;
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: var(--mute);
+        color: var(--mute2);
+      }
+      .panel-h .hint {
+        font-family: var(--mono);
+        font-size: 0.6rem;
+        color: var(--mute2);
+      }
+      .panel-body {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
       }
 
-      /* Scenarios first */
-      .scenarios {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.45rem;
+      .mono { font-family: var(--mono); font-feature-settings: "tnum"; }
+      .muted { color: var(--muted); }
+
+      /* Scenarios as compact list / chips row */
+      .scenario-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
       }
-      @media (max-width: 520px) { .scenarios { grid-template-columns: 1fr; } }
       .scenario {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 0.25rem 0.5rem;
+        align-items: center;
         text-align: left;
-        font: inherit;
-        cursor: pointer;
-        border-radius: 12px;
-        border: 1px solid var(--border);
-        background: var(--elev);
+        width: 100%;
+        padding: 0.45rem 0.55rem;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        background: rgba(0, 0, 0, 0.22);
         color: var(--text);
-        padding: 0.7rem 0.75rem;
-        transition: 0.12s ease;
+        cursor: pointer;
+        font: inherit;
       }
-      .scenario:hover { border-color: rgba(251, 191, 36, 0.45); }
+      .scenario:hover { border-color: rgba(251, 191, 36, 0.25); }
       .scenario.active {
-        border-color: var(--gold);
-        box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.25);
+        border-color: rgba(251, 191, 36, 0.45);
         background: rgba(251, 191, 36, 0.08);
       }
       .scenario .name {
-        font-weight: 700;
-        font-size: 0.9rem;
-        margin-bottom: 0.2rem;
+        font-size: 0.8rem;
+        font-weight: 600;
       }
       .scenario .hint {
-        font-size: 0.75rem;
-        color: var(--mute);
-        line-height: 1.35;
+        grid-column: 1 / -1;
+        font-size: 0.68rem;
+        color: var(--mute2);
+        line-height: 1.3;
       }
+      .scenario .tag {
+        font-family: var(--mono);
+        font-size: 0.6rem;
+        color: var(--gold);
+        opacity: 0;
+      }
+      .scenario.active .tag { opacity: 1; }
 
-      /* Decision hero */
-      .decision {
+      /* Dials */
+      .dials {
         display: flex;
         flex-direction: column;
-        align-items: stretch;
-        gap: 0.85rem;
-        min-height: 100%;
+        gap: 0.65rem;
+        margin-top: 0.65rem;
+        padding-top: 0.65rem;
+        border-top: 1px solid var(--border);
       }
-      .pill {
-        font-family: var(--mono);
-        font-size: clamp(1.5rem, 4vw, 2rem);
-        font-weight: 700;
-        letter-spacing: 0.06em;
-        text-align: center;
-        padding: 1rem 1.2rem;
-        border-radius: 14px;
-        border: 2px solid;
-        transition: 0.2s ease;
-      }
-      .pill.LONG {
-        color: var(--long);
-        border-color: var(--long);
-        background: rgba(34, 197, 94, 0.12);
-        box-shadow: 0 0 28px rgba(34, 197, 94, 0.2);
-      }
-      .pill.SHORT {
-        color: var(--short);
-        border-color: var(--short);
-        background: rgba(239, 68, 68, 0.12);
-        box-shadow: 0 0 28px rgba(239, 68, 68, 0.2);
-      }
-      .pill.FLAT {
-        color: var(--flat);
-        border-color: var(--flat);
-        background: rgba(168, 162, 158, 0.1);
-      }
-      .pill.NO_TRADE {
-        color: var(--notrade);
-        border-color: var(--notrade);
-        background: rgba(129, 140, 248, 0.12);
-        box-shadow: 0 0 28px rgba(129, 140, 248, 0.18);
-      }
-      .meaning {
-        font-size: 0.95rem;
-        color: var(--text);
-        line-height: 1.5;
-        margin: 0;
-      }
-      .meaning span { color: var(--dim); }
-      .metrics {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.45rem;
-      }
-      .metric {
-        background: rgba(0, 0, 0, 0.28);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 0.55rem 0.5rem;
-        text-align: center;
-      }
-      .metric .k {
-        font-size: 0.65rem;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: var(--mute);
-        margin-bottom: 0.2rem;
-      }
-      .metric .v {
-        font-family: var(--mono);
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: var(--gold2);
-      }
-
-      /* Dial rows — plain language */
-      .dials { display: flex; flex-direction: column; gap: 0.85rem; }
       .dial label {
         display: flex;
         justify-content: space-between;
         align-items: baseline;
-        gap: 0.5rem;
-        margin-bottom: 0.3rem;
-        font-size: 0.88rem;
-        color: var(--text);
-      }
-      .dial label small {
-        color: var(--mute);
         font-size: 0.75rem;
-        font-weight: 400;
+        margin-bottom: 0.2rem;
+        color: var(--muted);
+      }
+      .dial label strong {
+        color: var(--text);
+        font-weight: 500;
       }
       .dial .val {
         font-family: var(--mono);
-        font-size: 0.78rem;
+        font-size: 0.68rem;
         color: var(--gold2);
-        white-space: nowrap;
       }
       input[type="range"] {
         width: 100%;
         accent-color: var(--gold);
+        height: 4px;
         cursor: pointer;
       }
       .ends {
         display: flex;
         justify-content: space-between;
-        font-size: 0.68rem;
-        color: var(--mute);
-        margin-top: 0.15rem;
+        font-family: var(--mono);
+        font-size: 0.58rem;
+        color: var(--mute2);
+        margin-top: 0.12rem;
       }
 
-      /* Neighbours */
-      .nb-list { display: flex; flex-direction: column; gap: 0.4rem; }
-      .nb {
-        display: grid;
-        grid-template-columns: 64px 1fr auto;
-        gap: 0.5rem;
-        align-items: center;
-        padding: 0.45rem 0.55rem;
+      /* Decision column */
+      .decision-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+        height: 100%;
+        min-height: 0;
+      }
+      .pill {
+        font-family: var(--mono);
+        font-size: clamp(1.35rem, 3.2vw, 1.85rem);
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-align: center;
+        padding: 0.85rem 0.75rem;
         border-radius: 10px;
-        background: rgba(0, 0, 0, 0.28);
-        font-size: 0.8rem;
+        border: 1px solid;
+        flex-shrink: 0;
       }
-      .nb .day { font-family: var(--mono); color: var(--mute); font-size: 0.72rem; }
-      .nb .bar {
-        height: 8px;
-        background: #292524;
-        border-radius: 4px;
+      .pill.LONG {
+        color: var(--long);
+        border-color: rgba(34, 197, 94, 0.55);
+        background: rgba(34, 197, 94, 0.1);
+        box-shadow: 0 0 24px rgba(34, 197, 94, 0.12);
+      }
+      .pill.SHORT {
+        color: var(--short);
+        border-color: rgba(239, 68, 68, 0.55);
+        background: rgba(239, 68, 68, 0.1);
+        box-shadow: 0 0 24px rgba(239, 68, 68, 0.12);
+      }
+      .pill.FLAT {
+        color: var(--flat);
+        border-color: rgba(168, 162, 158, 0.4);
+        background: rgba(168, 162, 158, 0.08);
+      }
+      .pill.NO_TRADE {
+        color: var(--notrade);
+        border-color: rgba(129, 140, 248, 0.5);
+        background: rgba(129, 140, 248, 0.1);
+        box-shadow: 0 0 24px rgba(129, 140, 248, 0.1);
+      }
+      .meaning {
+        margin: 0;
+        font-size: 0.78rem;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.35rem;
+        flex-shrink: 0;
+      }
+      .metric {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.45rem 0.35rem;
+        background: rgba(0, 0, 0, 0.25);
+        text-align: center;
+      }
+      .metric .k {
+        font-size: 0.58rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--mute2);
+        margin-bottom: 0.15rem;
+      }
+      .metric .v {
+        font-family: var(--mono);
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--gold2);
+      }
+      .flow {
+        margin-top: auto;
+        border-top: 1px solid var(--border);
+        padding-top: 0.55rem;
+        display: grid;
+        gap: 0.3rem;
+        font-family: var(--mono);
+        font-size: 0.62rem;
+        color: var(--mute2);
+      }
+      .flow span { color: var(--gold); }
+
+      /* Neighbour table — TickForge ladder-ish */
+      .nb-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.72rem;
+      }
+      .nb-table th {
+        text-align: left;
+        font-family: var(--mono);
+        font-size: 0.58rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--mute2);
+        padding: 0.25rem 0.35rem 0.45rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .nb-table th:last-child,
+      .nb-table td:last-child { text-align: right; }
+      .nb-table td {
+        padding: 0.4rem 0.35rem;
+        border-bottom: 1px solid rgba(251, 191, 36, 0.06);
+        vertical-align: middle;
+      }
+      .nb-table tr:hover td { background: rgba(251, 191, 36, 0.04); }
+      .nb-date {
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        color: var(--text);
+        white-space: nowrap;
+      }
+      .nb-dow {
+        display: block;
+        font-size: 0.58rem;
+        color: var(--mute2);
+        margin-top: 0.08rem;
+      }
+      .nb-bar-wrap {
+        height: 7px;
+        background: #1c1917;
+        border: 1px solid rgba(251, 191, 36, 0.1);
+        border-radius: 3px;
         overflow: hidden;
+        min-width: 64px;
       }
-      .nb .bar > i {
+      .nb-bar-wrap > i {
         display: block;
         height: 100%;
         width: 0;
-        background: linear-gradient(90deg, var(--gold), var(--gold2));
-        transition: width 0.4s ease;
+        background: linear-gradient(90deg, #b45309, var(--gold), var(--gold2));
+        transition: width 0.35s ease;
       }
-      .nb .ret { font-family: var(--mono); font-size: 0.78rem; min-width: 3.5rem; text-align: right; }
-      .nb .ret.pos { color: var(--long); }
-      .nb .ret.neg { color: var(--short); }
-      .nb-caption {
-        margin: 0 0 0.55rem;
-        font-size: 0.8rem;
-        color: var(--dim);
-        line-height: 1.4;
+      .nb-ret {
+        font-family: var(--mono);
+        font-feature-settings: "tnum";
+        white-space: nowrap;
+      }
+      .nb-ret.pos { color: var(--long); }
+      .nb-ret.neg { color: var(--short); }
+      .nb-w {
+        font-family: var(--mono);
+        font-size: 0.65rem;
+        color: var(--mute2);
       }
 
       .blurb {
         position: fixed;
-        left: 14px;
-        bottom: 14px;
+        left: 10px;
+        bottom: 10px;
         z-index: 20;
-        max-width: min(300px, calc(100vw - 28px));
-        padding: 0.65rem 0.75rem;
-        border-radius: 10px;
+        max-width: min(280px, calc(100vw - 20px));
+        padding: 0.5rem 0.6rem;
+        border-radius: 8px;
         border: 1px solid var(--border);
         background: rgba(12, 10, 9, 0.94);
-        color: var(--dim);
-        font-size: 0.72rem;
-        line-height: 1.45;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        color: var(--muted);
+        font-size: 0.65rem;
+        line-height: 1.4;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
         pointer-events: none;
       }
       .blurb strong {
         display: block;
         color: var(--text);
-        font-size: 0.75rem;
-        margin-bottom: 0.25rem;
-      }
-      @media (max-width: 600px) {
-        .blurb { font-size: 0.68rem; max-width: min(250px, calc(100vw - 20px)); }
+        font-size: 0.68rem;
+        margin-bottom: 0.15rem;
       }
     </style>
   </head>
   <body>
-    <main>
-      <a class="back" href="../">← Portfolio</a>
-      <header>
-        <h1>Macro Bias</h1>
-        <p class="lede">
-          Pick a market mood. The demo finds similar past days, averages what happened next,
-          and prints a next-session permission:
-          <strong>LONG / SHORT / FLAT / NO_TRADE</strong>.
-          Live product:
+    <div class="app">
+      <header class="top">
+        <div class="brand">
+          <span class="mark">MB</span>
+          <div>
+            <h1>Macro Bias</h1>
+            <p>regime snapshot · nearest past sessions · next-session permission</p>
+          </div>
+        </div>
+        <div class="top-links">
           <a href="https://macro-bias.com" target="_blank" rel="noopener">macro-bias.com</a>
-        </p>
+          <a href="../">portfolio</a>
+        </div>
       </header>
 
-      <div class="steps" aria-hidden="true">
-        <div class="step"><b>1 · Snapshot</b>Describe today’s macro (or click a scenario).</div>
-        <div class="step"><b>2 · Neighbours</b>Find past days that looked like this.</div>
-        <div class="step"><b>3 · Permission</b>Average what followed → bias + size.</div>
-      </div>
-
-      <div class="grid">
-        <section class="card">
-          <h2>1 · Market scenario</h2>
-          <div class="scenarios" id="scenarios"></div>
+      <main class="stage">
+        <!-- Left: scenarios + dials -->
+        <section class="panel">
+          <div class="panel-h">
+            <h2>Market snapshot</h2>
+            <span class="hint mono">click a regime · or drag dials</span>
+          </div>
+          <div class="panel-body">
+            <div class="scenario-list" id="scenarios"></div>
+            <div class="dials" id="dials"></div>
+          </div>
         </section>
 
-        <section class="card">
-          <h2>3 · Tomorrow’s permission</h2>
-          <div class="decision">
-            <div class="pill FLAT" id="pill">FLAT</div>
-            <p class="meaning" id="meaning">
-              Standing aside — signal is weak.
-            </p>
-            <div class="metrics">
-              <div class="metric">
-                <div class="k">Expected edge</div>
-                <div class="v" id="mScore">—</div>
+        <!-- Center: decision -->
+        <section class="panel">
+          <div class="panel-h">
+            <h2>Permission</h2>
+            <span class="hint mono" id="asOf">as of demo clock</span>
+          </div>
+          <div class="panel-body">
+            <div class="decision-wrap">
+              <div class="pill FLAT" id="pill">FLAT</div>
+              <p class="meaning" id="meaning">—</p>
+              <div class="metrics">
+                <div class="metric">
+                  <div class="k">Expected edge</div>
+                  <div class="v" id="mScore">—</div>
+                </div>
+                <div class="metric">
+                  <div class="k">Risk size</div>
+                  <div class="v" id="mSize">—</div>
+                </div>
+                <div class="metric">
+                  <div class="k">K (neighbours)</div>
+                  <div class="v" id="mK">—</div>
+                </div>
               </div>
-              <div class="metric">
-                <div class="k">Risk size</div>
-                <div class="v" id="mSize">—</div>
-              </div>
-              <div class="metric">
-                <div class="k">Neighbours</div>
-                <div class="v" id="mK">—</div>
+              <div class="flow">
+                <div>1 · feature snapshot <span id="flowSnap">—</span></div>
+                <div>2 · cosine nearest days <span id="flowK">—</span></div>
+                <div>3 · inv-distance blend → permission <span id="flowBias">—</span></div>
               </div>
             </div>
           </div>
         </section>
 
-        <section class="card">
-          <h2>Fine-tune the snapshot</h2>
-          <div class="dials" id="dials"></div>
+        <!-- Right: dated neighbours -->
+        <section class="panel col-neighbours">
+          <div class="panel-h">
+            <h2>Similar past sessions</h2>
+            <span class="hint mono">date · vote weight · next-day return</span>
+          </div>
+          <div class="panel-body">
+            <table class="nb-table">
+              <thead>
+                <tr>
+                  <th>Session</th>
+                  <th>Weight</th>
+                  <th>Vote</th>
+                  <th>Next day</th>
+                </tr>
+              </thead>
+              <tbody id="nbBody"></tbody>
+            </table>
+          </div>
         </section>
+      </main>
+    </div>
 
-        <section class="card">
-          <h2>2 · Similar past days</h2>
-          <p class="nb-caption" id="nbCaption">
-            Bars = how strongly each historical day votes. Return = what the market did next (demo data).
-          </p>
-          <div class="nb-list" id="neighbours"></div>
-        </section>
-      </div>
-    </main>
-
-    <aside class="blurb" aria-label="About Macro Bias">
+    <aside class="blurb" aria-label="About">
       <strong>What is this?</strong>
-      A walk-forward style regime model: match today’s market features to past days,
-      weight their next-day returns, and output a permission (not a price target).
-      Demo is interactive and illustrative — not live advice.
+      Match today's macro features to dated past sessions, weight what happened next,
+      and print a permission (LONG / SHORT / FLAT / NO_TRADE). Illustrative demo — not live advice.
     </aside>
 
     <script>
       const KEYS = ["equity", "fear", "credit", "metals", "oil"];
       const DIALS = [
-        {
-          key: "equity",
-          label: "Equity strength",
-          help: "SPY momentum / RSI regime",
-          lo: "Weak",
-          hi: "Strong",
-        },
-        {
-          key: "fear",
-          label: "Fear (VIX)",
-          help: "vol / stress",
-          lo: "Calm",
-          hi: "Panic",
-        },
-        {
-          key: "credit",
-          label: "Credit health",
-          help: "HYG vs TLT style",
-          lo: "Stress",
-          hi: "Healthy",
-        },
-        {
-          key: "metals",
-          label: "Copper / gold",
-          help: "growth vs safety",
-          lo: "Defensive",
-          hi: "Growth",
-        },
-        {
-          key: "oil",
-          label: "Oil pressure",
-          help: "energy impulse",
-          lo: "Soft",
-          hi: "Spike",
-        },
+        { key: "equity", label: "Equity strength", lo: "weak", hi: "strong" },
+        { key: "fear", label: "Fear (VIX)", lo: "calm", hi: "panic" },
+        { key: "credit", label: "Credit health", lo: "stress", hi: "healthy" },
+        { key: "metals", label: "Copper / gold", lo: "defensive", hi: "growth" },
+        { key: "oil", label: "Oil pressure", lo: "soft", hi: "spike" },
       ];
 
       const SCENARIOS = [
@@ -450,7 +562,7 @@
         },
         {
           name: "Fear spike",
-          hint: "Equities weak, VIX hot, credit wobbly",
+          hint: "Weak equities, hot VIX, wobbly credit",
           equity: 0.25,
           fear: 0.9,
           credit: 0.2,
@@ -468,7 +580,7 @@
         },
         {
           name: "Oil shock",
-          hint: "Energy jumps; growth scare",
+          hint: "Energy jump; growth scare",
           equity: 0.4,
           fear: 0.65,
           credit: 0.35,
@@ -503,7 +615,26 @@
         oil: 0.5,
       };
 
-      // Synthetic history library in same 5-d space
+      const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+      function fmtDate(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return y + "-" + m + "-" + day;
+      }
+
+      function prevBusinessDay(d) {
+        const x = new Date(d.getTime());
+        do {
+          x.setDate(x.getDate() - 1);
+        } while (x.getDay() === 0 || x.getDay() === 6);
+        return x;
+      }
+
+      // Fixed "today" anchor for reproducible dated history
+      const ANCHOR = new Date(2026, 6, 10); // 2026-07-10 (Fri)
+
       const LIBRARY = [];
       (function seed() {
         let x = 42;
@@ -511,21 +642,24 @@
           x = (x * 16807) % 2147483647;
           return (x - 1) / 2147483646;
         };
-        for (let i = 0; i < 56; i++) {
+        let cursor = prevBusinessDay(ANCHOR);
+        for (let i = 0; i < 60; i++) {
           const equity = r();
           const fear = r();
           const credit = r();
           const metals = r();
           const oil = r();
-          // Risk-on tends to print positive next-day returns
           const riskOn =
             equity * 0.35 + (1 - fear) * 0.35 + credit * 0.2 + metals * 0.1 - oil * 0.05;
           const ret = (riskOn - 0.45) * 0.028 + (r() - 0.5) * 0.01;
           LIBRARY.push({
-            day: "Day -" + (56 - i),
+            date: new Date(cursor.getTime()),
+            iso: fmtDate(cursor),
+            dow: DOW[cursor.getDay()],
             f: [equity, fear, credit, metals, oil],
             ret,
           });
+          cursor = prevBusinessDay(cursor);
         }
       })();
 
@@ -581,7 +715,7 @@
           return {
             bias: "NO_TRADE",
             size: 0,
-            text: "Too chaotic — sit out. When fear is extreme and the edge is tiny, do nothing.",
+            text: "Extreme fear + tiny edge — sit out. No new risk.",
           };
         }
         if (score > 0.0045) {
@@ -590,8 +724,8 @@
             bias: "LONG",
             size,
             text:
-              "Lean long into the next session. Similar past days tended to rise afterward" +
-              (size > 0.55 ? " with a fuller risk size." : " — keep size modest."),
+              "Similar dated sessions tended to rise next day. Lean long" +
+              (size > 0.55 ? " with fuller size." : " with modest size."),
           };
         }
         if (score < -0.0045) {
@@ -600,21 +734,21 @@
             bias: "SHORT",
             size,
             text:
-              "Lean short into the next session. Similar past days tended to fall afterward" +
-              (size > 0.55 ? " with a fuller risk size." : " — keep size modest."),
+              "Similar dated sessions tended to fall next day. Lean short" +
+              (size > 0.55 ? " with fuller size." : " with modest size."),
           };
         }
         if (Math.abs(score) < 0.002) {
           return {
             bias: "NO_TRADE",
             size: 0,
-            text: "No clear edge either way — permission is to stay flat in cash / no new risk.",
+            text: "No clear edge either way — stay flat / no new risk.",
           };
         }
         return {
           bias: "FLAT",
           size: 0.15,
-          text: "Mixed neighbours. Hold a neutral stance; signal is too soft to press.",
+          text: "Mixed neighbours. Neutral stance; signal is soft.",
         };
       }
 
@@ -633,33 +767,34 @@
       }
 
       function renderNeighbours(top) {
-        const box = document.getElementById("neighbours");
-        box.innerHTML = "";
+        const body = document.getElementById("nbBody");
+        body.innerHTML = "";
         const maxW = Math.max(...top.map((n) => n.wNorm), 1e-9);
         top.forEach((n) => {
-          const row = document.createElement("div");
-          row.className = "nb";
+          const tr = document.createElement("tr");
           const retCls = n.ret >= 0 ? "pos" : "neg";
           const retStr = (n.ret >= 0 ? "+" : "") + (n.ret * 100).toFixed(2) + "%";
-          row.innerHTML =
-            '<div class="day">' +
-            n.day +
-            "</div>" +
-            '<div class="bar"><i></i></div>' +
-            '<div class="ret ' +
+          const wPct = ((n.wNorm / maxW) * 100).toFixed(0);
+          tr.innerHTML =
+            '<td><span class="nb-date">' +
+            n.iso +
+            '</span><span class="nb-dow">' +
+            n.dow +
+            "</span></td>" +
+            '<td><div class="nb-bar-wrap"><i style="width:0%"></i></div></td>' +
+            '<td class="nb-w">' +
+            (n.wNorm * 100).toFixed(0) +
+            "%</td>" +
+            '<td class="nb-ret ' +
             retCls +
             '">' +
             retStr +
-            "</div>";
-          box.appendChild(row);
+            "</td>";
+          body.appendChild(tr);
           requestAnimationFrame(() => {
-            row.querySelector("i").style.width = (n.wNorm / maxW) * 100 + "%";
+            tr.querySelector("i").style.width = wPct + "%";
           });
         });
-        document.getElementById("nbCaption").textContent =
-          "Closest " +
-          top.length +
-          " historical days to this snapshot. Wider bar = stronger vote. Return = next-day move (demo data).";
       }
 
       function update() {
@@ -668,13 +803,19 @@
         const pill = document.getElementById("pill");
         pill.textContent = perm.bias;
         pill.className = "pill " + perm.bias;
-        document.getElementById("meaning").innerHTML =
-          "<span>In plain English:</span> " + perm.text;
+        document.getElementById("meaning").textContent = perm.text;
         document.getElementById("mScore").textContent =
           (score >= 0 ? "+" : "") + (score * 100).toFixed(2) + "%";
-        document.getElementById("mSize").textContent =
-          Math.round(perm.size * 100) + "%";
-        document.getElementById("mK").textContent = "K=" + k;
+        document.getElementById("mSize").textContent = Math.round(perm.size * 100) + "%";
+        document.getElementById("mK").textContent = String(k);
+        document.getElementById("flowSnap").textContent =
+          "eq " +
+          levelWord(state.equity) +
+          " · fear " +
+          levelWord(state.fear);
+        document.getElementById("flowK").textContent = "K=" + k;
+        document.getElementById("flowBias").textContent = perm.bias;
+        document.getElementById("asOf").textContent = "anchor " + fmtDate(ANCHOR);
         renderNeighbours(top);
       }
 
@@ -685,11 +826,12 @@
           b.type = "button";
           b.className = "scenario" + (i === 0 ? " active" : "");
           b.innerHTML =
-            '<div class="name">' +
+            '<span class="name">' +
             s.name +
-            '</div><div class="hint">' +
+            '</span><span class="tag mono">ACTIVE</span>' +
+            '<span class="hint">' +
             s.hint +
-            "</div>";
+            "</span>";
           b.onclick = () => applyScenario(s, b);
           scen.appendChild(b);
         });
@@ -699,11 +841,9 @@
           const row = document.createElement("div");
           row.className = "dial";
           row.innerHTML =
-            "<label>" +
+            "<label><strong>" +
             d.label +
-            " <small>" +
-            d.help +
-            '</small><span class="val" id="v_' +
+            '</strong><span class="val" id="v_' +
             d.key +
             '">' +
             levelWord(state[d.key]) +
