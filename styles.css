@@ -377,7 +377,7 @@ body {
   --tag-bd: #22d3ee;
 }
 
-/* Macro Bias â†’ chart gold / bull green / bear red */
+/* Macro Bias → chart gold / bull green / bear red */
 .boss.theme-macro {
   --p: #fbbf24;
   --p2: #fde68a;
@@ -389,29 +389,68 @@ body {
   --tag-bd: #22c55e;
 }
 
-/* Vertical placement: bloom only (no stems) */
-.b-left {
-  left: 12%;
-  top: 40%; /* ~60% up */
+/* Polymarket → sky L2 lake */
+.boss.theme-poly {
+  --p: #38bdf8;
+  --p2: #7dd3fc;
+  --p3: #34d399;
+  --c: #0c4a6e;
+  --g: rgba(56, 189, 248, 0.85);
+  --tag-bg: #0c1220;
+  --tag-fg: #7dd3fc;
+  --tag-bd: #38bdf8;
+}
+
+/* Identity → violet vault */
+.boss.theme-identity {
+  --p: #a78bfa;
+  --p2: #c4b5fd;
+  --p3: #22d3ee;
+  --c: #1e1b4b;
+  --g: rgba(167, 139, 250, 0.9);
+  --tag-bg: #101018;
+  --tag-fg: #c4b5fd;
+  --tag-bd: #a78bfa;
+}
+
+/* Five blooms across the canopy */
+.b-tick {
+  left: 10%;
+  top: 38%;
   width: 88px;
   height: 88px;
 }
 
-.b-mid {
+.b-vector {
   left: 50%;
-  top: 70%; /* ~30% up */
+  top: 68%;
   width: 100px;
   height: 100px;
   margin-left: -50px;
   z-index: 2;
 }
 
-.b-right {
+.b-macro {
   right: 10%;
   left: auto;
-  top: 20%; /* ~80% up */
+  top: 18%;
   width: 88px;
   height: 88px;
+}
+
+.b-poly {
+  left: 28%;
+  top: 22%;
+  width: 80px;
+  height: 80px;
+}
+
+.b-identity {
+  right: 26%;
+  left: auto;
+  top: 48%;
+  width: 84px;
+  height: 84px;
 }
 
 .boss-bloom {
@@ -483,6 +522,40 @@ body {
     12px 12px 0 #ef4444,
     0 0 0 4px #1c1917,
     0 0 0 8px #fbbf24;
+}
+
+.boss.theme-poly .boss-bloom {
+  width: 52px;
+  height: 52px;
+  margin: -26px 0 0 -26px;
+  box-shadow:
+    0 -14px 0 var(--p2),
+    0 14px 0 var(--p3),
+    -14px 0 0 var(--p2),
+    14px 0 0 var(--p3),
+    -10px -10px 0 var(--p),
+    10px -10px 0 var(--p),
+    -10px 10px 0 #0ea5e9,
+    10px 10px 0 #34d399,
+    0 0 0 4px #0c4a6e,
+    0 0 0 8px #38bdf8;
+}
+
+.boss.theme-identity .boss-bloom {
+  width: 54px;
+  height: 54px;
+  margin: -27px 0 0 -27px;
+  box-shadow:
+    0 -15px 0 var(--p2),
+    0 15px 0 var(--p2),
+    -15px 0 0 var(--p3),
+    15px 0 0 var(--p3),
+    -11px -11px 0 var(--p),
+    11px -11px 0 var(--p),
+    -11px 11px 0 var(--p),
+    11px 11px 0 var(--p),
+    0 0 0 4px #1e1b4b,
+    0 0 0 8px #a78bfa;
 }
 
 .boss-bloom::after {
@@ -607,6 +680,13 @@ body {
     0 0 22px 6px var(--g);
 }
 
+.boss.theme-poly:hover .boss-bloom,
+.boss.theme-poly:focus-visible .boss-bloom,
+.boss.theme-identity:hover .boss-bloom,
+.boss.theme-identity:focus-visible .boss-bloom {
+  transform: scale(1.1);
+}
+
 .boss:hover .name-tag,
 .boss:focus-visible .name-tag {
   opacity: 1;
@@ -618,11 +698,17 @@ body {
     font-size: 6px;
   }
 
-  .b-left {
+  .b-tick {
     left: 2%;
   }
-  .b-right {
+  .b-macro {
     right: 2%;
+  }
+  .b-poly {
+    left: 18%;
+  }
+  .b-identity {
+    right: 16%;
   }
 
   .boss-bloom {
