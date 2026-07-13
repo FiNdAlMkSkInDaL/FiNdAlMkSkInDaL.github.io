@@ -7,7 +7,7 @@
     <title>Polymarket · Shadow Stack</title>
     <meta
       name="description"
-      content="Plain-English demo of a Polymarket live L2 lake and hourly shadow evaluation (no live trading)."
+      content="Interactive Polymarket shadow-stack sim: drive live quotes, break the feed, run hourly paper evaluation."
     />
     <link rel="icon" href="./favicon-polymarket.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -61,7 +61,6 @@
         grid-template-rows: 48px minmax(0, 1fr);
         overflow: hidden;
       }
-
       .top {
         display: flex;
         align-items: center;
@@ -86,7 +85,28 @@
         margin: 0; font-size: 0.62rem; color: var(--muted);
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       }
-      .top-links { display: flex; gap: 0.65rem; flex-shrink: 0; }
+      .live-dot {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-family: var(--mono);
+        font-size: 0.65rem;
+        color: var(--mute2);
+      }
+      .live-dot i {
+        width: 7px; height: 7px; border-radius: 50%;
+        background: var(--mute2);
+      }
+      .live-dot.on { color: var(--ok); }
+      .live-dot.on i {
+        background: var(--ok);
+        box-shadow: 0 0 8px var(--ok);
+        animation: blink 1s steps(2, end) infinite;
+      }
+      @keyframes blink {
+        50% { opacity: 0.35; }
+      }
+      .top-links { display: flex; gap: 0.65rem; align-items: center; flex-shrink: 0; }
       .top-links a {
         font-family: var(--mono); font-size: 0.72rem;
         color: var(--mute2); text-decoration: none;
@@ -96,18 +116,14 @@
       .stage {
         display: grid;
         grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.15fr) minmax(0, 1.05fr);
-        gap: 0.6rem;
-        padding: 0.6rem 0.6rem 4.2rem;
+        gap: 0.55rem;
+        padding: 0.55rem 0.55rem 4.2rem;
         min-height: 0;
         overflow: hidden;
         height: 100%;
       }
       @media (max-width: 980px) {
-        .stage {
-          grid-template-columns: 1fr;
-          overflow: auto;
-          height: auto;
-        }
+        .stage { grid-template-columns: 1fr; overflow: auto; height: auto; }
         .app { overflow: auto; }
       }
 
@@ -115,7 +131,7 @@
         background: var(--panel);
         border: 1px solid var(--border);
         border-radius: 10px;
-        padding: 0.75rem 0.8rem;
+        padding: 0.7rem 0.75rem;
         min-height: 0;
         overflow: hidden;
         display: flex;
@@ -126,7 +142,7 @@
         align-items: baseline;
         justify-content: space-between;
         gap: 0.5rem;
-        margin-bottom: 0.55rem;
+        margin-bottom: 0.5rem;
         flex-shrink: 0;
       }
       .panel-h h2 {
@@ -152,71 +168,23 @@
       }
 
       .story {
-        font-size: 0.8rem;
+        margin: 0;
+        font-size: 0.76rem;
         color: var(--muted);
-        line-height: 1.45;
-        margin: 0 0 0.35rem;
+        line-height: 1.4;
       }
 
-      /* Hour list */
-      .hours {
-        display: flex;
-        flex-direction: column;
-        gap: 0.28rem;
-      }
-      .hour-btn {
+      .btn-row {
         display: grid;
-        grid-template-columns: 72px 1fr auto;
-        gap: 0.45rem;
-        align-items: center;
-        text-align: left;
-        width: 100%;
-        padding: 0.48rem 0.55rem;
-        border-radius: 8px;
-        border: 1px solid transparent;
-        background: rgba(0, 0, 0, 0.25);
-        color: var(--text);
-        font: inherit;
-        cursor: pointer;
-      }
-      .hour-btn:hover { border-color: rgba(56, 189, 248, 0.3); }
-      .hour-btn.active {
-        border-color: rgba(56, 189, 248, 0.5);
-        background: rgba(56, 189, 248, 0.08);
-      }
-      .hour-btn .t {
-        font-family: var(--mono);
-        font-size: 0.78rem;
-        font-weight: 600;
-      }
-      .hour-btn .d {
-        font-size: 0.72rem;
-        color: var(--muted);
-      }
-      .pill {
-        font-family: var(--mono);
-        font-size: 0.6rem;
-        padding: 0.18rem 0.4rem;
-        border-radius: 999px;
-        border: 1px solid;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-      }
-      .pill.ok { color: var(--ok); border-color: rgba(52, 211, 153, 0.45); }
-      .pill.warn { color: var(--warn); border-color: rgba(251, 191, 36, 0.45); }
-      .pill.gap { color: var(--bad); border-color: rgba(251, 113, 133, 0.5); }
-
-      .actions {
-        display: grid;
-        grid-template-columns: 1.3fr 1fr 1fr;
+        grid-template-columns: 1fr 1fr;
         gap: 0.35rem;
-        margin-top: auto;
       }
+      .btn-row.three { grid-template-columns: 1fr 1fr 1fr; }
       .btn {
         font: inherit;
         font-weight: 600;
-        font-size: 0.78rem;
-        padding: 0.52rem 0.5rem;
+        font-size: 0.76rem;
+        padding: 0.5rem 0.45rem;
         border-radius: 8px;
         border: 1px solid var(--border);
         background: rgba(0, 0, 0, 0.28);
@@ -228,147 +196,172 @@
         border-color: rgba(56, 189, 248, 0.45);
         color: var(--sky2);
       }
+      .btn.danger {
+        border-color: rgba(251, 113, 133, 0.4);
+        color: var(--bad);
+      }
+      .btn.warn {
+        border-color: rgba(251, 191, 36, 0.4);
+        color: var(--warn);
+      }
+      .btn.on {
+        border-color: rgba(52, 211, 153, 0.55);
+        color: var(--ok);
+        background: rgba(52, 211, 153, 0.1);
+      }
       .btn:hover { filter: brightness(1.08); }
 
-      /* Pipeline */
-      .pipe {
+      .dial label {
         display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
-        flex: 1;
+        justify-content: space-between;
+        font-size: 0.74rem;
+        color: var(--muted);
+        margin-bottom: 0.15rem;
       }
-      .step {
-        display: grid;
-        grid-template-columns: 32px 1fr auto;
-        gap: 0.5rem;
-        align-items: center;
-        padding: 0.65rem 0.7rem;
-        border-radius: 9px;
-        border: 1px solid var(--border);
-        background: rgba(0, 0, 0, 0.22);
-        opacity: 0.4;
-        transition: 0.2s ease;
-      }
-      .step.on { opacity: 1; border-color: rgba(52, 211, 153, 0.45); box-shadow: 0 0 16px rgba(52, 211, 153, 0.08); }
-      .step.warn { opacity: 1; border-color: rgba(251, 191, 36, 0.5); }
-      .step.fail { opacity: 1; border-color: rgba(251, 113, 133, 0.55); }
-      .step .num {
-        width: 28px; height: 28px;
-        border-radius: 7px;
-        display: grid; place-items: center;
+      .dial label strong { color: var(--text); font-weight: 500; }
+      .dial .val {
         font-family: var(--mono);
-        font-size: 0.7rem;
-        background: rgba(56, 189, 248, 0.1);
+        font-size: 0.68rem;
         color: var(--sky2);
       }
-      .step .label { font-size: 0.84rem; font-weight: 600; }
-      .step .sub {
-        display: block;
-        font-size: 0.7rem;
-        color: var(--mute2);
-        font-weight: 400;
-        margin-top: 0.1rem;
+      input[type="range"] {
+        width: 100%;
+        accent-color: var(--sky);
+        cursor: pointer;
       }
-      .step .st {
+
+      /* Book */
+      .book {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.3);
+        padding: 0.55rem;
+        flex: 1;
+        min-height: 140px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+      .book-meta {
+        display: flex;
+        justify-content: space-between;
         font-family: var(--mono);
         font-size: 0.68rem;
         color: var(--mute2);
       }
-      .step.on .st { color: var(--ok); }
-      .step.warn .st { color: var(--warn); }
-      .step.fail .st { color: var(--bad); }
-
-      /* Result */
-      .result-hero {
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 0.85rem;
-        background: rgba(0, 0, 0, 0.28);
-        text-align: center;
-      }
-      .result-hero .status {
-        font-family: var(--mono);
-        font-size: 1.35rem;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        margin-bottom: 0.35rem;
-      }
-      .result-hero .status.ok { color: var(--ok); }
-      .result-hero .status.warn { color: var(--warn); }
-      .result-hero .status.gap { color: var(--bad); }
-      .result-hero .plain {
-        margin: 0;
-        font-size: 0.84rem;
-        color: var(--muted);
-        line-height: 1.45;
-      }
-
-      .kv {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.4rem;
-      }
-      .kv .cell {
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 0.55rem 0.5rem;
-        background: rgba(0, 0, 0, 0.22);
-      }
-      .kv .k {
-        font-size: 0.6rem;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: var(--mute2);
-        margin-bottom: 0.2rem;
-      }
-      .kv .v {
-        font-family: var(--mono);
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--sky2);
-      }
-
       .ladder {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 0.3rem;
         font-family: var(--mono);
-        font-size: 0.72rem;
+        font-size: 0.78rem;
+        flex: 1;
+      }
+      .side { display: flex; flex-direction: column; gap: 0.22rem; }
+      .side .cap {
+        font-size: 0.58rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--mute2);
+        margin-bottom: 0.1rem;
       }
       .lvl {
         display: flex;
         justify-content: space-between;
-        padding: 0.32rem 0.4rem;
+        padding: 0.35rem 0.4rem;
         border-radius: 5px;
       }
       .lvl.bid { background: rgba(52, 211, 153, 0.12); color: var(--ok); }
       .lvl.ask { background: rgba(251, 113, 133, 0.12); color: var(--bad); }
-      .badge {
-        font-family: var(--mono);
-        font-size: 0.72rem;
-        padding: 0.4rem 0.55rem;
-        border-radius: 8px;
-        border: 1px solid var(--border);
-        color: var(--muted);
+      .lvl.mid {
+        grid-column: 1 / -1;
         text-align: center;
+        font-family: var(--mono);
+        font-size: 0.85rem;
+        color: var(--sky2);
+        padding: 0.35rem;
+        border: 1px dashed rgba(56, 189, 248, 0.3);
+        border-radius: 6px;
       }
-      .badge.quote { color: var(--ok); border-color: rgba(52, 211, 153, 0.4); }
-      .badge.stand { color: var(--warn); border-color: rgba(251, 191, 36, 0.45); }
-      .badge.none { color: var(--bad); border-color: rgba(251, 113, 133, 0.45); }
 
-      .report {
+      .decision {
+        text-align: center;
+        padding: 0.7rem;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.28);
+      }
+      .decision .big {
+        font-family: var(--mono);
+        font-size: 1.15rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.25rem;
+      }
+      .decision .big.quote { color: var(--ok); }
+      .decision .big.stand { color: var(--warn); }
+      .decision .big.none { color: var(--bad); }
+      .decision .why {
+        margin: 0;
+        font-size: 0.78rem;
+        color: var(--muted);
+        line-height: 1.4;
+      }
+
+      .kv {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.35rem;
+      }
+      .kv .cell {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.45rem 0.5rem;
+        background: rgba(0, 0, 0, 0.22);
+      }
+      .kv .k {
+        font-size: 0.58rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--mute2);
+      }
+      .kv .v {
+        font-family: var(--mono);
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--sky2);
+        margin-top: 0.15rem;
+      }
+
+      .log {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        font-family: var(--mono);
+        font-size: 0.66rem;
+        line-height: 1.45;
+        color: var(--muted);
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.5rem 0.55rem;
+      }
+      .log .e { margin: 0.15rem 0; opacity: 0; transform: translateY(3px); transition: 0.25s ease; }
+      .log .e.show { opacity: 1; transform: none; }
+      .log .e.ok { color: var(--ok); }
+      .log .e.warn { color: var(--warn); }
+      .log .e.bad { color: var(--bad); }
+      .log .e.info { color: var(--sky2); }
+
+      .cron {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
         font-family: var(--mono);
         font-size: 0.7rem;
-        line-height: 1.5;
-        color: var(--muted);
-        background: rgba(0, 0, 0, 0.28);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 0.55rem 0.6rem;
-        white-space: pre-wrap;
-        min-height: 5.5em;
+        color: var(--mute2);
       }
-      .report .hdr { color: var(--sky2); }
+      .cron .clock { color: var(--sky2); font-weight: 600; }
 
       .blurb {
         position: fixed;
@@ -395,416 +388,460 @@
           <span class="mark">PM</span>
           <div>
             <h1>Polymarket shadow stack</h1>
-            <p>save live quotes each hour · evaluate strategies offline · report health</p>
+            <p>drive live quotes · break the feed · run hourly paper eval</p>
           </div>
         </div>
         <div class="top-links">
+          <span class="live-dot" id="liveDot"><i></i><span id="liveLabel">feed off</span></span>
           <a href="https://github.com/FiNdAlMkSkInDaL/Polymarket_bot" target="_blank" rel="noopener">repo</a>
           <a href="../">portfolio</a>
         </div>
       </header>
 
       <main class="stage">
-        <!-- 1 pick hour -->
+        <!-- Live feed controls -->
         <section class="panel">
           <div class="panel-h">
-            <h2>1 · Pick an hour</h2>
-            <span class="hint mono">demo day · UTC</span>
+            <h2>1 · Live quote feed (you drive it)</h2>
+            <span class="hint mono">simulates the data plane</span>
           </div>
           <div class="panel-body">
             <p class="story">
-              Every hour the system saves Polymarket best bid/ask quotes into a data lake.
-              Green = healthy file, amber = thin/stale, red = missing hour (a “temporal gap”).
+              Turn the feed on to stream synthetic L2 quotes into the current hour’s lake file.
+              Break the feed to create a temporal gap. Tweak the book and watch the paper decision flip.
             </p>
-            <div class="hours" id="hours"></div>
-            <div class="actions">
-              <button class="btn primary" id="play" type="button">Run this hour</button>
-              <button class="btn" id="gap" type="button">Break hour</button>
-              <button class="btn" id="heal" type="button">Heal all</button>
+            <div class="btn-row">
+              <button class="btn primary" id="btnFeed" type="button">Start live feed</button>
+              <button class="btn danger" id="btnKill" type="button">Kill feed (gap)</button>
             </div>
-          </div>
-        </section>
-
-        <!-- 2 pipeline -->
-        <section class="panel">
-          <div class="panel-h">
-            <h2>2 · Shadow pipeline</h2>
-            <span class="hint mono">no live orders — paper only</span>
-          </div>
-          <div class="panel-body">
-            <p class="story">
-              At minute :05 the shadow job runs on that hour’s file. It never places trades —
-              it only asks: “did we have clean data, and what would a strategy have done?”
-            </p>
-            <div class="pipe" id="pipe">
-              <div class="step" data-i="0">
-                <span class="num">1</span>
-                <div>
-                  <div class="label">Check market list</div>
-                  <span class="sub">Is metadata / universe cache fresh?</span>
-                </div>
-                <span class="st">idle</span>
-              </div>
-              <div class="step" data-i="1">
-                <span class="num">2</span>
-                <div>
-                  <div class="label">Load this hour’s quotes</div>
-                  <span class="sub">Open the lake shard for the selected hour</span>
-                </div>
-                <span class="st">idle</span>
-              </div>
-              <div class="step" data-i="2">
-                <span class="num">3</span>
-                <div>
-                  <div class="label">Run strategy wrappers</div>
-                  <span class="sub">Paper-evaluate signals on that hour</span>
-                </div>
-                <span class="st">idle</span>
-              </div>
-              <div class="step" data-i="3">
-                <span class="num">4</span>
-                <div>
-                  <div class="label">Write scorecard</div>
-                  <span class="sub">Receipts for the operator log</span>
-                </div>
-                <span class="st">idle</span>
-              </div>
-              <div class="step" data-i="4">
-                <span class="num">5</span>
-                <div>
-                  <div class="label">Send summary</div>
-                  <span class="sub">Operator card (Telegram-style)</span>
-                </div>
-                <span class="st">idle</span>
-              </div>
+            <div class="btn-row">
+              <button class="btn warn" id="btnToxic" type="button">Toxic / wide spread</button>
+              <button class="btn" id="btnCalm" type="button">Calm tight book</button>
             </div>
-          </div>
-        </section>
-
-        <!-- 3 result -->
-        <section class="panel">
-          <div class="panel-h">
-            <h2>3 · Hour result</h2>
-            <span class="hint mono" id="hourLabel">—</span>
-          </div>
-          <div class="panel-body">
-            <div class="result-hero">
-              <div class="status ok" id="heroStatus">READY</div>
-              <p class="plain" id="heroText">Pick an hour and press Run this hour.</p>
+            <div class="dial">
+              <label><strong>Mid price</strong><span class="val" id="vMid">0.500</span></label>
+              <input type="range" id="sMid" min="20" max="80" value="50" />
+            </div>
+            <div class="dial">
+              <label><strong>Spread (¢)</strong><span class="val" id="vSpr">2.0</span></label>
+              <input type="range" id="sSpr" min="1" max="20" value="2" />
+            </div>
+            <div class="dial">
+              <label><strong>Imbalance (−bid / +ask)</strong><span class="val" id="vImb">0.00</span></label>
+              <input type="range" id="sImb" min="-100" max="100" value="0" />
+            </div>
+            <div class="dial">
+              <label><strong>Markets tracked</strong><span class="val" id="vMkt">60</span></label>
+              <input type="range" id="sMkt" min="5" max="120" value="60" />
             </div>
             <div class="kv">
               <div class="cell">
-                <div class="k">Markets in file</div>
-                <div class="v" id="kvMarkets">—</div>
+                <div class="k">Quotes this hour</div>
+                <div class="v" id="kvQuotes">0</div>
               </div>
               <div class="cell">
-                <div class="k">Quotes written</div>
-                <div class="v" id="kvQuotes">—</div>
-              </div>
-              <div class="cell">
-                <div class="k">Data age</div>
-                <div class="v" id="kvFresh">—</div>
-              </div>
-              <div class="cell">
-                <div class="k">Mid (sample)</div>
-                <div class="v" id="kvMid">—</div>
+                <div class="k">Feed age</div>
+                <div class="v" id="kvAge">—</div>
               </div>
             </div>
-            <div>
-              <div class="panel-h" style="margin:0 0 0.35rem">
-                <h2 style="margin:0">Sample book + paper decision</h2>
+          </div>
+        </section>
+
+        <!-- Live book + paper decision -->
+        <section class="panel">
+          <div class="panel-h">
+            <h2>2 · Sample book + paper decision</h2>
+            <span class="hint mono">updates as you simulate</span>
+          </div>
+          <div class="panel-body">
+            <div class="book">
+              <div class="book-meta">
+                <span id="bookHour">hour 12:00 UTC</span>
+                <span id="bookStatus">no feed</span>
               </div>
               <div class="ladder" id="ladder"></div>
-              <div class="badge stand" id="badge" style="margin-top:0.45rem">paper: —</div>
             </div>
-            <div class="report" id="report">
-              <span class="hdr">operator card</span>
-              Waiting to run…
+            <div class="decision">
+              <div class="big stand" id="decBig">STAND DOWN</div>
+              <p class="why" id="decWhy">Start the live feed or tighten the book to see a paper quote.</p>
             </div>
+          </div>
+        </section>
+
+        <!-- Shadow hour + log -->
+        <section class="panel">
+          <div class="panel-h">
+            <h2>3 · Hourly shadow job</h2>
+            <span class="hint mono">paper eval · no live orders</span>
+          </div>
+          <div class="panel-body">
+            <p class="story">
+              This is the :05 cron. It freezes the current hour’s file and evaluates strategies offline.
+              You can run one shot, or auto-advance the clock through the day.
+            </p>
+            <div class="cron">
+              <span>clock</span>
+              <span class="clock" id="clock">12:00 UTC</span>
+              <span id="cronHint">· idle</span>
+            </div>
+            <div class="btn-row three">
+              <button class="btn primary" id="btnShadow" type="button">Run shadow now</button>
+              <button class="btn" id="btnAuto" type="button">Auto day</button>
+              <button class="btn" id="btnNext" type="button">Next hour →</button>
+            </div>
+            <div class="kv">
+              <div class="cell">
+                <div class="k">Hour file</div>
+                <div class="v" id="kvFile">empty</div>
+              </div>
+              <div class="cell">
+                <div class="k">Last shadow</div>
+                <div class="v" id="kvLast">—</div>
+              </div>
+            </div>
+            <div class="log" id="log" aria-live="polite"></div>
           </div>
         </section>
       </main>
     </div>
 
     <aside class="blurb" aria-label="About">
-      Polymarket bot is a live-data shadow stack: it continuously records L2 quotes,
-      then every hour evaluates strategy wrappers on that hour without placing real
-      orders — and surfaces data gaps so decisions are not made on stale history.
+      Polymarket bot is a live-data shadow stack: stream L2 quotes into hourly files, then evaluate
+      strategies on paper and surface gaps so you never trust a silent hole in history.
       This page is an interactive sketch of the shadow pipeline for demonstration purposes.
     </aside>
 
     <script>
-      const lake = [];
-      (function seed() {
-        let x = 99;
-        const r = () => {
-          x = (x * 48271) % 2147483647;
-          return (x - 1) / 2147483646;
-        };
-        for (let h = 0; h < 24; h++) {
-          let status = "ok";
-          const u = r();
-          if (u > 0.88) status = "warn";
-          if (h === 3 || h === 14) status = "gap";
-          lake.push({
-            hour: h,
-            status,
-            markets: status === "gap" ? 0 : 45 + Math.floor(r() * 70),
-            quotes: status === "gap" ? 0 : 9000 + Math.floor(r() * 11000),
-            freshnessSec:
-              status === "gap"
-                ? 9999
-                : status === "warn"
-                  ? 90 + Math.floor(r() * 180)
-                  : Math.floor(r() * 20),
-            bid: 0.41 + r() * 0.08,
-            ask: 0.49 + r() * 0.08,
-            imbalance: (r() - 0.5) * 0.45,
-          });
-        }
-      })();
+      const state = {
+        hour: 12,
+        feedOn: false,
+        feedDead: false,
+        mid: 0.5,
+        spread: 0.02,
+        imb: 0,
+        markets: 60,
+        quotes: 0,
+        lastTick: null,
+        autoDay: false,
+        shadowBusy: false,
+      };
 
-      let active = 12;
-      let playing = false;
+      let feedTimer = null;
+      let autoTimer = null;
 
-      function statusWord(s) {
-        if (s === "ok") return "healthy";
-        if (s === "warn") return "thin / stale";
-        return "missing";
+      function bid() {
+        return Math.max(0.01, state.mid - state.spread / 2);
+      }
+      function ask() {
+        return Math.min(0.99, state.mid + state.spread / 2);
       }
 
-      function renderHours() {
-        const box = document.getElementById("hours");
-        box.innerHTML = "";
-        // show a readable subset: every hour but compact — all 24 in scroll
-        lake.forEach((c, i) => {
-          const b = document.createElement("button");
-          b.type = "button";
-          b.className = "hour-btn" + (i === active ? " active" : "");
-          const hh = String(c.hour).padStart(2, "0") + ":00";
-          b.innerHTML =
-            '<span class="t">' +
-            hh +
-            '</span><span class="d">' +
-            (c.status === "gap"
-              ? "No quote file for this hour"
-              : c.markets + " markets · " + c.quotes.toLocaleString() + " quotes") +
-            '</span><span class="pill ' +
-            c.status +
-            '">' +
-            statusWord(c.status) +
-            "</span>";
-          b.onclick = () => {
-            active = i;
-            renderHours();
-            paintResult(false);
+      function log(msg, cls) {
+        const box = document.getElementById("log");
+        const t = new Date();
+        const ts =
+          String(t.getHours()).padStart(2, "0") +
+          ":" +
+          String(t.getMinutes()).padStart(2, "0") +
+          ":" +
+          String(t.getSeconds()).padStart(2, "0");
+        const el = document.createElement("div");
+        el.className = "e " + (cls || "info");
+        el.textContent = ts + "  " + msg;
+        box.prepend(el);
+        requestAnimationFrame(() => el.classList.add("show"));
+        while (box.children.length > 40) box.removeChild(box.lastChild);
+      }
+
+      function paperDecision() {
+        if (state.feedDead || state.quotes === 0) {
+          return {
+            cls: "none",
+            title: "STAND DOWN",
+            why: "No usable quotes in this hour file — paper strategies skip.",
           };
-          box.appendChild(b);
-        });
+        }
+        const spr = state.spread;
+        const age = state.lastTick ? (Date.now() - state.lastTick) / 1000 : 999;
+        if (age > 8 && !state.feedOn) {
+          return {
+            cls: "stand",
+            title: "STAND DOWN",
+            why: "Feed is off and data is getting stale (" + age.toFixed(0) + "s).",
+          };
+        }
+        if (spr >= 0.08 || Math.abs(state.imb) > 0.55) {
+          return {
+            cls: "stand",
+            title: "STAND DOWN",
+            why: "Book looks toxic/wide (spread " + (spr * 100).toFixed(1) + "¢, imbalance " + state.imb.toFixed(2) + ").",
+          };
+        }
+        return {
+          cls: "quote",
+          title: "WOULD QUOTE",
+          why:
+            "Tight book — paper mid " +
+            state.mid.toFixed(3) +
+            " ± " +
+            (state.spread / 2).toFixed(3) +
+            " on " +
+            state.markets +
+            " markets.",
+        };
       }
 
-      function paintLadder(c) {
-        const box = document.getElementById("ladder");
-        const badge = document.getElementById("badge");
-        box.innerHTML = "";
-        if (c.status === "gap") {
-          box.innerHTML =
-            '<div style="grid-column:1/-1;color:var(--bad);font-family:var(--mono);font-size:0.75rem">No book — hour file missing</div>';
-          badge.className = "badge none";
-          badge.textContent = "paper: STAND DOWN (no data)";
-          return;
+      function renderBook() {
+        const b = bid();
+        const a = ask();
+        const ladder = document.getElementById("ladder");
+        let html = "";
+        html += '<div class="side"><div class="cap">asks</div>';
+        for (let i = 3; i >= 1; i--) {
+          const px = Math.min(0.99, a + i * 0.01);
+          const sz = Math.floor(40 + i * 25 + Math.abs(state.imb) * 30);
+          html += '<div class="lvl ask"><span>' + px.toFixed(3) + "</span><span>" + sz + "</span></div>";
         }
-        for (let i = 2; i >= 1; i--) {
-          const row = document.createElement("div");
-          row.className = "lvl ask";
-          row.innerHTML =
-            "<span>" +
-            (c.ask + i * 0.01).toFixed(3) +
-            "</span><span>" +
-            Math.floor(60 + i * 40) +
-            "</span>";
-          box.appendChild(row);
+        html += "</div><div class='side'><div class='cap'>bids</div>";
+        for (let i = 1; i <= 3; i++) {
+          const px = Math.max(0.01, b - i * 0.01);
+          const sz = Math.floor(45 + i * 22 + Math.max(0, -state.imb) * 40);
+          html += '<div class="lvl bid"><span>' + px.toFixed(3) + "</span><span>" + sz + "</span></div>";
         }
-        for (let i = 1; i <= 2; i++) {
-          const row = document.createElement("div");
-          row.className = "lvl bid";
-          row.innerHTML =
-            "<span>" +
-            (c.bid - i * 0.01).toFixed(3) +
-            "</span><span>" +
-            Math.floor(70 + i * 35) +
-            "</span>";
-          box.appendChild(row);
-        }
-        const mid = (c.bid + c.ask) / 2;
-        if (c.status === "warn" || Math.abs(c.imbalance) > 0.15 || c.ask - c.bid > 0.08) {
-          badge.className = "badge stand";
-          badge.textContent = "paper: STAND DOWN (wide/toxic book)";
+        html += "</div>";
+        html +=
+          '<div class="lvl mid">mid ' +
+          state.mid.toFixed(3) +
+          " · spread " +
+          (state.spread * 100).toFixed(1) +
+          "¢</div>";
+        ladder.innerHTML = html;
+
+        document.getElementById("bookHour").textContent =
+          "hour " + String(state.hour).padStart(2, "0") + ":00 UTC";
+        document.getElementById("bookStatus").textContent = state.feedDead
+          ? "FEED DEAD"
+          : state.feedOn
+            ? "LIVE"
+            : state.quotes
+              ? "paused · " + state.quotes + " quotes"
+              : "empty hour";
+
+        const dec = paperDecision();
+        const big = document.getElementById("decBig");
+        big.className = "big " + dec.cls;
+        big.textContent = dec.title;
+        document.getElementById("decWhy").textContent = dec.why;
+
+        document.getElementById("kvQuotes").textContent = state.quotes.toLocaleString();
+        if (state.feedDead) {
+          document.getElementById("kvAge").textContent = "gap";
+          document.getElementById("kvFile").textContent = "MISSING";
+        } else if (!state.lastTick) {
+          document.getElementById("kvAge").textContent = "—";
+          document.getElementById("kvFile").textContent = state.quotes ? "open" : "empty";
         } else {
-          badge.className = "badge quote";
-          badge.textContent = "paper: would quote mid " + mid.toFixed(3) + " ± 0.02";
-        }
-      }
-
-      function paintResult(ran) {
-        const c = lake[active];
-        const hh = String(c.hour).padStart(2, "0") + ":00 UTC";
-        document.getElementById("hourLabel").textContent = hh;
-
-        const hero = document.getElementById("heroStatus");
-        const text = document.getElementById("heroText");
-        hero.className = "status " + c.status;
-        if (!ran) {
-          hero.textContent = c.status === "gap" ? "GAP" : c.status === "warn" ? "THIN" : "OK FILE";
-          text.textContent =
-            c.status === "gap"
-              ? "This hour has no lake file. Press Run to see the pipeline skip trading logic."
-              : "Quote file present. Press Run this hour to walk the shadow pipeline.";
+          const age = ((Date.now() - state.lastTick) / 1000).toFixed(0);
+          document.getElementById("kvAge").textContent = age + "s";
+          document.getElementById("kvFile").textContent = state.quotes + " quotes";
         }
 
-        document.getElementById("kvMarkets").textContent =
-          c.status === "gap" ? "0" : String(c.markets);
-        document.getElementById("kvQuotes").textContent =
-          c.status === "gap" ? "0" : c.quotes.toLocaleString();
-        document.getElementById("kvFresh").textContent =
-          c.status === "gap" ? "n/a" : c.freshnessSec + "s";
-        document.getElementById("kvMid").textContent =
-          c.status === "gap" ? "—" : ((c.bid + c.ask) / 2).toFixed(3);
-
-        paintLadder(c);
+        document.getElementById("clock").textContent =
+          String(state.hour).padStart(2, "0") + ":00 UTC";
       }
 
-      function resetPipe() {
-        document.querySelectorAll(".step").forEach((s) => {
-          s.classList.remove("on", "warn", "fail");
-          s.querySelector(".st").textContent = "idle";
-        });
+      function tickFeed() {
+        if (!state.feedOn || state.feedDead) return;
+        // small random walk
+        state.mid = Math.min(0.95, Math.max(0.05, state.mid + (Math.random() - 0.5) * 0.006));
+        state.imb = Math.max(-1, Math.min(1, state.imb + (Math.random() - 0.5) * 0.08));
+        state.quotes += Math.floor(3 + Math.random() * 12);
+        state.lastTick = Date.now();
+        // sync sliders lightly
+        document.getElementById("sMid").value = Math.round(state.mid * 100);
+        document.getElementById("vMid").textContent = state.mid.toFixed(3);
+        document.getElementById("sImb").value = Math.round(state.imb * 100);
+        document.getElementById("vImb").textContent = state.imb.toFixed(2);
+        renderBook();
       }
 
-      async function play() {
-        if (playing) return;
-        playing = true;
-        resetPipe();
-        const c = lake[active];
-        const steps = [
-          { ok: true, label: "ok", cls: "on" },
-          {
-            ok: c.status !== "gap",
-            label: c.status === "gap" ? "FAIL" : c.status === "warn" ? "thin" : "ok",
-            cls: c.status === "gap" ? "fail" : c.status === "warn" ? "warn" : "on",
-          },
-          {
-            ok: c.status !== "gap",
-            label: c.status === "gap" ? "skip" : "ok",
-            cls: c.status === "gap" ? "warn" : "on",
-          },
-          {
-            ok: c.status !== "gap",
-            label: c.status === "gap" ? "empty" : "ok",
-            cls: c.status === "gap" ? "warn" : "on",
-          },
-          { ok: true, label: "sent", cls: "on" },
-        ];
-        const nodes = [...document.querySelectorAll(".step")];
-        for (let i = 0; i < nodes.length; i++) {
-          await new Promise((r) => setTimeout(r, 340));
-          nodes[i].classList.add(steps[i].cls);
-          nodes[i].querySelector(".st").textContent = steps[i].label;
-        }
-
-        const hero = document.getElementById("heroStatus");
-        const text = document.getElementById("heroText");
-        const report = document.getElementById("report");
-        const stamp = "2026-07-13T" + String(c.hour).padStart(2, "0") + ":05:00Z";
-
-        if (c.status === "gap") {
-          hero.className = "status gap";
-          hero.textContent = "DEGRADED";
-          text.textContent =
-            "No quote file for this hour. Strategies were not evaluated. Operator is paged so nobody trusts a silent hole in the lake.";
-          report.innerHTML =
-            '<span class="hdr">operator card · ' +
-            stamp +
-            "</span>\n" +
-            "status: DEGRADED\n" +
-            "reason: temporal gap (missing hour shard)\n" +
-            "strategies: skipped\n" +
-            "action: investigate data plane — do not promote";
-        } else if (c.status === "warn") {
-          hero.className = "status warn";
-          hero.textContent = "DEGRADED";
-          text.textContent =
-            "File exists but looks thin/stale. Pipeline ran; paper decision is cautious (stand down on toxic/wide book).";
-          report.innerHTML =
-            '<span class="hdr">operator card · ' +
-            stamp +
-            "</span>\n" +
-            "status: DEGRADED\n" +
-            "markets: " +
-            c.markets +
-            " · quotes: " +
-            c.quotes +
-            "\n" +
-            "freshness: " +
-            c.freshnessSec +
-            "s\n" +
-            "paper: " +
-            document.getElementById("badge").textContent +
-            "\n" +
-            "note: paper shadow only · no live orders";
+      function setFeed(on) {
+        state.feedOn = on;
+        if (on) {
+          state.feedDead = false;
+          if (!state.quotes) state.quotes = 20;
+          state.lastTick = Date.now();
+          document.getElementById("btnFeed").textContent = "Pause feed";
+          document.getElementById("btnFeed").classList.add("on");
+          document.getElementById("liveDot").classList.add("on");
+          document.getElementById("liveLabel").textContent = "feed live";
+          if (!feedTimer) feedTimer = setInterval(tickFeed, 450);
+          log("live feed ON · writing quotes into hour " + String(state.hour).padStart(2, "0"), "ok");
         } else {
-          hero.className = "status ok";
-          hero.textContent = "OK";
-          text.textContent =
-            "Healthy hour file. Shadow strategies evaluated on paper; summary sent to the operator.";
-          report.innerHTML =
-            '<span class="hdr">operator card · ' +
-            stamp +
-            "</span>\n" +
-            "status: OK\n" +
-            "markets: " +
-            c.markets +
-            " · quotes: " +
-            c.quotes +
-            "\n" +
-            "freshness: " +
-            c.freshnessSec +
-            "s\n" +
-            "paper: " +
-            document.getElementById("badge").textContent +
-            "\n" +
-            "note: paper shadow only · no live orders";
-        }
-        paintLadder(c);
-        playing = false;
-      }
-
-      document.getElementById("play").onclick = play;
-      document.getElementById("gap").onclick = () => {
-        lake[active].status = "gap";
-        lake[active].markets = 0;
-        lake[active].quotes = 0;
-        lake[active].freshnessSec = 9999;
-        renderHours();
-        paintResult(false);
-        resetPipe();
-      };
-      document.getElementById("heal").onclick = () => {
-        lake.forEach((c, i) => {
-          if (c.status === "gap" || c.status === "warn") {
-            c.status = "ok";
-            c.markets = 55 + (i * 5) % 40;
-            c.quotes = 10000 + i * 120;
-            c.freshnessSec = 8 + (i % 10);
+          document.getElementById("btnFeed").textContent = "Start live feed";
+          document.getElementById("btnFeed").classList.remove("on");
+          document.getElementById("liveDot").classList.remove("on");
+          document.getElementById("liveLabel").textContent = "feed off";
+          if (feedTimer) {
+            clearInterval(feedTimer);
+            feedTimer = null;
           }
-        });
-        renderHours();
-        paintResult(false);
-        resetPipe();
-      };
+          log("live feed paused", "warn");
+        }
+        renderBook();
+      }
 
-      renderHours();
-      paintResult(false);
+      function killFeed() {
+        setFeed(false);
+        state.feedDead = true;
+        state.quotes = 0;
+        state.lastTick = null;
+        log("TEMPORAL GAP · hour " + String(state.hour).padStart(2, "0") + " file wiped", "bad");
+        renderBook();
+      }
+
+      function toxic() {
+        state.spread = 0.12;
+        state.imb = 0.7;
+        document.getElementById("sSpr").value = 12;
+        document.getElementById("vSpr").textContent = "12.0";
+        document.getElementById("sImb").value = 70;
+        document.getElementById("vImb").textContent = "0.70";
+        if (!state.feedDead && state.quotes < 10) state.quotes = 40;
+        state.lastTick = Date.now();
+        log("injected toxic/wide book", "warn");
+        renderBook();
+      }
+
+      function calm() {
+        state.spread = 0.02;
+        state.imb = 0.05;
+        state.feedDead = false;
+        document.getElementById("sSpr").value = 2;
+        document.getElementById("vSpr").textContent = "2.0";
+        document.getElementById("sImb").value = 5;
+        document.getElementById("vImb").textContent = "0.05";
+        if (state.quotes < 30) state.quotes = 80;
+        state.lastTick = Date.now();
+        log("book reset to calm/tight", "ok");
+        renderBook();
+      }
+
+      function runShadow() {
+        if (state.shadowBusy) return;
+        state.shadowBusy = true;
+        const hh = String(state.hour).padStart(2, "0");
+        log("shadow job start · " + hh + ":05 UTC", "info");
+        const steps = [
+          "metadata preflight…",
+          "load hour shard…",
+          "strategy wrappers…",
+          "scorecard…",
+          "operator summary…",
+        ];
+        let i = 0;
+        const tick = () => {
+          if (i < steps.length) {
+            log("  " + steps[i], "info");
+            i++;
+            setTimeout(tick, 220);
+            return;
+          }
+          const dec = paperDecision();
+          if (state.feedDead || state.quotes === 0) {
+            log("shadow DEGRADED · temporal gap · strategies skipped", "bad");
+            document.getElementById("kvLast").textContent = "GAP";
+          } else if (dec.cls === "stand") {
+            log("shadow DEGRADED · paper " + dec.title + " · " + dec.why, "warn");
+            document.getElementById("kvLast").textContent = "CAUTIOUS";
+          } else {
+            log("shadow OK · paper " + dec.title + " · " + state.quotes + " quotes", "ok");
+            document.getElementById("kvLast").textContent = "OK";
+          }
+          state.shadowBusy = false;
+          document.getElementById("cronHint").textContent = "· last run done";
+        };
+        tick();
+      }
+
+      function nextHour() {
+        // roll hour, optionally keep feed
+        state.hour = (state.hour + 1) % 24;
+        state.quotes = state.feedOn && !state.feedDead ? 15 : 0;
+        if (!state.feedOn) state.lastTick = state.quotes ? Date.now() : null;
+        log("clock → hour " + String(state.hour).padStart(2, "0") + ":00 (new shard)", "info");
+        renderBook();
+      }
+
+      function setAuto(on) {
+        state.autoDay = on;
+        const btn = document.getElementById("btnAuto");
+        if (on) {
+          btn.classList.add("on");
+          btn.textContent = "Auto day ON";
+          document.getElementById("cronHint").textContent = "· auto advancing";
+          if (!state.feedOn && !state.feedDead) setFeed(true);
+          if (!autoTimer) {
+            autoTimer = setInterval(() => {
+              runShadow();
+              setTimeout(nextHour, 900);
+            }, 2800);
+          }
+          log("auto day simulation ON", "ok");
+        } else {
+          btn.classList.remove("on");
+          btn.textContent = "Auto day";
+          document.getElementById("cronHint").textContent = "· idle";
+          if (autoTimer) {
+            clearInterval(autoTimer);
+            autoTimer = null;
+          }
+          log("auto day OFF", "warn");
+        }
+      }
+
+      function bindDials() {
+        const mid = document.getElementById("sMid");
+        const spr = document.getElementById("sSpr");
+        const imb = document.getElementById("sImb");
+        const mkt = document.getElementById("sMkt");
+        mid.oninput = () => {
+          state.mid = Number(mid.value) / 100;
+          document.getElementById("vMid").textContent = state.mid.toFixed(3);
+          if (state.quotes < 5 && !state.feedDead) state.quotes = 25;
+          state.lastTick = Date.now();
+          renderBook();
+        };
+        spr.oninput = () => {
+          state.spread = Number(spr.value) / 100;
+          document.getElementById("vSpr").textContent = Number(spr.value).toFixed(1);
+          state.lastTick = Date.now();
+          renderBook();
+        };
+        imb.oninput = () => {
+          state.imb = Number(imb.value) / 100;
+          document.getElementById("vImb").textContent = state.imb.toFixed(2);
+          state.lastTick = Date.now();
+          renderBook();
+        };
+        mkt.oninput = () => {
+          state.markets = Number(mkt.value);
+          document.getElementById("vMkt").textContent = String(state.markets);
+          renderBook();
+        };
+      }
+
+      document.getElementById("btnFeed").onclick = () => setFeed(!state.feedOn);
+      document.getElementById("btnKill").onclick = killFeed;
+      document.getElementById("btnToxic").onclick = toxic;
+      document.getElementById("btnCalm").onclick = calm;
+      document.getElementById("btnShadow").onclick = runShadow;
+      document.getElementById("btnNext").onclick = nextHour;
+      document.getElementById("btnAuto").onclick = () => setAuto(!state.autoDay);
+
+      bindDials();
+      renderBook();
+      log("sim ready · start the live feed or drag the book dials", "info");
     </script>
   </body>
 </html>
