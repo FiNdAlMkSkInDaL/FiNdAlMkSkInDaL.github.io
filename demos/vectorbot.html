@@ -1,113 +1,561 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>VectorBot Static Demo</title>
-  <style>
-    body { margin: 0; font-family: Arial, sans-serif; color: #111827; background: #f8fafc; }
-    main { max-width: 1100px; margin: 0 auto; padding: 28px; }
-    h1 { margin: 0 0 8px; font-size: 32px; }
-    .pitch { margin-bottom: 24px; color: #475569; }
-    .layout { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
-    .panel { background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 16px; }
-    .grid { display: grid; grid-template-columns: repeat(5, 42px); gap: 5px; margin-top: 10px; }
-    .cell { width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid #64748b; background: #eef2ff; }
-    .bot { background: #facc15; font-weight: 700; }
-    button { display: block; width: 100%; margin: 8px 0; padding: 9px; border: 1px solid #94a3b8; border-radius: 6px; background: #fff; cursor: pointer; text-align: left; }
-    button:hover { background: #e0f2fe; }
-    .bar { height: 18px; margin: 8px 0; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
-    .fill { height: 100%; background: #2563eb; }
-    .scatter { width: 100%; height: 240px; border: 1px solid #cbd5e1; background: #f8fafc; }
-    .dot { position: absolute; width: 10px; height: 10px; border-radius: 50%; transform: translate(-5px, -5px); }
-    .scatter-wrap { position: relative; }
-    @media (max-width: 850px) { .layout { grid-template-columns: 1fr; } }
-  </style>
-</head>
-<body>
-<main>
-  <h1>Tiny Latent Control Lab</h1>
-  <div class="pitch">Replay of <code>artifacts/vectorbot_routes_full.jsonl</code> and <code>artifacts/vectorbot_projection_full.csv</code> where available.</div>
-  <div class="layout">
-    <section class="panel">
-      <h2>Commands</h2>
-      <div id="commands"></div>
-    </section>
-    <section class="panel">
-      <h2>VectorBot</h2>
-      <div id="state"></div>
-      <div class="grid" id="grid"></div>
-    </section>
-    <section class="panel">
-      <h2>Probe</h2>
-      <div id="prediction"></div>
-      <div id="bars"></div>
-    </section>
-  </div>
-  <section class="panel" style="margin-top:18px;">
-    <h2>Latent Projection</h2>
-    <div class="scatter-wrap">
-      <svg class="scatter" viewBox="-1.6 -1.4 3.2 2.8" id="scatter"></svg>
-    </div>
-  </section>
-</main>
-<script>
-const examples = [
-  {text:"go north", label:"MOVE_UP", accepted:true, probs:[["MOVE_UP",0.992],["ABSTAIN",0.007],["TOGGLE_LIGHT",0.000]], x:0.1, y:-1.0},
-  {text:"take one step south", label:"MOVE_DOWN", accepted:true, probs:[["MOVE_DOWN",0.999],["MOVE_UP",0.000],["ABSTAIN",0.000]], x:0.8, y:-0.8},
-  {text:"slide left", label:"MOVE_LEFT", accepted:true, probs:[["MOVE_LEFT",0.999],["ABSTAIN",0.000],["TOGGLE_LIGHT",0.000]], x:-0.9, y:0.1},
-  {text:"move the bot right", label:"MOVE_RIGHT", accepted:true, probs:[["MOVE_RIGHT",0.986],["ABSTAIN",0.010],["MOVE_UP",0.004]], x:1.0, y:0.1},
-  {text:"toggle the lamp", label:"TOGGLE_LIGHT", accepted:true, probs:[["TOGGLE_LIGHT",0.998],["ABSTAIN",0.002],["RESET",0.000]], x:-0.7, y:0.9},
-  {text:"reset the board", label:"RESET", accepted:true, probs:[["RESET",1.000],["ABSTAIN",0.000],["MOVE_UP",0.000]], x:-1.0, y:-0.1},
-  {text:"what is the weather tomorrow?", label:"ABSTAIN", accepted:false, probs:[["ABSTAIN",0.991],["MOVE_UP",0.009],["TOGGLE_LIGHT",0.000]], x:0.5, y:1.0},
-  {text:"delete all files on this laptop", label:"ABSTAIN", accepted:false, probs:[["ABSTAIN",0.996],["RESET",0.004],["MOVE_DOWN",0.000]], x:0.35, y:0.85},
-  {text:"move up and then right", label:"ABSTAIN", accepted:false, probs:[["ABSTAIN",0.981],["MOVE_UP",0.012],["MOVE_RIGHT",0.006]], x:0.6, y:0.72},
-  {text:"paint the robot purple", label:"ABSTAIN", accepted:false, probs:[["ABSTAIN",1.000],["RESET",0.000],["TOGGLE_LIGHT",0.000]], x:0.45, y:0.62}
-];
-let state = {x:2, y:2, light:false, step:0, mode:"idle"};
-function apply(label) {
-  if (label === "MOVE_UP") state.y = Math.max(0, state.y - 1);
-  if (label === "MOVE_DOWN") state.y = Math.min(4, state.y + 1);
-  if (label === "MOVE_LEFT") state.x = Math.max(0, state.x - 1);
-  if (label === "MOVE_RIGHT") state.x = Math.min(4, state.x + 1);
-  if (label === "TOGGLE_LIGHT") { state.light = !state.light; state.mode = state.light ? "lit" : "idle"; }
-  if (label === "RESET") state = {x:2, y:2, light:false, step:0, mode:"idle"};
-  if (label !== "ABSTAIN") state.step += label === "RESET" ? 0 : 1;
-}
-function renderGrid() {
-  document.getElementById("state").textContent = `step=${state.step} light=${state.light ? "ON" : "OFF"} mode=${state.mode}`;
-  const grid = document.getElementById("grid");
-  grid.innerHTML = "";
-  for (let y = 0; y < 5; y++) for (let x = 0; x < 5; x++) {
-    const cell = document.createElement("div");
-    cell.className = "cell" + (x === state.x && y === state.y ? " bot" : "");
-    cell.textContent = x === state.x && y === state.y ? (state.light ? "*" : "B") : ".";
-    grid.appendChild(cell);
-  }
-}
-function selectExample(ex) {
-  if (ex.accepted) apply(ex.label);
-  renderGrid();
-  document.getElementById("prediction").textContent = `${ex.text} -> ${ex.label} accepted=${ex.accepted}`;
-  document.getElementById("bars").innerHTML = ex.probs.map(([label, value]) =>
-    `<div>${label} ${value.toFixed(2)}<div class="bar"><div class="fill" style="width:${value*100}%"></div></div></div>`
-  ).join("");
-}
-document.getElementById("commands").innerHTML = examples.map((ex, i) =>
-  `<button onclick="selectExample(examples[${i}])">${ex.text}</button>`
-).join("");
-const svg = document.getElementById("scatter");
-examples.forEach(ex => {
-  const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-  dot.setAttribute("cx", ex.x); dot.setAttribute("cy", ex.y); dot.setAttribute("r", "0.055");
-  dot.setAttribute("fill", ex.accepted ? "#2563eb" : "#525252");
-  const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
-  title.textContent = `${ex.text} -> ${ex.label}`;
-  dot.appendChild(title);
-  svg.appendChild(dot);
-});
-renderGrid();
-selectExample(examples[0]);
-</script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tiny Latent Control Lab · VectorBot</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #070a12;
+        --panel: #0c1220;
+        --elev: #121a2b;
+        --border: rgba(148, 163, 184, 0.16);
+        --text: #e8eef7;
+        --dim: #94a3b8;
+        --mute: #64748b;
+        --cyan: #22d3ee;
+        --cyan2: #67e8f9;
+        --green: #34d399;
+        --rose: #fb7185;
+        --amber: #fbbf24;
+        --font: Inter, system-ui, sans-serif;
+        --mono: "JetBrains Mono", ui-monospace, monospace;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; min-height: 100%; }
+      body {
+        font-family: var(--font);
+        color: var(--text);
+        background: var(--bg);
+        -webkit-font-smoothing: antialiased;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(ellipse 70% 40% at 10% 0%, rgba(34, 211, 238, 0.1), transparent 50%),
+          radial-gradient(ellipse 50% 35% at 90% 15%, rgba(37, 99, 235, 0.12), transparent 45%);
+        z-index: 0;
+      }
+      main {
+        position: relative;
+        z-index: 1;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 1.5rem 1.15rem 2.5rem;
+      }
+      .header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 0.65rem 1rem;
+        margin-bottom: 0.35rem;
+      }
+      h1 {
+        margin: 0;
+        font-size: 1.55rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+      .sub {
+        font-size: 0.82rem;
+        color: var(--mute);
+      }
+      .caption {
+        font-size: 0.78rem;
+        color: var(--dim);
+        margin: 0 0 1.15rem;
+      }
+      .caption .dot {
+        color: var(--green);
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-bottom: 1rem;
+      }
+      .chip {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--elev);
+        color: var(--dim);
+        cursor: pointer;
+        transition: 0.12s ease;
+      }
+      .chip:hover, .chip.active {
+        color: var(--cyan2);
+        border-color: rgba(34, 211, 238, 0.45);
+        background: rgba(34, 211, 238, 0.08);
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 1.15fr 1fr;
+        gap: 1rem;
+      }
+      @media (max-width: 860px) {
+        .layout { grid-template-columns: 1fr; }
+      }
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1rem 1.05rem 1.1rem;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      }
+      .panel h2 {
+        margin: 0 0 0.65rem;
+        font-size: 0.72rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--mute);
+        font-weight: 600;
+      }
+      .input-row {
+        display: flex;
+        gap: 0.45rem;
+        margin-bottom: 0.65rem;
+      }
+      #cmd {
+        flex: 1;
+        padding: 0.7rem 0.85rem;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: var(--elev);
+        color: var(--text);
+        font-size: 0.92rem;
+        font-family: var(--font);
+      }
+      #cmd:focus {
+        outline: none;
+        border-color: rgba(34, 211, 238, 0.5);
+      }
+      .btn {
+        padding: 0.7rem 0.95rem;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: var(--elev);
+        color: var(--dim);
+        font-weight: 650;
+        font-size: 0.85rem;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .btn.primary {
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.25), rgba(37, 99, 235, 0.35));
+        border-color: rgba(34, 211, 238, 0.5);
+        color: var(--cyan2);
+      }
+      .btn:hover { filter: brightness(1.08); }
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.45rem;
+        margin-bottom: 0.85rem;
+      }
+      .result {
+        margin-bottom: 0.85rem;
+        padding: 0.7rem 0.8rem;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.2);
+        font-family: var(--mono);
+        font-size: 0.78rem;
+        line-height: 1.45;
+      }
+      .result .ok { color: var(--green); font-weight: 700; }
+      .result .no { color: var(--rose); font-weight: 700; }
+      .result .lbl { color: var(--cyan2); }
+      .probe-box {
+        background: #0a0f1e;
+        border: 2px solid #1e40af;
+        border-radius: 10px;
+        padding: 0.85rem 0.9rem;
+      }
+      .probe-title {
+        font-size: 0.9rem;
+        font-weight: 650;
+        color: var(--cyan2);
+        margin-bottom: 0.2rem;
+      }
+      .probe-note {
+        font-size: 0.68rem;
+        color: var(--mute);
+        margin-bottom: 0.55rem;
+      }
+      .prob-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 5px 0;
+      }
+      .prob-lab {
+        width: 108px;
+        font-size: 0.7rem;
+        color: #bae6fd;
+        text-align: right;
+        font-family: var(--mono);
+      }
+      .prob-track {
+        flex: 1;
+        background: #1e2937;
+        height: 20px;
+        border-radius: 3px;
+        overflow: hidden;
+        border: 1px solid #334155;
+      }
+      .prob-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #22d3ee, #67e8f9);
+        box-shadow: 0 0 8px #67e8f9;
+        transition: width 900ms cubic-bezier(0.23, 1, 0.32, 1);
+      }
+      .prob-fill.hit {
+        background: linear-gradient(90deg, #10b981, #34d399);
+        box-shadow: 0 0 8px #34d399;
+      }
+      .prob-fill.abstain {
+        background: linear-gradient(90deg, #f43f5e, #fb7185);
+        box-shadow: 0 0 8px #fb7185;
+      }
+      .prob-pct {
+        width: 54px;
+        font-size: 0.7rem;
+        color: #e0f2fe;
+        font-family: var(--mono);
+      }
+      .grid-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .state-line {
+        font-family: var(--mono);
+        font-size: 0.75rem;
+        color: var(--dim);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(5, 52px);
+        gap: 6px;
+      }
+      .cell {
+        width: 52px;
+        height: 52px;
+        border-radius: 8px;
+        border: 1px solid #334155;
+        background: #0f172a;
+        display: grid;
+        place-items: center;
+        font-family: var(--mono);
+        font-size: 0.85rem;
+        color: #475569;
+        transition: background 0.2s ease, box-shadow 0.2s ease;
+      }
+      .cell.bot {
+        background: linear-gradient(145deg, #facc15, #eab308);
+        color: #0f172a;
+        font-weight: 800;
+        border-color: #fde047;
+        box-shadow: 0 0 18px rgba(250, 204, 21, 0.45);
+      }
+      .cell.bot.lit {
+        box-shadow: 0 0 28px rgba(250, 204, 21, 0.75), 0 0 40px rgba(34, 211, 238, 0.25);
+      }
+      .compare {
+        margin-top: 1rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+      }
+      @media (max-width: 700px) {
+        .compare { grid-template-columns: 1fr; }
+        .grid { grid-template-columns: repeat(5, 44px); }
+        .cell { width: 44px; height: 44px; }
+      }
+      .cmp {
+        padding: 0.75rem;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(0,0,0,0.18);
+        font-size: 0.78rem;
+      }
+      .cmp h3 {
+        margin: 0 0 0.35rem;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--mute);
+      }
+      .cmp.safe { border-color: rgba(16, 185, 129, 0.35); }
+      .cmp.danger { border-color: rgba(244, 63, 94, 0.4); }
+      .cmp .tag { font-family: var(--mono); font-weight: 700; }
+      .foot {
+        margin-top: 1.25rem;
+        font-size: 0.72rem;
+        color: var(--mute);
+        line-height: 1.45;
+      }
+      .back {
+        display: inline-block;
+        margin-bottom: 1rem;
+        font-size: 0.8rem;
+        color: var(--mute);
+        text-decoration: none;
+      }
+      .back:hover { color: var(--cyan); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a class="back" href="../">← Portfolio</a>
+      <div class="header">
+        <h1>Tiny Latent Control Lab</h1>
+        <span class="sub">zero-generation · frozen activations → typed actions</span>
+      </div>
+      <p class="caption">
+        <span class="dot">●</span> Interactive replay of real distilgpt2 probe routes
+        (artifacts from the VectorBot full CPU run) · no model.generate() on the action path
+      </p>
+
+      <div class="chips" id="chips"></div>
+
+      <div class="layout">
+        <section class="panel">
+          <h2>Natural language command</h2>
+          <div class="input-row">
+            <input id="cmd" type="text" value="go north" spellcheck="false" />
+          </div>
+          <div class="actions">
+            <button class="btn primary" id="routeBtn" type="button">Route with latent vector</button>
+            <button class="btn" id="resetBtn" type="button">Reset grid</button>
+          </div>
+          <div class="result" id="result">Click a command or route to run the probe path.</div>
+          <div class="probe-box" id="probe">
+            <div class="probe-title">Probe output — probability distribution</div>
+            <div class="probe-note">
+              Linear probe maps the 768-d activation vector to 7 actions (softmax ≈ 100%).
+            </div>
+            <div id="bars"></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Current state (latent-routed)</h2>
+          <div class="grid-wrap">
+            <div class="state-line" id="stateLine">step=0 · light=OFF · mode=idle</div>
+            <div class="grid" id="grid"></div>
+          </div>
+          <div class="compare">
+            <div class="cmp safe" id="cmpLatent">
+              <h3>Latent path (this demo)</h3>
+              <div class="tag" id="cmpLatentOut">—</div>
+            </div>
+            <div class="cmp" id="cmpNaive">
+              <h3>Naive generate+parse (simulated)</h3>
+              <div class="tag" id="cmpNaiveOut">—</div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <p class="foot">
+        Core invariant: action is chosen from activation vector + probe only. The kernel never
+        parses natural language. Source:
+        <a href="https://github.com/FiNdAlMkSkInDaL/Zero-Dimensional-API" style="color: var(--cyan)"
+          >Zero-Dimensional-API</a
+        >
+        · for full live inference: <code>streamlit run streamlit_app.py</code>
+      </p>
+    </main>
+
+    <script>
+      let EXAMPLES = [];
+      let state = { x: 2, y: 2, light: false, step: 0, mode: "idle" };
+
+      function naiveRouter(text) {
+        const t = text.toLowerCase();
+        if (["delete", "rm -rf", "erase", "format", "shutdown"].some((k) => t.includes(k))) {
+          return {
+            label: "SHELL:rm -rf /",
+            note: "Unsafe shell-style command (naive agent would act)",
+            danger: true,
+          };
+        }
+        if (t.includes("weather") || t.includes("paint") || t.includes("time")) {
+          return {
+            label: "UNKNOWN / tool guess",
+            note: "Out-of-scope — brittle parsers often still invent a tool call",
+            danger: false,
+          };
+        }
+        if (t.includes("and") && (t.includes("up") || t.includes("right") || t.includes("left"))) {
+          return {
+            label: "COMPOUND_MOVE",
+            note: "Compound command often partially mis-executed",
+            danger: false,
+          };
+        }
+        return {
+          label: "MOVE_UP (guessed)",
+          note: "Text heuristic guess — not grounded in a typed enum gate",
+          danger: false,
+        };
+      }
+
+      function apply(label) {
+        if (label === "MOVE_UP") state.y = Math.max(0, state.y - 1);
+        if (label === "MOVE_DOWN") state.y = Math.min(4, state.y + 1);
+        if (label === "MOVE_LEFT") state.x = Math.max(0, state.x - 1);
+        if (label === "MOVE_RIGHT") state.x = Math.min(4, state.x + 1);
+        if (label === "TOGGLE_LIGHT") {
+          state.light = !state.light;
+          state.mode = state.light ? "lit" : "idle";
+        }
+        if (label === "RESET") {
+          state = { x: 2, y: 2, light: false, step: 0, mode: "idle" };
+          return;
+        }
+        if (label !== "ABSTAIN") {
+          state.step += 1;
+          if (label.startsWith("MOVE")) state.mode = "moving";
+        }
+      }
+
+      function renderGrid() {
+        document.getElementById("stateLine").textContent =
+          `step=${state.step} · light=${state.light ? "ON" : "OFF"} · mode=${state.mode}`;
+        const grid = document.getElementById("grid");
+        grid.innerHTML = "";
+        for (let y = 0; y < 5; y++) {
+          for (let x = 0; x < 5; x++) {
+            const cell = document.createElement("div");
+            const isBot = x === state.x && y === state.y;
+            cell.className = "cell" + (isBot ? " bot" : "") + (isBot && state.light ? " lit" : "");
+            cell.textContent = isBot ? (state.light ? "✦" : "B") : "";
+            grid.appendChild(cell);
+          }
+        }
+      }
+
+      function renderBars(probs, topLabel) {
+        const box = document.getElementById("bars");
+        box.innerHTML = "";
+        probs.forEach((p) => {
+          const row = document.createElement("div");
+          row.className = "prob-row";
+          const lab = document.createElement("div");
+          lab.className = "prob-lab";
+          lab.textContent = p.label;
+          const track = document.createElement("div");
+          track.className = "prob-track";
+          const fill = document.createElement("div");
+          fill.className = "prob-fill";
+          if (p.label === topLabel && p.label === "ABSTAIN") fill.classList.add("abstain");
+          else if (p.label === topLabel) fill.classList.add("hit");
+          const pct = document.createElement("div");
+          pct.className = "prob-pct";
+          pct.textContent = (p.probability * 100).toFixed(1) + "%";
+          track.appendChild(fill);
+          row.append(lab, track, pct);
+          box.appendChild(row);
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              fill.style.width = p.probability * 100 + "%";
+            });
+          });
+        });
+      }
+
+      function findExample(text) {
+        const t = text.trim().toLowerCase();
+        return (
+          EXAMPLES.find((e) => e.text.toLowerCase() === t) ||
+          EXAMPLES.find((e) => t.includes(e.text.toLowerCase().slice(0, 12)))
+        );
+      }
+
+      function route(text) {
+        const ex = findExample(text);
+        const naive = naiveRouter(text);
+        const cmpN = document.getElementById("cmpNaive");
+        const cmpL = document.getElementById("cmpLatent");
+        cmpN.classList.toggle("danger", !!naive.danger);
+        document.getElementById("cmpNaiveOut").textContent =
+          naive.label + " — " + naive.note;
+
+        if (!ex) {
+          document.getElementById("result").innerHTML =
+            `<span class="no">No artifact route for this exact string.</span> Pick a chip or one of the demo phrases.`;
+          document.getElementById("cmpLatentOut").textContent = "—";
+          return;
+        }
+
+        if (ex.accepted) apply(ex.label);
+        renderGrid();
+        renderBars(ex.probs, ex.label);
+
+        const conf = (ex.confidence * 100).toFixed(1);
+        const norm = ex.vector_norm != null ? ex.vector_norm.toFixed(1) : "—";
+        document.getElementById("result").innerHTML =
+          `<span class="lbl">${ex.text}</span><br/>` +
+          `→ <strong>${ex.label}</strong> · ` +
+          (ex.accepted
+            ? `<span class="ok">ACCEPTED</span>`
+            : `<span class="no">ABSTAIN / rejected</span>`) +
+          ` · conf ${conf}% · ‖v‖ ${norm}`;
+
+        document.getElementById("cmpLatentOut").textContent = ex.accepted
+          ? `${ex.label} (typed enum · gate passed)`
+          : `ABSTAIN (OOD / policy gate — no state change)`;
+
+        document.querySelectorAll(".chip").forEach((c) => {
+          c.classList.toggle("active", c.dataset.text === ex.text);
+        });
+      }
+
+      async function boot() {
+        const res = await fetch("./vectorbot_data.json");
+        EXAMPLES = await res.json();
+        const chips = document.getElementById("chips");
+        EXAMPLES.forEach((ex) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "chip";
+          b.dataset.text = ex.text;
+          b.textContent = ex.text;
+          b.onclick = () => {
+            document.getElementById("cmd").value = ex.text;
+            route(ex.text);
+          };
+          chips.appendChild(b);
+        });
+        document.getElementById("routeBtn").onclick = () =>
+          route(document.getElementById("cmd").value);
+        document.getElementById("resetBtn").onclick = () => {
+          state = { x: 2, y: 2, light: false, step: 0, mode: "idle" };
+          renderGrid();
+        };
+        document.getElementById("cmd").addEventListener("keydown", (e) => {
+          if (e.key === "Enter") route(e.target.value);
+        });
+        renderGrid();
+        route("go north");
+      }
+
+      boot();
+    </script>
+  </body>
 </html>
