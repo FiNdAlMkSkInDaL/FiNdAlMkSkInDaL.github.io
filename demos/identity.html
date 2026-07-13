@@ -699,24 +699,48 @@
       }
 
       function rankForTask(prompt) {
-        const t = (prompt || "").toLowerCase();
+        const t = (prompt || "").toLowerCase().trim();
+        // Minimum relevance: never fill the budget with random/unrelated vault junk.
+        const MIN_SCORE = 1.5;
+
         const scores = VAULT.filter((n) => !n.sensitive)
           .map((n) => {
             let s = 0;
-            if (/founder|outreach|network|email|infra/.test(t) && n.domain === "network") s += 3.2;
-            if (/tone|writing|outreach|email|intro/.test(t) && n.domain === "tone") s += 3;
-            if (/project|recruiter|engineering|code|intro/.test(t) && n.domain === "project") s += 3.2;
-            if (n.domain === "prefs" && /email|outreach|async/.test(t)) s += 1.4;
-            if (n.domain === "window") s += 0.3;
-            s += Math.random() * 0.12;
+            const text = (n.text || "").toLowerCase();
+
+            // Domain cues from the task
+            if (/founder|outreach|network|infra|connect|intro to/.test(t) && n.domain === "network") {
+              s += 3.2;
+            }
+            if (/tone|writing|outreach|email|draft|message|sign-?off/.test(t) && n.domain === "tone") {
+              s += 3.0;
+            }
+            if (/project|recruiter|engineering|code|tickforge|identity|portfolio|demo/.test(t) && n.domain === "project") {
+              s += 3.2;
+            }
+            if (/email|outreach|async|call|meeting/.test(t) && n.domain === "prefs") {
+              s += 1.8;
+            }
+            // Window title only if task is about current work context
+            if (/current|foreground|what am i|vscode|editor|working on now/.test(t) && n.domain === "window") {
+              s += 2.0;
+            }
+            // Light keyword overlap with the memory text itself
+            const words = t.split(/[^a-z0-9]+/).filter((w) => w.length > 3);
+            words.forEach((w) => {
+              if (text.includes(w)) s += 0.9;
+            });
+
             return { n, s };
           })
+          .filter((row) => row.s >= MIN_SCORE)
           .sort((a, b) => b.s - a.s);
 
         const picked = [];
         const domains = new Set();
         for (const row of scores) {
           if (picked.length >= BUDGET) break;
+          // Prefer domain diversity, but only among relevant hits
           if (domains.has(row.n.domain) && domains.size < 2 && picked.length < BUDGET - 1) {
             continue;
           }
@@ -749,6 +773,13 @@
 
       function buildDraft(picks, prompt) {
         const t = (prompt || "").toLowerCase();
+        if (!picks.length) {
+          return (
+            "<strong>No relevant vault context.</strong><br/>" +
+            "Identity released <em>zero</em> facts for this task — nothing in the sealed vault " +
+            "matched. (A baseline dump would still have leaked secrets.)"
+          );
+        }
         const founders = picks.filter((p) => p.domain === "network").map((p) => p.text.replace(/^Founder:\s*/i, ""));
         const tone = picks.find((p) => p.domain === "tone");
         const projects = picks.filter((p) => p.domain === "project").map((p) => p.text.replace(/^Active:\s*/i, ""));
@@ -803,11 +834,16 @@
         selected = picks.map((p) => p.id);
         renderVault();
 
-        // Naive path dumps everything including secrets
+        // Baseline anti-pattern: dump everything including secrets (NOT our product)
         const naive = VAULT.slice();
         const danger = new Set(VAULT.filter((v) => v.sensitive).map((v) => v.id));
         fillLane(document.getElementById("naiveBody"), naive, danger);
+        // Ours: only task-relevant facts (may be empty for OOD prompts)
         fillLane(document.getElementById("idBody"), picks, null);
+        if (!picks.length) {
+          document.getElementById("idBody").innerHTML =
+            '<div class="empty">no relevant facts released</div>';
+        }
 
         document.getElementById("draftBox").innerHTML = buildDraft(picks, prompt);
       }
