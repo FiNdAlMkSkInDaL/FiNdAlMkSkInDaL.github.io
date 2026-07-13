@@ -614,9 +614,9 @@
         ) {
           return packFree(raw, "ABSTAIN", 0.97, false, "ood-unsafe");
         }
-        // Weather / chitchat / paint / open-ended fun
+        // Weather / chitchat / paint / open-ended fun / "do whatever"
         if (
-          /weather|tomorrow|time is|who are you|hello|hi\b|surprise|joke|story|sing|poem|chat|how are you|love|hate|paint|purple|draw|colour|color/.test(
+          /weather|tomorrow|time is|who are you|hello|hi\b|surprise|joke|story|sing|poem|chat|how are you|love|hate|paint|purple|draw|colour|color|whatever|anything|you want|your choice|up to you|free will|decide for me|do what you|be creative|impress me/.test(
             t
           )
         ) {
@@ -744,49 +744,88 @@
  return { moved: movedPos || toggled, blocked: edgeBlocked };
  }
 
- let routeBusy = false;
- function route(text) {
- // Guard against double-fire (chip click + Enter, double-click, etc.)
- if (routeBusy) return;
- routeBusy = true;
- try {
-        const t0 = performance.now();
-        // Artifact hit when available; otherwise free-text offline router (any phrase).
-        const ex = findExample(text) || freeTextRoute(text);
-        document.querySelectorAll(".chip").forEach((c) => {
-          c.classList.toggle("active", c.dataset.text === (ex && ex.text));
-        });
+      let routeBusy = false;
+      function route(text) {
+        // Guard against double-fire (chip click + Enter, double-click, etc.)
+        if (routeBusy) return;
+        routeBusy = true;
+        try {
+          const t0 = performance.now();
+          let ex;
+          try {
+            ex = findExample(text);
+          } catch (e) {
+            ex = null;
+          }
+          if (!ex) {
+            try {
+              ex = freeTextRoute(text);
+            } catch (e) {
+              // Absolute last resort — never show a hard "no route" error
+              ex = {
+                text: (text || "").trim() || "(empty)",
+                label: "ABSTAIN",
+                accepted: false,
+                confidence: 0.9,
+                probs: synthProbs("ABSTAIN", 0.9),
+                source: "fallback",
+              };
+            }
+          }
 
-        let note = "";
-        if (ex.accepted) {
-          const result = applyLabel(ex.label);
-          if (result.blocked) note = " · at edge (no cell change)";
-          else if (ex.label === "RESET") note = " · board reset";
-        } else {
-          note = " · gate rejected (no state change)";
+          document.querySelectorAll(".chip").forEach((c) => {
+            c.classList.toggle("active", !!(ex && ex.text && c.dataset.text === ex.text));
+          });
+
+          let note = "";
+          if (ex.accepted) {
+            const result = applyLabel(ex.label);
+            if (result.blocked) note = " · at edge (no cell change)";
+            else if (ex.label === "RESET") note = " · board reset";
+          } else {
+            note = " · gate rejected (no state change)";
+          }
+
+          renderGrid();
+          renderBars(ex.probs || synthProbs(ex.label || "ABSTAIN", ex.confidence || 0.9));
+
+          const conf = ((ex.confidence != null ? ex.confidence : 0) * 100).toFixed(1);
+          const gate = ex.accepted ? "ACCEPTED -> kernel" : "ABSTAIN / rejected";
+          const src = ex.source && ex.source !== "artifact" ? " · " + ex.source : "";
+          document.getElementById("resultLine").textContent =
+            (ex.text || text) +
+            " -> " +
+            ex.label +
+            " · " +
+            gate +
+            " · conf=" +
+            conf +
+            "%" +
+            " · pos=(" +
+            state.x +
+            "," +
+            state.y +
+            ")" +
+            note +
+            src;
+          const dt = ((performance.now() - t0) / 1000).toFixed(2);
+          document.getElementById("timing").textContent =
+            "Route applied in " +
+            dt +
+            "s · step=" +
+            state.step_count +
+            " · trail=" +
+            (state.trail || []).length;
+        } catch (err) {
+          console.error(err);
+          document.getElementById("resultLine").textContent =
+            "Route error (see console) — try a chip or another phrase.";
+        } finally {
+          setTimeout(() => {
+            routeBusy = false;
+          }, 40);
         }
-
-        renderGrid();
-        renderBars(ex.probs);
-
-        const conf = (ex.confidence * 100).toFixed(1);
-        const gate = ex.accepted ? "ACCEPTED -> kernel" : "ABSTAIN / rejected";
-        const src = ex.source && ex.source !== "artifact" ? ` · ${ex.source}` : "";
-        document.getElementById("resultLine").textContent =
-          `${ex.text || text} -> ${ex.label} · ${gate} · conf=${conf}%` +
-          ` · pos=(${state.x},${state.y})` +
-          note +
-          src;
-        const dt = ((performance.now() - t0) / 1000).toFixed(2);
-        document.getElementById("timing").textContent =
-          `Route applied in ${dt}s · step=${state.step_count} · trail=${(state.trail || []).length}`;
- } finally {
- // Release on next tick so a single user gesture can't double-apply.
- setTimeout(() => {
- routeBusy = false;
- }, 40);
- }
- }
+      }
 
  function asciiSnapshot() {
  const w = 5,
