@@ -32,8 +32,11 @@
         <div class="cloud c3" aria-hidden="true"></div>
       </div>
 
-      <!-- Dense meadow filled by JS for grass + tiny flowers -->
+      <!-- Dense meadow: grass tiles + layered flowers (smaller = farther) -->
       <div class="field" id="field" aria-hidden="true"></div>
+      <div class="wild-layer far-blooms" id="farBlooms" aria-hidden="true"></div>
+      <div class="wild-layer mid-blooms" id="midBlooms" aria-hidden="true"></div>
+      <div class="wild-layer near-blooms" id="nearBlooms" aria-hidden="true"></div>
 
       <!-- Frolicking dog -->
       <div class="dog" id="dog" aria-hidden="true" title="good dog">
@@ -52,7 +55,7 @@
       <!-- Project flowers (interactive) -->
       <nav class="boss-flowers" aria-label="Projects">
         <a
-          class="boss rose"
+          class="boss theme-tickforge"
           href="https://findalmkskindal.github.io/tickforge/explorer/"
           target="_blank"
           rel="noopener noreferrer"
@@ -64,7 +67,7 @@
         </a>
 
         <a
-          class="boss lilac"
+          class="boss theme-vectorbot"
           href="./demos/vectorbot.html"
           target="_blank"
           rel="noopener noreferrer"
@@ -76,7 +79,7 @@
         </a>
 
         <a
-          class="boss sage"
+          class="boss theme-macro"
           href="https://github.com/FiNdAlMkSkInDaL"
           target="_blank"
           rel="noopener noreferrer"
@@ -98,52 +101,33 @@
     <script>
       (function () {
         const field = document.getElementById("field");
-        const W = 48; // tile cols
-        const H = 22; // tile rows (lower half is denser meadow)
-        const colors = {
-          g: ["#5cb85c", "#4caf50", "#66bb6a", "#43a047", "#7cb342", "#8bc34a"],
-          f: [
-            "#ff8a80",
-            "#ff80ab",
-            "#ea80fc",
-            "#b388ff",
-            "#82b1ff",
-            "#ffd180",
-            "#ffff8d",
-            "#ccff90",
-            "#ffab91",
-            "#f8bbd0",
-          ],
-        };
+        const W = 56;
+        const H = 26;
+        const grass = ["#5cb85c", "#4caf50", "#66bb6a", "#43a047", "#7cb342", "#8bc34a", "#9ccc65"];
+        const petals = [
+          "#ff8a80", "#ff80ab", "#ea80fc", "#b388ff", "#82b1ff",
+          "#ffd180", "#ffff8d", "#ccff90", "#ffab91", "#f8bbd0",
+          "#80d8ff", "#a7ffeb", "#ffccbc", "#e1bee7", "#c5e1a5",
+        ];
 
+        // Grass base (every tile) + many on-tile flowers
         const frag = document.createDocumentFragment();
         for (let y = 0; y < H; y++) {
+          // y=0 is far (horizon), y=H-1 is near
+          const depth = y / (H - 1); // 0 far → 1 near
+          const flowerChance = 0.22 + depth * 0.55; // denser nearby
+          const scale = 0.35 + depth * 0.95; // smaller when farther
           for (let x = 0; x < W; x++) {
             const cell = document.createElement("div");
-            cell.className = "tile";
-            // More flowers toward mid meadow, grass everywhere
-            const flowerChance = y < 4 ? 0.12 : y < 10 ? 0.28 : 0.38;
+            cell.className = "tile grass";
+            cell.style.setProperty("--gc", grass[(x * 3 + y * 5) % grass.length]);
+            if (Math.random() < 0.5) cell.classList.add("tall");
             if (Math.random() < flowerChance) {
               cell.classList.add("flower");
-              cell.style.setProperty(
-                "--fc",
-                colors.f[(x * 7 + y * 3) % colors.f.length]
-              );
-              cell.style.setProperty(
-                "--gc",
-                colors.g[(x + y) % colors.g.length]
-              );
-            } else {
-              cell.classList.add("grass");
-              cell.style.setProperty(
-                "--gc",
-                colors.g[(x * 3 + y * 5) % colors.g.length]
-              );
-              // tall blade variant
-              if (Math.random() < 0.45) cell.classList.add("tall");
+              cell.style.setProperty("--fc", petals[(x * 7 + y * 11) % petals.length]);
+              cell.style.setProperty("--fs", scale.toFixed(3));
             }
-            // slight random sway delay
-            cell.style.animationDelay = ((x + y) % 8) * 0.12 + "s";
+            cell.style.animationDelay = ((x + y) % 10) * 0.1 + "s";
             frag.appendChild(cell);
           }
         }
@@ -151,15 +135,38 @@
         field.style.setProperty("--rows", H);
         field.appendChild(frag);
 
-        // Dog frolic path
+        // Extra free-floating bloom layers (more flowers, size by depth band)
+        function sprinkle(layerId, count, sizeMin, sizeMax, topMin, topMax, blur) {
+          const layer = document.getElementById(layerId);
+          const f = document.createDocumentFragment();
+          for (let i = 0; i < count; i++) {
+            const el = document.createElement("span");
+            el.className = "scatter-bloom";
+            const size = sizeMin + Math.random() * (sizeMax - sizeMin);
+            el.style.width = size + "px";
+            el.style.height = size + "px";
+            el.style.left = Math.random() * 100 + "%";
+            el.style.top = topMin + Math.random() * (topMax - topMin) + "%";
+            el.style.setProperty("--fc", petals[i % petals.length]);
+            el.style.setProperty("--blur", blur + "px");
+            el.style.animationDelay = (Math.random() * 2).toFixed(2) + "s";
+            el.style.opacity = (0.55 + Math.random() * 0.4).toFixed(2);
+            f.appendChild(el);
+          }
+          layer.appendChild(f);
+        }
+        // Far = tiny, mid = medium, near = larger (still smaller than boss flowers)
+        sprinkle("farBlooms", 90, 4, 8, 0, 100, 1.2);
+        sprinkle("midBlooms", 110, 7, 14, 0, 100, 0.6);
+        sprinkle("nearBlooms", 80, 11, 20, 0, 100, 0);
+
+        // Dog frolic
         const dog = document.getElementById("dog");
         let t = 0;
         function hop() {
           t += 0.016;
           const x = 8 + ((t * 12) % 84);
           const bounce = Math.abs(Math.sin(t * 6)) * 10;
-          const flip = Math.floor(t * 12) % 84 > 70 ? 1 : 0;
-          // reverse direction mid-loop
           const dir = Math.floor((t * 12) / 84) % 2 === 0 ? 1 : -1;
           const px = dir === 1 ? x : 92 - x;
           dog.style.left = px + "%";

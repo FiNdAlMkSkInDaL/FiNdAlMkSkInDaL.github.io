@@ -207,35 +207,77 @@ body {
   background: var(--gc, #66bb6a);
 }
 
-/* tiny pixel flower */
+/* Flower size scales with depth: --fs ~0.35 (far) → ~1.3 (near) */
 .tile.flower::before {
   content: "";
   position: absolute;
-  bottom: 25%;
+  bottom: 22%;
   left: 50%;
-  width: 6px;
-  height: 6px;
-  margin-left: -3px;
+  width: calc(5px * var(--fs, 1));
+  height: calc(5px * var(--fs, 1));
+  margin-left: calc(-2.5px * var(--fs, 1));
   background: var(--fc, #ff8a80);
   box-shadow:
-    -4px 0 0 var(--fc, #ff8a80),
-    4px 0 0 var(--fc, #ff8a80),
-    0 -4px 0 var(--fc, #ff8a80),
-    0 4px 0 var(--fc, #ff8a80),
-    0 0 0 2px #ffeb3b;
+    calc(-3px * var(--fs, 1)) 0 0 var(--fc, #ff8a80),
+    calc(3px * var(--fs, 1)) 0 0 var(--fc, #ff8a80),
+    0 calc(-3px * var(--fs, 1)) 0 var(--fc, #ff8a80),
+    0 calc(3px * var(--fs, 1)) 0 var(--fc, #ff8a80),
+    0 0 0 calc(1.5px * var(--fs, 1)) #ffeb3b;
   animation: bob 1.2s steps(2, end) infinite;
   animation-delay: inherit;
+  transform-origin: center bottom;
 }
 
 .tile.flower::after {
   content: "";
   position: absolute;
-  bottom: 8%;
+  bottom: 6%;
   left: 50%;
-  width: 2px;
-  height: 22%;
-  margin-left: -1px;
+  width: max(1px, calc(1.5px * var(--fs, 1)));
+  height: calc(18% * var(--fs, 1) + 10%);
+  margin-left: calc(-0.75px * var(--fs, 1));
   background: #2e7d32;
+}
+
+/* Extra free-floating blooms (scattered layers) */
+.wild-layer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.far-blooms {
+  height: 58%;
+  z-index: 2;
+  opacity: 0.75;
+}
+
+.mid-blooms {
+  height: 50%;
+  z-index: 3;
+}
+
+.near-blooms {
+  height: 42%;
+  z-index: 4;
+}
+
+.scatter-bloom {
+  position: absolute;
+  border-radius: 1px;
+  background: var(--fc, #ff8a80);
+  filter: blur(var(--blur, 0px));
+  box-shadow:
+    -3px 0 0 var(--fc, #ff8a80),
+    3px 0 0 var(--fc, #ff8a80),
+    0 -3px 0 var(--fc, #ff8a80),
+    0 3px 0 var(--fc, #ff8a80),
+    0 0 0 1px #ffe566;
+  animation: bob 1.4s steps(2, end) infinite;
+  image-rendering: pixelated;
 }
 
 @keyframes bob {
@@ -385,42 +427,63 @@ body {
   outline: none;
 }
 
-.boss.rose {
+/*
+ * Project-themed blooms (abstracted colour schemes):
+ * TickForge  → terminal cyan / void navy / violet (matching engine glow)
+ * VectorBot  → latent purple / hot magenta / electric cyan (neural space)
+ * Macro Bias → chart gold / bull green / bear red / ink (markets)
+ */
+.boss.theme-tickforge {
   left: 16%;
-  --p: #ff6b8a;
-  --p2: #ff8fab;
-  --c: #ffe566;
-  --g: #ffb3c6;
+  --p: #22d3ee;
+  --p2: #67e8f9;
+  --c: #0a0e14;
+  --g: rgba(34, 211, 238, 0.85);
+  --stem: #164e63;
+  --stem2: #22d3ee;
+  --tag-bg: #0a0e14;
+  --tag-fg: #22d3ee;
+  --tag-bd: #22d3ee;
 }
 
-.boss.lilac {
+.boss.theme-vectorbot {
   left: 50%;
   transform: translateX(-50%);
   bottom: 24%;
   height: 140px;
   width: 80px;
-  --p: #b388ff;
-  --p2: #d1b3ff;
-  --c: #fff59d;
-  --g: #e1bee7;
+  --p: #c026d3;
+  --p2: #e879f9;
+  --c: #22d3ee;
+  --g: rgba(232, 121, 249, 0.9);
+  --stem: #4a044e;
+  --stem2: #a78bfa;
+  --tag-bg: #1e1b4b;
+  --tag-fg: #e879f9;
+  --tag-bd: #22d3ee;
   z-index: 2;
 }
 
-.boss.sage {
+.boss.theme-macro {
   right: 14%;
   left: auto;
-  --p: #69f0ae;
-  --p2: #b9f6ca;
-  --c: #ffecb3;
-  --g: #a5d6a7;
+  --p: #fbbf24;
+  --p2: #fde68a;
+  --c: #dc2626;
+  --g: rgba(251, 191, 36, 0.9);
+  --stem: #14532d;
+  --stem2: #22c55e;
+  --tag-bg: #1c1917;
+  --tag-fg: #fbbf24;
+  --tag-bd: #22c55e;
 }
 
 .boss-stem {
   width: 8px;
   height: 48%;
-  background: #2e7d32;
-  border: 2px solid #1b5e20;
-  box-shadow: 2px 0 0 #81c784;
+  background: var(--stem, #2e7d32);
+  border: 2px solid #0f172a;
+  box-shadow: 2px 0 0 var(--stem2, #81c784);
   z-index: 0;
 }
 
@@ -430,7 +493,6 @@ body {
   width: 56px;
   height: 56px;
   background: var(--p);
-  /* pixel flower via layered box-shadow */
   box-shadow:
     0 -16px 0 var(--p2),
     0 16px 0 var(--p2),
@@ -447,13 +509,57 @@ body {
   image-rendering: pixelated;
 }
 
-.boss.lilac .boss-bloom {
+.boss.theme-vectorbot .boss-bloom {
   width: 64px;
   height: 64px;
   bottom: 44%;
 }
 
-/* center pixel */
+/* TickForge: extra “terminal ring” */
+.boss.theme-tickforge .boss-bloom {
+  box-shadow:
+    0 -16px 0 var(--p2),
+    0 16px 0 var(--p2),
+    -16px 0 0 var(--p2),
+    16px 0 0 var(--p2),
+    -12px -12px 0 var(--p),
+    12px -12px 0 var(--p),
+    -12px 12px 0 var(--p),
+    12px 12px 0 var(--p),
+    0 0 0 4px #0a0e14,
+    0 0 0 8px #22d3ee;
+}
+
+/* VectorBot: neon double core */
+.boss.theme-vectorbot .boss-bloom {
+  box-shadow:
+    0 -18px 0 var(--p2),
+    0 18px 0 var(--p2),
+    -18px 0 0 var(--p2),
+    18px 0 0 var(--p2),
+    -14px -14px 0 var(--p),
+    14px -14px 0 #22d3ee,
+    -14px 14px 0 #a78bfa,
+    14px 14px 0 var(--p),
+    0 0 0 4px #22d3ee,
+    0 0 0 8px #4c1d95;
+}
+
+/* Macro: gold petals + bull/bear center */
+.boss.theme-macro .boss-bloom {
+  box-shadow:
+    0 -16px 0 var(--p2),
+    0 16px 0 #22c55e,
+    -16px 0 0 var(--p2),
+    16px 0 0 #ef4444,
+    -12px -12px 0 var(--p),
+    12px -12px 0 var(--p),
+    -12px 12px 0 #22c55e,
+    12px 12px 0 #ef4444,
+    0 0 0 4px #1c1917,
+    0 0 0 8px #fbbf24;
+}
+
 .boss-bloom::after {
   content: "";
   position: absolute;
@@ -463,7 +569,22 @@ body {
   height: 12px;
   margin: -6px 0 0 -6px;
   background: var(--c);
-  box-shadow: 0 0 0 2px #f9a825;
+  box-shadow: 0 0 0 2px #0f172a;
+}
+
+.boss.theme-tickforge .boss-bloom::after {
+  background: #22d3ee;
+  box-shadow: 0 0 0 2px #0a0e14, 0 0 8px #22d3ee;
+}
+
+.boss.theme-vectorbot .boss-bloom::after {
+  background: #22d3ee;
+  box-shadow: 0 0 0 2px #e879f9, 0 0 10px #22d3ee;
+}
+
+.boss.theme-macro .boss-bloom::after {
+  background: #fbbf24;
+  box-shadow: 0 0 0 2px #dc2626, 0 0 0 4px #1c1917;
 }
 
 .name-tag {
@@ -472,11 +593,11 @@ body {
   left: 50%;
   transform: translateX(-50%) translateY(6px);
   padding: 6px 8px;
-  background: var(--cream);
-  border: 3px solid var(--ink);
-  box-shadow: 3px 3px 0 rgba(43, 33, 64, 0.3);
+  background: var(--tag-bg, var(--cream));
+  border: 3px solid var(--tag-bd, var(--ink));
+  box-shadow: 3px 3px 0 rgba(43, 33, 64, 0.35);
   font-size: 8px;
-  color: var(--ink);
+  color: var(--tag-fg, var(--ink));
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
@@ -484,7 +605,7 @@ body {
   transition: opacity 0.05s steps(1);
 }
 
-.boss.lilac .name-tag {
+.boss.theme-vectorbot .name-tag {
   bottom: calc(44% + 80px);
   font-size: 9px;
 }
@@ -542,14 +663,14 @@ body {
     font-size: 6px;
   }
 
-  .boss.rose {
+  .boss.theme-tickforge {
     left: 2%;
     bottom: 26%;
   }
-  .boss.lilac {
+  .boss.theme-vectorbot {
     bottom: 28%;
   }
-  .boss.sage {
+  .boss.theme-macro {
     right: 2%;
     bottom: 26%;
   }
@@ -558,7 +679,7 @@ body {
     width: 44px;
     height: 44px;
   }
-  .boss.lilac .boss-bloom {
+  .boss.theme-vectorbot .boss-bloom {
     width: 52px;
     height: 52px;
   }
