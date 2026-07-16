@@ -133,16 +133,6 @@ button:active,
     padding: 0.7rem 0.75rem !important;
   }
 
-  /* Blurbs: don’t cover primary actions on small screens */
-  .blurb {
-    position: static !important;
-    max-width: none !important;
-    margin: 0.5rem 0.65rem 1rem !important;
-    pointer-events: none;
-    font-size: 0.78rem !important;
-    line-height: 1.5 !important;
-  }
-
   /* Signals / strips stack */
   .signals {
     grid-template-columns: 1fr !important;

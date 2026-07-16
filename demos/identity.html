@@ -501,31 +501,10 @@
       .gate-msg.ok { color: var(--mint); }
       .gate-msg.bad { color: var(--rose); }
 
-      .blurb {
-        position: fixed;
-        right: 12px;
-        bottom: 12px;
-        z-index: 30;
-        max-width: min(300px, calc(100vw - 24px));
-        padding: 0.6rem 0.7rem;
-        border-radius: 10px;
-        border: 1px solid var(--border);
-        background: rgba(7, 7, 12, 0.95);
-        color: var(--muted);
-        font-size: 0.66rem;
-        line-height: 1.45;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-        pointer-events: none;
-      }
-      .blurb strong {
-        display: block;
-        color: var(--text);
-        font-size: 0.7rem;
-        margin-bottom: 0.2rem;
-      }
     </style>
   </head>
   <link rel="stylesheet" href="./mobile-polish.css?v=m1" />
+  <link rel="stylesheet" href="./intro-modal.css?v=1" />
   <body>
     <link rel="stylesheet" href="./garden-back.css?v=m1" />
     <a class="garden-back" href="../">← GARDEN</a>
@@ -656,12 +635,25 @@
       </div>
     </div>
 
-    <aside class="blurb" aria-label="About Identity">
-      Identity keeps context in a local sealed vault and only releases a small set of
-      relevant facts for the task. The red pane is a baseline for contrast. The green
-      pane and draft are what Identity enables. This page is an interactive sketch of
-      the sealed-vault handshake for demonstration purposes.
-    </aside>
+    <div
+      class="intro-modal"
+      id="introModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="introTitle"
+    >
+      <div class="intro-modal__backdrop" aria-hidden="true"></div>
+      <div class="intro-modal__card">
+        <h2 class="intro-modal__title" id="introTitle">Identity</h2>
+        <p class="intro-modal__body">
+          Identity keeps context in a local sealed vault and only releases a small set of
+          relevant facts for the task. The red pane is a baseline for contrast. The green
+          pane and draft are what Identity enables. This page is an interactive sketch of
+          the sealed-vault handshake for demonstration purposes.
+        </p>
+        <p class="intro-modal__hint">Click or press any key to continue</p>
+      </div>
+    </div>
 
     <script>
       const BUDGET = 5;
@@ -992,5 +984,6 @@
 
       boot();
     </script>
+    <script src="./intro-modal.js?v=1"></script>
   </body>
 </html>

@@ -11,19 +11,19 @@
     },
     polymarket: {
       title: "POLYMARKET",
-      href: "./demos/polymarket.html?v=sim",
+      href: "./demos/polymarket.html?v=intro1",
     },
     macro: {
       title: "MACRO BIAS",
-      href: "./demos/macro-bias.html?v=recruiter",
+      href: "./demos/macro-bias.html?v=intro1",
     },
     identity: {
       title: "IDENTITY",
-      href: "./demos/identity.html?v=compare",
+      href: "./demos/identity.html?v=intro1",
     },
     vectorbot: {
       title: "VECTORBOT",
-      href: "./demos/vectorbot.html?v=freetext3",
+      href: "./demos/vectorbot.html?v=intro1",
     },
   };
 

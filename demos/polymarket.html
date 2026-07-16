@@ -376,25 +376,10 @@
       }
       .cron .clock { color: var(--sky2); font-weight: 600; }
 
-      .blurb {
-        position: fixed;
-        right: 12px;
-        bottom: 12px;
-        z-index: 30;
-        max-width: min(340px, calc(100vw - 24px));
-        padding: 0.65rem 0.75rem;
-        border-radius: 10px;
-        border: 1px solid var(--border);
-        background: rgba(5, 8, 15, 0.95);
-        color: var(--muted);
-        font-size: 0.68rem;
-        line-height: 1.45;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-        pointer-events: none;
-      }
     </style>
   </head>
   <link rel="stylesheet" href="./mobile-polish.css?v=m1" />
+  <link rel="stylesheet" href="./intro-modal.css?v=1" />
   <body>
     <link rel="stylesheet" href="./garden-back.css?v=m1" />
     <a class="garden-back" href="../">← GARDEN</a>
@@ -528,11 +513,24 @@
       </main>
     </div>
 
-    <aside class="blurb" aria-label="About">
-      Polymarket bot is a live-data shadow stack: stream L2 quotes into hourly files, then evaluate
-      strategies on paper and surface gaps so you never trust a silent hole in history.
-      This page is an interactive sketch of the shadow pipeline for demonstration purposes.
-    </aside>
+    <div
+      class="intro-modal"
+      id="introModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="introTitle"
+    >
+      <div class="intro-modal__backdrop" aria-hidden="true"></div>
+      <div class="intro-modal__card">
+        <h2 class="intro-modal__title" id="introTitle">Polymarket</h2>
+        <p class="intro-modal__body">
+          Polymarket bot is a live-data shadow stack: stream L2 quotes into hourly files, then evaluate
+          strategies on paper and surface gaps so you never trust a silent hole in history.
+          This page is an interactive sketch of the shadow pipeline for demonstration purposes.
+        </p>
+        <p class="intro-modal__hint">Click or press any key to continue</p>
+      </div>
+    </div>
 
     <script>
       const state = {
@@ -866,5 +864,6 @@
       renderBook();
       log("sim ready · start the live feed or drag the book dials", "info");
     </script>
+    <script src="./intro-modal.js?v=1"></script>
   </body>
 </html>

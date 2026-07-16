@@ -444,32 +444,10 @@
         color: var(--mute2);
       }
 
-      .blurb {
-        position: fixed;
-        right: 12px;
-        bottom: 12px;
-        left: auto;
-        z-index: 20;
-        max-width: min(340px, calc(100vw - 24px));
-        padding: 0.7rem 0.8rem;
-        border-radius: 10px;
-        border: 1px solid var(--border);
-        background: rgba(12, 10, 9, 0.95);
-        color: var(--muted);
-        font-size: 0.7rem;
-        line-height: 1.45;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-        pointer-events: none;
-      }
-      .blurb strong {
-        display: block;
-        color: var(--text);
-        font-size: 0.74rem;
-        margin-bottom: 0.3rem;
-      }
     </style>
   </head>
   <link rel="stylesheet" href="./mobile-polish.css?v=m1" />
+  <link rel="stylesheet" href="./intro-modal.css?v=1" />
   <body>
     <link rel="stylesheet" href="./garden-back.css?v=m1" />
     <a class="garden-back" href="../">← GARDEN</a>
@@ -564,14 +542,27 @@
       </main>
     </div>
 
-    <aside class="blurb" aria-label="About Macro Bias">
-      Macro Bias is a daily regime research product: it turns a macro snapshot into a
-      next-session score with a risk size, not a price target. This demo mirrors the
-      product idea: find the K nearest historical sessions in feature space (cosine
-      distance), inverse-distance weight their forward returns, and map the blend
-      through a gate (including sit-out when fear is extreme and edge is tiny). This
-      page is an interactive sketch of the scoring system for demonstration purposes.
-    </aside>
+    <div
+      class="intro-modal"
+      id="introModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="introTitle"
+    >
+      <div class="intro-modal__backdrop" aria-hidden="true"></div>
+      <div class="intro-modal__card">
+        <h2 class="intro-modal__title" id="introTitle">Macro Bias</h2>
+        <p class="intro-modal__body">
+          Macro Bias is a daily regime research product: it turns a macro snapshot into a
+          next-session score with a risk size, not a price target. This demo mirrors the
+          product idea: find the K nearest historical sessions in feature space (cosine
+          distance), inverse-distance weight their forward returns, and map the blend
+          through a gate (including sit-out when fear is extreme and edge is tiny). This
+          page is an interactive sketch of the scoring system for demonstration purposes.
+        </p>
+        <p class="intro-modal__hint">Click or press any key to continue</p>
+      </div>
+    </div>
 
     <script>
       const KEYS = ["spy", "vix", "credit", "metals", "oil"];
@@ -906,5 +897,6 @@
 
       build();
     </script>
+    <script src="./intro-modal.js?v=1"></script>
   </body>
 </html>
