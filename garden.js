@@ -9,31 +9,31 @@
       title: "TICKFORGE",
       href: "https://findalmkskindal.github.io/tickforge/explorer/",
       blurb:
-        "TickForge is a live trading simulator. You can watch buy and sell orders hit the book, see them match, and try a built-in market-making strategy — all in an interactive explorer. This is just a little interactive toy for demo purposes, not the full project — check my GitHub for the real codebase.",
+        "TickForge is a live trading simulator. You can watch buy and sell orders hit the book, see them match, and try a built-in market-making strategy — all in an interactive explorer. This is a small demo of the real project. Check my GitHub for the full codebase.",
     },
     polymarket: {
       title: "POLYMARKET",
-      href: "./demos/polymarket.html?v=intro3",
+      href: "./demos/polymarket.html?v=intro4",
       blurb:
-        "This demo shows a paper-trading setup for prediction markets. It records live prices, flags missing data, and lets you test strategies with fake money so you can see how they would have done without risking cash. This is just a little interactive toy for demo purposes, not the full project — check my GitHub for the real codebase.",
+        "This demo shows a paper-trading setup for prediction markets. It records live prices, flags missing data, and lets you test strategies with fake money so you can see how they would have done without risking cash. This is a small demo of the real project. Check my GitHub for the full codebase.",
     },
     macro: {
       title: "MACRO BIAS",
-      href: "./demos/macro-bias.html?v=intro3",
+      href: "./demos/macro-bias.html?v=intro4",
       blurb:
-        "Macro Bias looks at today's market mood — stocks, fear, credit, metals, and oil — finds similar days in the past, and turns that into a simple next-session score and risk size. It is not a price target. This is just a little interactive toy for demo purposes, not the full project — check my GitHub for the real codebase.",
+        "Macro Bias looks at today's market mood — stocks, fear, credit, metals, and oil — finds similar days in the past, and turns that into a simple next-session score and risk size. It is not a price target. This is a small demo of the real project. Check my GitHub for the full codebase.",
     },
     identity: {
       title: "IDENTITY",
-      href: "./demos/identity.html?v=intro3",
+      href: "./demos/identity.html?v=intro4",
       blurb:
-        "Identity keeps personal facts in a sealed vault and only shares the few that matter for the job. The red side dumps everything; the green side is the gated approach Identity is built for. This is just a little interactive toy for demo purposes, not the full project — check my GitHub for the real codebase.",
+        "Identity keeps personal facts in a sealed vault and only shares the few that matter for the job. The red side dumps everything; the green side is the gated approach Identity is built for. This is a small demo of the real project. Check my GitHub for the full codebase.",
     },
     vectorbot: {
       title: "VECTORBOT",
-      href: "./demos/vectorbot.html?v=intro3",
+      href: "./demos/vectorbot.html?v=intro4",
       blurb:
-        "Type a command in plain English and VectorBot maps it to a small set of actions — move, toggle the light, reset — without writing free-form replies. Unknown or unsafe commands are simply ignored. This is just a little interactive toy for demo purposes, not the full project — check my GitHub for the real codebase.",
+        "Type a command in plain English and VectorBot maps it to a small set of actions — move, toggle the light, reset — without writing free-form replies. Unknown or unsafe commands are simply ignored. This is a small demo of the real project. Check my GitHub for the full codebase.",
     },
   };
 
