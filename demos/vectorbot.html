@@ -395,7 +395,7 @@
  }
  </style>
  <link rel="stylesheet" href="./mobile-polish.css?v=m1" />
- <link rel="stylesheet" href="./intro-modal.css?v=1" />
+ <link rel="stylesheet" href="./intro-modal.css?v=2" />
  </head>
  <body>
  <link rel="stylesheet" href="./garden-back.css?v=m1" />
@@ -463,10 +463,9 @@
  <div class="intro-modal__card">
  <h2 class="intro-modal__title" id="introTitle">VectorBot</h2>
  <p class="intro-modal__body">
- Natural language is mapped to a small set of bot actions via a frozen model
- activation and a probe — not by generating free-form text. Safe or unknown
- commands are rejected (ABSTAIN); accepted ones update the grid. This page is an
- interactive sketch of zero-generation latent routing for demonstration purposes.
+ Type a command in plain English and VectorBot maps it to a small set of actions —
+ move, toggle the light, reset — without writing free-form replies. Unknown or
+ unsafe commands are simply ignored.
  </p>
  <p class="intro-modal__hint">Click or press any key to continue</p>
  </div>
@@ -931,6 +930,6 @@
 
  boot();
  </script>
- <script src="./intro-modal.js?v=1"></script>
+ <script src="./intro-modal.js?v=2"></script>
  </body>
 </html>

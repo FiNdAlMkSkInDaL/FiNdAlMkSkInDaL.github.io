@@ -1,5 +1,10 @@
 /* Project intro modal — centered, light, dismiss on any click/key */
 
+/* When a demo is embedded in the garden iframe, the parent shows the intro */
+html.in-garden-frame .intro-modal {
+  display: none !important;
+}
+
 .intro-modal {
   position: fixed;
   inset: 0;

@@ -114,13 +114,13 @@
           href="https://findalmkskindal.github.io/tickforge/explorer/"
           data-id="tickforge"
           data-title="TICKFORGE"
-          data-desc="Live LOB + matching + Avellaneda–Stoikov MM explorer"
+          data-desc="Live order book and market-making explorer"
           data-tags="C++ · TypeScript · quant eng"
           style="--bob-delay: 0s"
         >
           <span class="name-tag" aria-hidden="true">
             <strong>TICKFORGE</strong>
-            <em>Live LOB + matching + Avellaneda–Stoikov MM explorer</em>
+            <em>Live order book and market-making explorer</em>
             <span class="tags">C++ · TypeScript · quant eng</span>
           </span>
           <span class="plant" aria-hidden="true">
@@ -137,13 +137,13 @@
           href="./demos/polymarket.html?v=sim"
           data-id="polymarket"
           data-title="POLYMARKET"
-          data-desc="Shadow stack: L2 lake, gap detection, paper-only eval"
+          data-desc="Paper-trade strategies on recorded market data"
           data-tags="Python · data plane · risk"
           style="--bob-delay: 0.4s"
         >
           <span class="name-tag" aria-hidden="true">
             <strong>POLYMARKET</strong>
-            <em>Shadow stack: L2 lake, gap detection, paper-only eval</em>
+            <em>Paper-trade strategies on recorded market data</em>
             <span class="tags">Python · data plane · risk</span>
           </span>
           <span class="plant" aria-hidden="true">
@@ -160,13 +160,13 @@
           href="./demos/macro-bias.html?v=recruiter"
           data-id="macro"
           data-title="MACRO BIAS"
-          data-desc="KNN regime neighbours on market factors"
+          data-desc="Score the next session from similar past days"
           data-tags="Python · quant research"
           style="--bob-delay: 0.8s"
         >
           <span class="name-tag" aria-hidden="true">
             <strong>MACRO BIAS</strong>
-            <em>KNN regime neighbours on market factors</em>
+            <em>Score the next session from similar past days</em>
             <span class="tags">Python · quant research</span>
           </span>
           <span class="plant" aria-hidden="true">
@@ -183,13 +183,13 @@
           href="./demos/identity.html?v=compare"
           data-id="identity"
           data-title="IDENTITY"
-          data-desc="Sealed vault vs naive dump — relevance-gated release"
+          data-desc="Share only the facts that matter for a task"
           data-tags="privacy · agents · gating"
           style="--bob-delay: 1.1s"
         >
           <span class="name-tag" aria-hidden="true">
             <strong>IDENTITY</strong>
-            <em>Sealed vault vs naive dump — relevance-gated release</em>
+            <em>Share only the facts that matter for a task</em>
             <span class="tags">privacy · agents · gating</span>
           </span>
           <span class="plant" aria-hidden="true">
@@ -206,13 +206,13 @@
           href="./demos/vectorbot.html?v=freetext3"
           data-id="vectorbot"
           data-title="VECTORBOT"
-          data-desc="Latent-space control lab with free-text routing"
+          data-desc="Turn plain-English commands into bot actions"
           data-tags="ML · vectors · offline demo"
           style="--bob-delay: 1.5s"
         >
           <span class="name-tag" aria-hidden="true">
             <strong>VECTORBOT</strong>
-            <em>Latent-space control lab with free-text routing</em>
+            <em>Turn plain-English commands into bot actions</em>
             <span class="tags">ML · vectors · offline demo</span>
           </span>
           <span class="plant" aria-hidden="true">
@@ -237,7 +237,7 @@
               </span>
               <span class="list-body">
                 <strong>TICKFORGE</strong>
-                <em>Live LOB + matching + Avellaneda–Stoikov MM explorer</em>
+                <em>Live order book and market-making explorer</em>
                 <span class="tags">C++ · TypeScript · quant eng</span>
               </span>
             </button>
@@ -250,7 +250,7 @@
               </span>
               <span class="list-body">
                 <strong>POLYMARKET</strong>
-                <em>Shadow stack: L2 lake, gap detection, paper-only eval</em>
+                <em>Paper-trade strategies on recorded market data</em>
                 <span class="tags">Python · data plane · risk</span>
               </span>
             </button>
@@ -263,7 +263,7 @@
               </span>
               <span class="list-body">
                 <strong>MACRO BIAS</strong>
-                <em>KNN regime neighbours on market factors</em>
+                <em>Score the next session from similar past days</em>
                 <span class="tags">Python · quant research</span>
               </span>
             </button>
@@ -276,7 +276,7 @@
               </span>
               <span class="list-body">
                 <strong>IDENTITY</strong>
-                <em>Sealed vault vs naive dump — relevance-gated release</em>
+                <em>Share only the facts that matter for a task</em>
                 <span class="tags">privacy · agents · gating</span>
               </span>
             </button>
@@ -289,7 +289,7 @@
               </span>
               <span class="list-body">
                 <strong>VECTORBOT</strong>
-                <em>Latent-space control lab with free-text routing</em>
+                <em>Turn plain-English commands into bot actions</em>
                 <span class="tags">ML · vectors · offline demo</span>
               </span>
             </button>
@@ -401,6 +401,24 @@
       <iframe class="shell-frame" id="shellFrame" title="Project demo"></iframe>
     </div>
 
-    <script src="./garden.js?v=garden-v5"></script>
+    <!-- Shown when any project (including TickForge) is opened from the garden -->
+    <div
+      class="intro-modal"
+      id="projectIntroModal"
+      hidden
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="projectIntroTitle"
+    >
+      <div class="intro-modal__backdrop" aria-hidden="true"></div>
+      <div class="intro-modal__card">
+        <h2 class="intro-modal__title" id="projectIntroTitle">PROJECT</h2>
+        <p class="intro-modal__body" id="projectIntroBody"></p>
+        <p class="intro-modal__hint">Click or press any key to continue</p>
+      </div>
+    </div>
+
+    <link rel="stylesheet" href="./demos/intro-modal.css?v=2" />
+    <script src="./garden.js?v=garden-v6"></script>
   </body>
 </html>

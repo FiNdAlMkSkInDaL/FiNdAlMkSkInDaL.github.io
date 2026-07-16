@@ -447,7 +447,7 @@
     </style>
   </head>
   <link rel="stylesheet" href="./mobile-polish.css?v=m1" />
-  <link rel="stylesheet" href="./intro-modal.css?v=1" />
+  <link rel="stylesheet" href="./intro-modal.css?v=2" />
   <body>
     <link rel="stylesheet" href="./garden-back.css?v=m1" />
     <a class="garden-back" href="../">← GARDEN</a>
@@ -553,12 +553,9 @@
       <div class="intro-modal__card">
         <h2 class="intro-modal__title" id="introTitle">Macro Bias</h2>
         <p class="intro-modal__body">
-          Macro Bias is a daily regime research product: it turns a macro snapshot into a
-          next-session score with a risk size, not a price target. This demo mirrors the
-          product idea: find the K nearest historical sessions in feature space (cosine
-          distance), inverse-distance weight their forward returns, and map the blend
-          through a gate (including sit-out when fear is extreme and edge is tiny). This
-          page is an interactive sketch of the scoring system for demonstration purposes.
+          Macro Bias looks at today's market mood — stocks, fear, credit, metals, and oil —
+          finds similar days in the past, and turns that into a simple next-session score
+          and risk size. It is not a price target.
         </p>
         <p class="intro-modal__hint">Click or press any key to continue</p>
       </div>
@@ -897,6 +894,6 @@
 
       build();
     </script>
-    <script src="./intro-modal.js?v=1"></script>
+    <script src="./intro-modal.js?v=2"></script>
   </body>
 </html>

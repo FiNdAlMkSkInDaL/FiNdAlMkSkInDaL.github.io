@@ -13,6 +13,19 @@
   }
 
   ready(function () {
+    // Garden shell already shows the intro — skip when embedded
+    try {
+      if (window.self !== window.top) {
+        var embedded = document.getElementById("introModal");
+        if (embedded) embedded.hidden = true;
+        return;
+      }
+    } catch (e) {
+      var embeddedCatch = document.getElementById("introModal");
+      if (embeddedCatch) embeddedCatch.hidden = true;
+      return;
+    }
+
     var modal = document.getElementById("introModal");
     if (!modal || modal.hidden) return;
 

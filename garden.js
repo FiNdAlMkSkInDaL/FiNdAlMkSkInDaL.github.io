@@ -8,22 +8,32 @@
     tickforge: {
       title: "TICKFORGE",
       href: "https://findalmkskindal.github.io/tickforge/explorer/",
+      blurb:
+        "TickForge is a live trading simulator. You can watch buy and sell orders hit the book, see them match, and try a built-in market-making strategy — all in an interactive explorer.",
     },
     polymarket: {
       title: "POLYMARKET",
-      href: "./demos/polymarket.html?v=intro1",
+      href: "./demos/polymarket.html?v=intro2",
+      blurb:
+        "This demo shows a paper-trading setup for prediction markets. It records live prices, flags missing data, and lets you test strategies with fake money so you can see how they would have done without risking cash.",
     },
     macro: {
       title: "MACRO BIAS",
-      href: "./demos/macro-bias.html?v=intro1",
+      href: "./demos/macro-bias.html?v=intro2",
+      blurb:
+        "Macro Bias looks at today's market mood — stocks, fear, credit, metals, and oil — finds similar days in the past, and turns that into a simple next-session score and risk size. It is not a price target.",
     },
     identity: {
       title: "IDENTITY",
-      href: "./demos/identity.html?v=intro1",
+      href: "./demos/identity.html?v=intro2",
+      blurb:
+        "Identity keeps personal facts in a sealed vault and only shares the few that matter for the job. The red side dumps everything; the green side is the gated approach Identity is built for.",
     },
     vectorbot: {
       title: "VECTORBOT",
-      href: "./demos/vectorbot.html?v=intro1",
+      href: "./demos/vectorbot.html?v=intro2",
+      blurb:
+        "Type a command in plain English and VectorBot maps it to a small set of actions — move, toggle the light, reset — without writing free-form replies. Unknown or unsafe commands are simply ignored.",
     },
   };
 
@@ -396,9 +406,70 @@
   const shellFrame = document.getElementById("shellFrame");
   const shellTitle = document.getElementById("shellTitle");
   const shellOpen = document.getElementById("shellOpen");
+  const projectIntro = document.getElementById("projectIntroModal");
+  const projectIntroTitle = document.getElementById("projectIntroTitle");
+  const projectIntroBody = document.getElementById("projectIntroBody");
+  let projectIntroCleanup = null;
 
   function isShellOpen() {
     return shell && !shell.hidden;
+  }
+
+  function hideProjectIntro(immediate) {
+    if (projectIntroCleanup) {
+      projectIntroCleanup();
+      projectIntroCleanup = null;
+    }
+    if (!projectIntro) return;
+    if (immediate || reduceMotion) {
+      projectIntro.hidden = true;
+      projectIntro.classList.remove("is-leaving");
+      return;
+    }
+    if (projectIntro.hidden) return;
+    projectIntro.classList.add("is-leaving");
+    let done = false;
+    function finish() {
+      if (done) return;
+      done = true;
+      projectIntro.hidden = true;
+      projectIntro.classList.remove("is-leaving");
+    }
+    projectIntro.addEventListener("animationend", finish, { once: true });
+    setTimeout(finish, 280);
+  }
+
+  function showProjectIntro(p) {
+    if (!projectIntro || !p || !p.blurb) return;
+    if (projectIntroCleanup) {
+      projectIntroCleanup();
+      projectIntroCleanup = null;
+    }
+    if (projectIntroTitle) projectIntroTitle.textContent = p.title;
+    if (projectIntroBody) projectIntroBody.textContent = p.blurb;
+    projectIntro.classList.remove("is-leaving");
+    projectIntro.hidden = false;
+
+    let dismissed = false;
+    function dismiss(e) {
+      if (dismissed) return;
+      dismissed = true;
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      hideProjectIntro(false);
+    }
+
+    window.addEventListener("pointerdown", dismiss, true);
+    window.addEventListener("keydown", dismiss, true);
+    window.addEventListener("touchstart", dismiss, { capture: true, passive: false });
+
+    projectIntroCleanup = function () {
+      window.removeEventListener("pointerdown", dismiss, true);
+      window.removeEventListener("keydown", dismiss, true);
+      window.removeEventListener("touchstart", dismiss, true);
+    };
   }
 
   function openProject(id) {
@@ -412,11 +483,13 @@
     shellFrame.src = p.href;
     shell.hidden = false;
     document.body.classList.add("modal-open", "shell-open");
+    showProjectIntro(p);
     document.getElementById("btnBackGarden")?.focus();
   }
 
   function closeShell() {
     if (!shell) return;
+    hideProjectIntro(true);
     shell.hidden = true;
     shellFrame.src = "about:blank";
     document.body.classList.remove("shell-open");
