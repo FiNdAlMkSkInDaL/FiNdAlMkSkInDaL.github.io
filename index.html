@@ -16,7 +16,7 @@
     <meta property="og:type" content="website" />
     <title>Finlay Phillips · Pixel Garden</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css?v=garden-v4b" />
+    <link rel="stylesheet" href="./styles.css?v=skills-raw-1" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -347,22 +347,35 @@
     <!-- Skills modal -->
     <div class="modal" id="modalSkills" role="dialog" aria-modal="true" aria-labelledby="skillsTitle" hidden>
       <div class="modal-backdrop" data-close></div>
-      <div class="modal-panel pixel-panel">
+      <div class="modal-panel pixel-panel skills-panel">
         <button type="button" class="modal-x" data-close aria-label="Close">×</button>
         <h2 id="skillsTitle">SKILLS</h2>
-        <div class="skill-cloud" aria-label="Skills">
-          <span class="skill">C++23</span>
-          <span class="skill">Python</span>
-          <span class="skill">TypeScript</span>
-          <span class="skill">Rust interest</span>
-          <span class="skill">LOB / matching</span>
-          <span class="skill">Avellaneda–Stoikov</span>
-          <span class="skill">Market data lakes</span>
-          <span class="skill">Paper trading eval</span>
-          <span class="skill">ML / latent spaces</span>
-          <span class="skill">Agent safety gates</span>
-          <span class="skill">Systems design</span>
-          <span class="skill">GitHub Pages demos</span>
+        <div class="skills-body">
+          <p class="skills-lead">
+            Stuff I actually use when building the projects in this garden — not a buzzword bingo card.
+          </p>
+
+          <p class="skills-label">Languages</p>
+          <div class="skill-cloud" aria-label="Languages">
+            <span class="skill">C++</span>
+            <span class="skill">Python</span>
+            <span class="skill">TypeScript</span>
+            <span class="skill">Rust</span>
+            <span class="skill">MATLAB</span>
+          </div>
+
+          <p class="skills-label">What I build with them</p>
+          <ul class="skills-list">
+            <li>Order books, matching, and small market-making sims (C++)</li>
+            <li>Live data pipelines, shadow tests, VPS jobs (Python)</li>
+            <li>Web apps with real auth / DB / crons (TypeScript)</li>
+            <li>Local tools and experiments (Rust, when it fits)</li>
+            <li>Coursework + maths modelling (MATLAB)</li>
+          </ul>
+
+          <p class="skills-soft">
+            UCL EEE undergrad. Still learning. Happy to be told when I’m wrong.
+          </p>
         </div>
       </div>
     </div>
