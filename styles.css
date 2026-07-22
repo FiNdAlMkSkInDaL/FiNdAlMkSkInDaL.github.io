@@ -1376,7 +1376,7 @@ body.list-mode .hud {
 .about-grid {
   display: flex;
   gap: 28px;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .about-photo {
@@ -1394,7 +1394,9 @@ body.list-mode .hud {
 .about-copy {
   flex: 1;
   min-width: 0;
-  padding-top: 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .about-lead {
@@ -1407,13 +1409,17 @@ body.list-mode .hud {
 
 /* Strict pixel body — matches garden UI (no clean sans) */
 .about-grid p {
-  margin: 0 0 14px;
+  margin: 0;
   font-family: "Press Start 2P", monospace;
   font-size: 9px;
   line-height: 1.9;
   font-weight: 400;
   letter-spacing: 0.02em;
   color: var(--ink);
+}
+
+.about-grid p + p {
+  margin-top: 14px;
 }
 
 .about-grid p strong {
