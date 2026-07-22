@@ -37,7 +37,53 @@
     },
   };
 
+  /** Friendly aliases for shareable URLs (#macro-bias → macro, etc.). */
+  const PROJECT_ALIASES = {
+    "macro-bias": "macro",
+    macrobias: "macro",
+    "vector-bot": "vectorbot",
+    poly: "polymarket",
+  };
+
+  const BASE_TITLE = "Finlay Phillips · Pixel Garden";
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function resolveProjectId(raw) {
+    if (!raw) return null;
+    const key = String(raw).toLowerCase().replace(/^#\/?/, "").split(/[/?#]/)[0];
+    if (!key) return null;
+    if (PROJECTS[key]) return key;
+    if (PROJECT_ALIASES[key] && PROJECTS[PROJECT_ALIASES[key]]) return PROJECT_ALIASES[key];
+    return null;
+  }
+
+  function projectIdFromLocation() {
+    // Prefer hash: https://findalmkskindal.github.io/#tickforge
+    const fromHash = resolveProjectId(location.hash);
+    if (fromHash) return fromHash;
+    // Also support ?project=tickforge
+    try {
+      const q = new URLSearchParams(location.search).get("project");
+      return resolveProjectId(q);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function homeUrl() {
+    return (location.pathname || "/") + (location.search || "");
+  }
+
+  /** Update the address bar without reloading. */
+  function setProjectRoute(id, { replace } = {}) {
+    const want = id ? "#" + id : homeUrl();
+    const current = id ? location.hash : location.pathname + location.search + location.hash;
+    const same = id ? location.hash === "#" + id : !location.hash || location.hash === "#" || location.hash === "#/";
+    if (same && id) return;
+    if (!id && (!location.hash || location.hash === "#" || location.hash === "#/")) return;
+    const fn = replace ? history.replaceState : history.pushState;
+    fn.call(history, id ? { project: id } : { project: null }, "", want);
+  }
 
   /* ─── Canvas bush (thinned density) ─────────────────────────── */
   (function paintBush() {
@@ -357,6 +403,8 @@
     closeShell();
     closeAllContentModals();
     document.body.classList.remove("modal-open");
+    setProjectRoute(null);
+    document.title = BASE_TITLE;
     window.scrollTo(0, 0);
   });
 
@@ -415,6 +463,8 @@
     return shell && !shell.hidden;
   }
 
+  let activeProjectId = null;
+
   function hideProjectIntro(immediate) {
     if (projectIntroCleanup) {
       projectIntroCleanup();
@@ -472,34 +522,79 @@
     };
   }
 
-  function openProject(id) {
-    const p = PROJECTS[id];
+  /**
+   * Open a project shell.
+   * @param {string} id project key
+   * @param {{ fromRoute?: boolean }} [opts] fromRoute: URL already points here (deep link / back-forward)
+   */
+  function openProject(id, opts) {
+    const resolved = resolveProjectId(id);
+    const p = resolved && PROJECTS[resolved];
     if (!p || !shell) return;
+    const fromRoute = opts && opts.fromRoute;
+
     closeAllContentModals();
     closeProjectsMenu();
     lastFocus = document.activeElement;
+
+    // Same project already open — still ensure URL/title are right
+    if (activeProjectId === resolved && isShellOpen()) {
+      if (!fromRoute) setProjectRoute(resolved);
+      document.title = p.title + " · " + BASE_TITLE;
+      return;
+    }
+
+    activeProjectId = resolved;
     shellTitle.textContent = p.title;
     shellOpen.href = p.href;
-    shellFrame.src = p.href;
+    // Avoid reloading iframe if same href is already showing
+    if (shellFrame.getAttribute("data-project") !== resolved) {
+      shellFrame.src = p.href;
+      shellFrame.setAttribute("data-project", resolved);
+    }
     shell.hidden = false;
     document.body.classList.add("modal-open", "shell-open");
+    document.title = p.title + " · " + BASE_TITLE;
+    if (!fromRoute) setProjectRoute(resolved);
     showProjectIntro(p);
     document.getElementById("btnBackGarden")?.focus();
   }
 
-  function closeShell() {
+  /**
+   * Close shell and return to garden.
+   * @param {{ fromRoute?: boolean }} [opts]
+   */
+  function closeShell(opts) {
     if (!shell) return;
+    const fromRoute = opts && opts.fromRoute;
     hideProjectIntro(true);
     shell.hidden = true;
     shellFrame.src = "about:blank";
+    shellFrame.removeAttribute("data-project");
+    activeProjectId = null;
     document.body.classList.remove("shell-open");
+    document.title = BASE_TITLE;
     if (!document.querySelector(".modal:not([hidden])")) {
       document.body.classList.remove("modal-open");
     }
+    if (!fromRoute) setProjectRoute(null);
     if (lastFocus && lastFocus.focus) lastFocus.focus();
   }
 
-  document.getElementById("btnBackGarden")?.addEventListener("click", closeShell);
+  /** Sync shell open/closed to the current URL (hash or ?project=). */
+  function applyRouteFromLocation() {
+    const id = projectIdFromLocation();
+    if (id) {
+      openProject(id, { fromRoute: true });
+    } else if (isShellOpen()) {
+      closeShell({ fromRoute: true });
+    }
+  }
+
+  document.getElementById("btnBackGarden")?.addEventListener("click", () => closeShell());
+
+  window.addEventListener("popstate", applyRouteFromLocation);
+  window.addEventListener("hashchange", applyRouteFromLocation);
 
   document.querySelectorAll("[data-open]").forEach((el) => {
     el.addEventListener("click", (e) => {
@@ -509,7 +604,7 @@
     });
   });
 
-  /* Boss flowers: intercept navigation → modal */
+  /* Boss flowers: intercept navigation → project shell + URL */
   document.querySelectorAll(".boss").forEach((boss) => {
     boss.addEventListener("mouseenter", () => petalBurst(boss));
     boss.addEventListener("focus", () => petalBurst(boss));
@@ -580,4 +675,7 @@
       setNavOpen(false);
     }
   });
+
+  /* Deep links: open project from URL on first load */
+  applyRouteFromLocation();
 })();
