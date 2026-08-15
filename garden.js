@@ -7,7 +7,7 @@
   const PROJECTS = {
     toolbox: {
       title: "TOOLBOX",
-      href: "./demos/toolbox.html?v=lean1",
+      href: "./demos/toolbox.html?v=lean2",
       openHref: "https://toolboxmaths.com/",
       blurb:
         "Toolbox is the live GCSE and A-Level platform I co-founded. This walkthrough is the engineering: Russell writes, an internal site-MCP supplies bank / diagrams / progress, and Element Authority vetoes illegal cards. The student product is at toolboxmaths.com.",

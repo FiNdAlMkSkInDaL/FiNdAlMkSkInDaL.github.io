@@ -118,7 +118,18 @@
         text-transform: uppercase;
         color: var(--mute2);
       }
-      .asks-list { display: flex; flex-direction: column; gap: 0.35rem; }
+      .asks {
+        min-height: 0;
+        overflow: hidden;
+      }
+      .asks-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+      }
       .ask {
         text-align: left;
         font: inherit;
@@ -138,16 +149,22 @@
       }
 
       .flow {
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-        flex-wrap: wrap;
-        margin-bottom: 0.85rem;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr auto 1fr;
+        gap: 0.2rem 0.35rem;
+        align-items: start;
+        margin-bottom: 0.45rem;
         font-family: var(--mono);
         font-size: 0.62rem;
         letter-spacing: 0.04em;
         text-transform: uppercase;
         color: var(--mute2);
+      }
+      .flow .step {
+        display: flex;
+        flex-direction: column;
+        gap: 0.18rem;
+        min-width: 0;
       }
       .flow b {
         font-weight: 600;
@@ -155,6 +172,7 @@
         padding: 0.18rem 0.45rem;
         border-radius: 999px;
         border: 1px solid transparent;
+        width: fit-content;
       }
       .flow b.on {
         color: var(--em2);
@@ -166,7 +184,25 @@
         border-color: rgba(251, 113, 133, 0.45);
         background: rgba(251, 113, 133, 0.1);
       }
-      .flow .sep { opacity: 0.4; }
+      .flow .hint {
+        font-family: var(--font);
+        font-size: 0.68rem;
+        font-weight: 400;
+        letter-spacing: 0;
+        text-transform: none;
+        line-height: 1.3;
+        color: var(--mute2);
+      }
+      .flow .sep {
+        opacity: 0.4;
+        padding-top: 0.28rem;
+      }
+      .flow-note {
+        margin: 0 0 0.8rem;
+        font-size: 0.78rem;
+        color: var(--mute2);
+        line-height: 1.4;
+      }
 
       .mcp {
         display: flex;
@@ -223,7 +259,7 @@
         background: rgba(251, 191, 36, 0.07);
       }
       .card .stem { font-weight: 600; font-size: 1.02rem; }
-      .diagram { display: block; width: 100%; height: 88px; margin-top: 0.45rem; }
+      .diagram { display: block; width: 100%; height: 108px; margin-top: 0.45rem; }
 
       .foot {
         margin-top: auto;
@@ -269,13 +305,23 @@
 
         <section class="turn">
           <p class="kicker">This turn</p>
-          <div class="flow" id="flow" aria-hidden="true">
-            <b data-step="mcp">MCP</b>
+          <div class="flow" id="flow">
+            <div class="step">
+              <b data-step="mcp">MCP</b>
+              <span class="hint">pulls bank, diagrams, progress</span>
+            </div>
             <span class="sep">→</span>
-            <b data-step="auth">Authority</b>
+            <div class="step">
+              <b data-step="auth">Authority</b>
+              <span class="hint">allows or blocks the card</span>
+            </div>
             <span class="sep">→</span>
-            <b data-step="student">Student</b>
+            <div class="step">
+              <b data-step="student">Student</b>
+              <span class="hint">sees only what cleared</span>
+            </div>
           </div>
+          <p class="flow-note">Russell writes the reply. Tools fetch facts. A gate strips anything illegal.</p>
           <div class="mcp" id="mcp"><span class="empty">Pick an ask.</span></div>
           <div class="verdict" id="verdict">waiting</div>
           <div class="reply" id="reply">
@@ -307,10 +353,11 @@
 
     <script>
       const TANGENT_SVG =
-        '<svg class="diagram" viewBox="0 0 200 86" aria-hidden="true">' +
-        '<path d="M8,70 Q70,8 192,52" fill="none" stroke="#34d399" stroke-width="2"/>' +
-        '<line x1="36" y1="74" x2="150" y2="14" stroke="#fbbf24" stroke-width="2"/>' +
-        '<circle cx="92" cy="38" r="3.5" fill="#ecfdf5"/>' +
+        '<svg class="diagram" viewBox="0 0 210 96" aria-hidden="true">' +
+        '<path d="M18,54 Q72,6 192,78" fill="none" stroke="#34d399" stroke-width="2.4" stroke-linecap="round"/>' +
+        '<line x1="46.3" y1="25.5" x2="159.3" y2="51.9" stroke="#fbbf24" stroke-width="2.4" stroke-linecap="round"/>' +
+        '<circle cx="102.8" cy="38.7" r="4" fill="#ecfdf5"/>' +
+        '<circle cx="102.8" cy="38.7" r="7" fill="none" stroke="#ecfdf5" stroke-width="1" opacity="0.35"/>' +
         "</svg>";
 
       const SCENARIOS = [
@@ -338,6 +385,49 @@
           authority: { kind: "pass", label: "allowed" },
           paragraphs: ["Outer power, then inner. Your turn."],
           card: { stem: "Differentiate (3x² + 1)⁵" },
+        },
+        {
+          id: "mark",
+          label: "I got 30x(3x² + 1)⁴",
+          pulls: [
+            { label: "open card", fail: false },
+            { label: "mark attempt", fail: false },
+          ],
+          authority: { kind: "pass", label: "allowed" },
+          paragraphs: [
+            "Correct. Chain rule: 5(3x² + 1)⁴ · 6x = 30x(3x² + 1)⁴.",
+          ],
+        },
+        {
+          id: "plan",
+          label: "Make me a revision plan",
+          pulls: [
+            { label: "progress", fail: false },
+            { label: "calendar", fail: false },
+          ],
+          authority: { kind: "pass", label: "allowed" },
+          paragraphs: [
+            "Pulled your weak topics rather than inventing a subject list.",
+          ],
+          card: { stem: "Tue chain rule · Thu kinematics · Sat mixed retest" },
+        },
+        {
+          id: "challenge",
+          label: "What's today's challenge?",
+          pulls: [{ label: "daily challenge", fail: false }],
+          authority: { kind: "pass", label: "allowed" },
+          paragraphs: ["Today's Challenge tab question, not a random bank stem."],
+          card: { stem: "A particle moves with v = 3t² − 2. Find a when t = 4." },
+        },
+        {
+          id: "orient",
+          label: "What is A-Level Pure?",
+          pulls: [],
+          authority: { kind: "pass", label: "allowed · no card" },
+          paragraphs: [
+            "Pure is the algebra, calculus, and trigonometry core. Mechanics and Statistics sit beside it, not inside it.",
+            "Does that make sense?",
+          ],
         },
         {
           id: "cheat",
@@ -433,6 +523,10 @@
           chip.textContent = pull.label;
           mcpEl.appendChild(chip);
           await wait(220);
+        }
+        if (!s.pulls.length) {
+          mcpEl.innerHTML = '<span class="empty">no tools this turn</span>';
+          await wait(160);
         }
 
         if (token !== runToken) return;
