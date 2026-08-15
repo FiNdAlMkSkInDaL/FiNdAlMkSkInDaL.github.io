@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" data-build="garden-v4">
+<html lang="en" data-build="garden-v5-toolbox">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Finlay Phillips — UCL EEE. Pixel garden portfolio: TickForge, VectorBot, Polymarket shadow stack, Macro Bias, Identity. Hover a project flower to explore."
+      content="Finlay Phillips — UCL EEE. Pixel garden portfolio: Toolbox Maths, TickForge, VectorBot, Polymarket shadow stack, Macro Bias, Identity. Hover a project flower to explore."
     />
     <meta name="theme-color" content="#14532d" />
     <meta property="og:title" content="Finlay Phillips · Pixel Garden" />
@@ -16,7 +16,7 @@
     <meta property="og:type" content="website" />
     <title>Finlay Phillips · Pixel Garden</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css?v=no-nav-brand-1" />
+    <link rel="stylesheet" href="./styles.css?v=toolbox-cv-1" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -54,6 +54,7 @@
               PROJECTS ▾
             </button>
             <ul class="nav-menu" id="projectsMenu" hidden>
+              <li><button type="button" data-open="toolbox">Toolbox</button></li>
               <li><button type="button" data-open="tickforge">TickForge</button></li>
               <li><button type="button" data-open="polymarket">Polymarket</button></li>
               <li><button type="button" data-open="macro">Macro Bias</button></li>
@@ -64,6 +65,26 @@
           <button type="button" class="nav-btn" id="btnAbout" data-modal="about">ABOUT</button>
           <button type="button" class="nav-btn" id="btnSkills" data-modal="skills">SKILLS</button>
           <button type="button" class="nav-btn" id="btnContact" data-modal="contact">CONTACT</button>
+          <div class="nav-drop">
+            <button type="button" class="nav-btn" id="btnCvs" aria-expanded="false" aria-controls="cvsMenu">
+              CV ▾
+            </button>
+            <ul class="nav-menu nav-menu-cv" id="cvsMenu" hidden>
+              <li>
+                <a href="./cv/Finlay_Phillips_CV_Software_Data.pdf" target="_blank" rel="noopener noreferrer"
+                  >Software / Data</a
+                >
+              </li>
+              <li>
+                <a href="./cv/Finlay_Phillips_CV_ML.pdf" target="_blank" rel="noopener noreferrer"
+                  >Machine Learning</a
+                >
+              </li>
+              <li>
+                <a href="./cv/Finlay_Phillips_CV_EEE.pdf" target="_blank" rel="noopener noreferrer">EEE</a>
+              </li>
+            </ul>
+          </div>
           <a
             class="nav-btn nav-ext"
             href="https://github.com/FiNdAlMkSkInDaL"
@@ -105,6 +126,29 @@
 
       <!-- Project flowers (garden view) -->
       <nav class="boss-flowers" id="projects" aria-label="Project flowers">
+        <a
+          class="boss b-toolbox theme-toolbox"
+          href="./demos/toolbox.html?v=1"
+          data-id="toolbox"
+          data-title="TOOLBOX"
+          data-desc="Russell coach, site-MCP, live product"
+          data-tags="TypeScript · agents · production"
+          style="--bob-delay: 0.2s"
+        >
+          <span class="name-tag" aria-hidden="true">
+            <strong>TOOLBOX</strong>
+            <em>Russell coach, site-MCP, live product</em>
+            <span class="tags">TypeScript · agents · production</span>
+          </span>
+          <span class="plant" aria-hidden="true">
+            <span class="stem"></span>
+            <span class="leaf leaf-l"></span>
+            <span class="leaf leaf-r"></span>
+            <span class="boss-bloom shape-gear"></span>
+          </span>
+          <span class="sr-only">Toolbox Maths — open project</span>
+        </a>
+
         <a
           class="boss b-tick theme-tickforge"
           href="https://findalmkskindal.github.io/tickforge/explorer/"
@@ -226,6 +270,19 @@
         <h2 class="list-heading">PROJECTS</h2>
         <ul class="project-list">
           <li>
+            <button type="button" class="list-card theme-toolbox" data-open="toolbox">
+              <span class="list-flower" aria-hidden="true">
+                <span class="list-stem"></span>
+                <span class="list-bloom shape-gear"></span>
+              </span>
+              <span class="list-body">
+                <strong>TOOLBOX</strong>
+                <em>Russell coach, site-MCP, live product</em>
+                <span class="tags">TypeScript · agents · production</span>
+              </span>
+            </button>
+          </li>
+          <li>
             <button type="button" class="list-card theme-tickforge" data-open="tickforge">
               <span class="list-flower" aria-hidden="true">
                 <span class="list-stem"></span>
@@ -299,11 +356,18 @@
           <h1>Finlay Phillips</h1>
           <p>UCL Electronic &amp; Electrical Engineering. Project demos:</p>
           <ul>
+            <li><a href="./demos/toolbox.html">Toolbox Maths</a></li>
             <li><a href="https://findalmkskindal.github.io/tickforge/explorer/">TickForge</a></li>
             <li><a href="./demos/polymarket.html">Polymarket</a></li>
             <li><a href="./demos/macro-bias.html">Macro Bias</a></li>
             <li><a href="./demos/identity.html">Identity</a></li>
             <li><a href="./demos/vectorbot.html">VectorBot</a></li>
+          </ul>
+          <p>CVs:</p>
+          <ul>
+            <li><a href="./cv/Finlay_Phillips_CV_Software_Data.pdf">Software / Data</a></li>
+            <li><a href="./cv/Finlay_Phillips_CV_ML.pdf">Machine Learning</a></li>
+            <li><a href="./cv/Finlay_Phillips_CV_EEE.pdf">EEE</a></li>
           </ul>
         </div>
       </noscript>
@@ -320,8 +384,8 @@
           <div class="about-copy">
             <p class="about-lead">Finlay Phillips</p>
             <p>
-              UCL Electronic &amp; Electrical Engineering student. I build software
-              around markets, data, and AI systems.
+              UCL Electronic &amp; Electrical Engineering student. I co-founded
+              Toolbox Maths, and I build software around markets, data, and AI systems.
             </p>
             <p>
               On the data side that means live pipelines, Parquet lakes, walk-forward
@@ -355,6 +419,7 @@
 
           <p class="skills-label">What I build with them</p>
           <ul class="skills-list">
+            <li>Production EdTech: agent coach, site-MCP, Stripe/Azure (TypeScript)</li>
             <li>Order books, matching, and small market-making sims (C++)</li>
             <li>Live data pipelines, shadow tests, VPS jobs (Python)</li>
             <li>Web apps with real auth / DB / crons (TypeScript)</li>
@@ -387,6 +452,22 @@
           </li>
           <li>
             <a href="mailto:finlayp32@gmail.com">Email · finlayp32@gmail.com</a>
+          </li>
+        </ul>
+        <p class="contact-blurb contact-cv-label">CVs by track:</p>
+        <ul class="contact-list">
+          <li>
+            <a href="./cv/Finlay_Phillips_CV_Software_Data.pdf" target="_blank" rel="noopener noreferrer"
+              >Software / Data PDF</a
+            >
+          </li>
+          <li>
+            <a href="./cv/Finlay_Phillips_CV_ML.pdf" target="_blank" rel="noopener noreferrer"
+              >Machine Learning PDF</a
+            >
+          </li>
+          <li>
+            <a href="./cv/Finlay_Phillips_CV_EEE.pdf" target="_blank" rel="noopener noreferrer">EEE PDF</a>
           </li>
         </ul>
       </div>
@@ -424,6 +505,6 @@
     </div>
 
     <link rel="stylesheet" href="./demos/intro-modal.css?v=2" />
-    <script src="./garden.js?v=garden-v9-routes"></script>
+    <script src="./garden.js?v=garden-v12-toolbox-cv"></script>
   </body>
 </html>

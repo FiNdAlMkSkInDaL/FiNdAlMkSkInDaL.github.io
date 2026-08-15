@@ -569,7 +569,8 @@ body.shell-open .world-dim {
   min-width: 168px;
 }
 
-.nav-menu button {
+.nav-menu button,
+.nav-menu a {
   width: 100%;
   text-align: left;
   font: inherit;
@@ -580,13 +581,27 @@ body.shell-open .world-dim {
   background: transparent;
   cursor: var(--pixel-cursor);
   color: var(--ink);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
 }
 
 .nav-menu button:hover,
-.nav-menu button:focus-visible {
+.nav-menu button:focus-visible,
+.nav-menu a:hover,
+.nav-menu a:focus-visible {
   background: var(--moss);
   border-color: var(--leaf-deep);
   outline: none;
+}
+
+.nav-menu-cv {
+  min-width: 196px;
+}
+
+.contact-cv-label {
+  margin-top: 18px;
 }
 
 .view-toggle {
@@ -853,6 +868,16 @@ body.list-mode .hud {
   --tag-fg: #c4b5fd;
   --tag-bd: #a78bfa;
 }
+.boss.theme-toolbox {
+  --p: #34d399;
+  --p2: #6ee7b7;
+  --p3: #fbbf24;
+  --c: #07110c;
+  --g: rgba(52, 211, 153, 0.9);
+  --tag-bg: #07110c;
+  --tag-fg: #6ee7b7;
+  --tag-bd: #fbbf24;
+}
 
 /* Spaced so blooms clear branches / each other */
 .b-tick {
@@ -879,9 +904,15 @@ body.list-mode .hud {
   left: auto;
   top: 46%;
 }
+.b-toolbox {
+  left: 48%;
+  top: 28%;
+  margin-left: -75px;
+  z-index: 3;
+}
 
 /*
- * Shared bloom geometry (all five projects).
+ * Shared bloom geometry (project flowers).
  * Theme colours only — same petal ring, same stem, same scale.
  */
 .boss-bloom {
@@ -1047,6 +1078,29 @@ body.list-mode .hud {
 .boss-bloom.shape-rose::after {
   background: #1e1b4b;
   box-shadow: 0 0 0 2px #c4b5fd;
+}
+.boss-bloom.shape-gear {
+  background: #07110c;
+  box-shadow:
+    0 -28px 0 7px var(--p2),
+    0 28px 0 7px var(--p2),
+    -28px 0 0 7px var(--p3),
+    28px 0 0 7px var(--p3),
+    -20px -20px 0 5px var(--p),
+    20px -20px 0 5px var(--p),
+    -20px 20px 0 5px var(--p),
+    20px 20px 0 5px var(--p),
+    0 -40px 0 2px #fde68a,
+    0 40px 0 2px #34d399,
+    -40px 0 0 2px #fbbf24,
+    40px 0 0 2px #6ee7b7,
+    0 0 0 4px #14532d,
+    0 0 0 7px #fbbf24,
+    0 0 36px 12px var(--g);
+}
+.boss-bloom.shape-gear::after {
+  background: #fbbf24;
+  box-shadow: 0 0 0 2px #07110c, 0 0 8px #34d399;
 }
 
 /* Rich tooltip */
@@ -1260,6 +1314,12 @@ body.list-mode .hud {
   --p2: #e879f9;
   --c: #22d3ee;
   --g: rgba(232, 121, 249, 0.5);
+}
+.list-card.theme-toolbox {
+  --p: #34d399;
+  --p2: #6ee7b7;
+  --c: #07110c;
+  --g: rgba(52, 211, 153, 0.5);
 }
 
 .list-body strong {
@@ -1678,6 +1738,11 @@ body.list-mode .hud {
   }
   .b-vector {
     top: 66%;
+  }
+  .b-toolbox {
+    left: 48%;
+    top: 18%;
+    margin-left: -64px;
   }
 }
 

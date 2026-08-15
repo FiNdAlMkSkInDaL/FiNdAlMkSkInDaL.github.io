@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <title>Toolbox Maths · Russell + site-MCP</title>
+    <meta
+      name="description"
+      content="Recruiter walkthrough of Toolbox Maths: Russell the coach, internal site-MCP catalog, and Element Authority. Live product at toolboxmaths.com."
+    />
+    <link rel="icon" href="./favicon-toolbox.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #07110c;
+        --panel: rgba(10, 24, 18, 0.94);
+        --border: rgba(52, 211, 153, 0.16);
+        --text: #ecfdf5;
+        --muted: #a7f3d0;
+        --mute2: #6b9080;
+        --em: #34d399;
+        --em2: #6ee7b7;
+        --brass: #fbbf24;
+        --rose: #fb7185;
+        --sky: #67e8f9;
+        --font: "IBM Plex Sans", system-ui, sans-serif;
+        --mono: "IBM Plex Mono", ui-monospace, monospace;
+      }
+      *, *::before, *::after { box-sizing: border-box; }
+      html, body { height: 100%; height: 100dvh; margin: 0; overflow: hidden; }
+      body {
+        font-family: var(--font);
+        color: var(--text);
+        background: var(--bg);
+        -webkit-font-smoothing: antialiased;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(ellipse 70% 40% at 8% 0%, rgba(52, 211, 153, 0.12), transparent 50%),
+          radial-gradient(ellipse 40% 28% at 92% 8%, rgba(251, 191, 36, 0.07), transparent 45%);
+      }
+      * { scrollbar-width: none; }
+      *::-webkit-scrollbar { display: none; }
+
+      .app {
+        position: relative;
+        z-index: 1;
+        height: 100%;
+        height: 100dvh;
+        display: grid;
+        grid-template-rows: 48px 34px minmax(0, 1fr) minmax(92px, 0.22fr);
+        overflow: hidden;
+      }
+
+      .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 0.85rem;
+        border-bottom: 1px solid var(--border);
+        background: rgba(7, 17, 12, 0.94);
+        backdrop-filter: blur(10px);
+        gap: 0.75rem;
+      }
+      .brand { display: flex; align-items: center; gap: 0.55rem; min-width: 0; }
+      .mark {
+        width: 28px; height: 28px; border-radius: 7px;
+        display: grid; place-items: center;
+        font-family: var(--mono); font-size: 0.62rem; font-weight: 700;
+        color: #07110c;
+        background: linear-gradient(135deg, #34d399, #fbbf24);
+        flex-shrink: 0;
+      }
+      .brand h1 { margin: 0; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+      .brand p {
+        margin: 0; font-size: 0.62rem; color: var(--mute2);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .top-links { display: flex; gap: 0.65rem; flex-shrink: 0; }
+      .top-links a {
+        font-family: var(--mono); font-size: 0.72rem;
+        color: var(--mute2); text-decoration: none;
+      }
+      .top-links a:hover { color: var(--em2); }
+      .top-links a.live { color: var(--brass); }
+
+      .doctrine {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0 0.85rem;
+        border-bottom: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.28);
+        overflow: auto;
+      }
+      .doctrine span {
+        font-family: var(--mono);
+        font-size: 0.62rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--mute2);
+        white-space: nowrap;
+        padding: 0.15rem 0.45rem;
+        border-radius: 999px;
+        border: 1px solid transparent;
+      }
+      .doctrine span.on {
+        color: var(--em2);
+        border-color: rgba(52, 211, 153, 0.45);
+        background: rgba(52, 211, 153, 0.1);
+      }
+      .doctrine span.veto {
+        color: var(--rose);
+        border-color: rgba(251, 113, 133, 0.45);
+        background: rgba(251, 113, 133, 0.1);
+      }
+      .doctrine .dot { color: var(--mute2); opacity: 0.5; }
+
+      .stage {
+        display: grid;
+        grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr) minmax(0, 1.28fr);
+        gap: 0.55rem;
+        padding: 0.55rem 0.55rem 0.35rem;
+        min-height: 0;
+        overflow: hidden;
+      }
+      @media (max-width: 980px) {
+        .app { grid-template-rows: 48px auto minmax(0, 1fr); overflow: auto; }
+        .stage { grid-template-columns: 1fr; height: auto; overflow: visible; }
+        .receipts { min-height: 0; }
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.7rem 0.75rem;
+        min-height: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .panel-h {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        flex-shrink: 0;
+      }
+      .panel-h h2 {
+        margin: 0;
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--mute2);
+      }
+      .panel-h .hint {
+        font-family: var(--mono);
+        font-size: 0.58rem;
+        color: var(--mute2);
+      }
+      .panel-body {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+      }
+
+      .presets { display: flex; flex-direction: column; gap: 0.28rem; }
+      .preset {
+        text-align: left;
+        font: inherit;
+        font-size: 0.76rem;
+        padding: 0.42rem 0.5rem;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        background: rgba(0, 0, 0, 0.22);
+        color: var(--muted);
+        cursor: pointer;
+      }
+      .preset:hover { border-color: rgba(52, 211, 153, 0.3); color: var(--text); }
+      .preset.active {
+        border-color: rgba(52, 211, 153, 0.5);
+        background: rgba(52, 211, 153, 0.1);
+        color: var(--text);
+      }
+      .preset small {
+        display: block;
+        font-family: var(--mono);
+        font-size: 0.58rem;
+        color: var(--mute2);
+        margin-top: 0.12rem;
+      }
+
+      .note {
+        margin-top: auto;
+        font-size: 0.68rem;
+        color: var(--mute2);
+        line-height: 1.4;
+      }
+
+      .tools {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.28rem;
+      }
+      .tool {
+        font-family: var(--mono);
+        font-size: 0.62rem;
+        padding: 0.38rem 0.42rem;
+        border-radius: 7px;
+        border: 1px solid rgba(52, 211, 153, 0.1);
+        background: rgba(0, 0, 0, 0.22);
+        color: var(--mute2);
+        line-height: 1.25;
+      }
+      .tool b { display: block; font-weight: 600; color: var(--muted); }
+      .tool.on {
+        border-color: rgba(52, 211, 153, 0.55);
+        background: rgba(52, 211, 153, 0.12);
+        color: var(--em2);
+      }
+      .tool.on b { color: var(--em2); }
+      .tool.fail {
+        border-color: rgba(251, 113, 133, 0.5);
+        background: rgba(251, 113, 133, 0.1);
+        color: var(--rose);
+      }
+      .tool.fail b { color: var(--rose); }
+      .tool.skip {
+        opacity: 0.42;
+      }
+      .tool.deferred b::after {
+        content: " deferred";
+        font-weight: 500;
+        color: var(--brass);
+      }
+
+      .planes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+      }
+      .plane {
+        font-family: var(--mono);
+        font-size: 0.55rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 0.12rem 0.35rem;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        color: var(--mute2);
+      }
+      .plane.on {
+        color: var(--sky);
+        border-color: rgba(103, 232, 249, 0.4);
+        background: rgba(103, 232, 249, 0.08);
+      }
+
+      .trace {
+        font-family: var(--mono);
+        font-size: 0.66rem;
+        line-height: 1.45;
+        color: var(--mute2);
+        min-height: 4.2rem;
+      }
+      .trace .line { margin: 0.1rem 0; }
+      .trace .ok { color: var(--em2); }
+      .trace .bad { color: var(--rose); }
+      .trace .dim { color: var(--mute2); }
+
+      .authority {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        padding: 0.4rem 0.5rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.25);
+        font-family: var(--mono);
+        font-size: 0.66rem;
+      }
+      .authority.pass { border-color: rgba(52, 211, 153, 0.45); color: var(--em2); }
+      .authority.veto { border-color: rgba(251, 113, 133, 0.45); color: var(--rose); }
+      .authority .why { color: var(--muted); font-weight: 400; text-align: right; }
+
+      .reply {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        padding: 0.55rem 0.6rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.28);
+        font-size: 0.8rem;
+        line-height: 1.5;
+      }
+      .reply .who {
+        font-family: var(--mono);
+        font-size: 0.58rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--brass);
+        margin-bottom: 0.35rem;
+      }
+      .reply p { margin: 0 0 0.55rem; }
+      .reply p:last-child { margin-bottom: 0; }
+      .reply .empty { color: var(--mute2); }
+
+      .card {
+        margin-top: 0.55rem;
+        padding: 0.5rem 0.55rem;
+        border-radius: 8px;
+        border: 1px solid rgba(251, 191, 36, 0.35);
+        background: rgba(251, 191, 36, 0.08);
+      }
+      .card .k {
+        font-family: var(--mono);
+        font-size: 0.55rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--brass);
+        margin-bottom: 0.25rem;
+      }
+      .card .stem { font-weight: 600; }
+      .diagram {
+        display: block;
+        width: 100%;
+        height: 72px;
+        margin-top: 0.35rem;
+      }
+
+      .receipts {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.45rem;
+        padding: 0.45rem 0.55rem 0.55rem;
+        min-height: 0;
+      }
+      @media (max-width: 980px) {
+        .receipts { grid-template-columns: 1fr 1fr; }
+      }
+      .receipt {
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        background: var(--panel);
+        padding: 0.5rem 0.6rem;
+        min-height: 0;
+      }
+      .receipt h3 {
+        margin: 0 0 0.2rem;
+        font-family: var(--mono);
+        font-size: 0.58rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--brass);
+      }
+      .receipt p {
+        margin: 0;
+        font-size: 0.72rem;
+        color: var(--muted);
+        line-height: 1.35;
+      }
+    </style>
+  </head>
+  <link rel="stylesheet" href="./mobile-polish.css?v=m1" />
+  <link rel="stylesheet" href="./intro-modal.css?v=2" />
+  <body>
+    <link rel="stylesheet" href="./garden-back.css?v=m1" />
+    <a class="garden-back" href="../">← GARDEN</a>
+    <script>
+      try {
+        if (window.self !== window.top) document.documentElement.classList.add("in-garden-frame");
+      } catch (e) {
+        document.documentElement.classList.add("in-garden-frame");
+      }
+    </script>
+    <div class="app">
+      <header class="top">
+        <div class="brand">
+          <span class="mark">TB</span>
+          <div>
+            <h1>Toolbox Maths</h1>
+            <p>Russell · internal site-MCP · Element Authority · live product</p>
+          </div>
+        </div>
+        <div class="top-links">
+          <a class="live" href="https://toolboxmaths.com/" target="_blank" rel="noopener">toolboxmaths.com</a>
+          <a href="../">portfolio</a>
+        </div>
+      </header>
+
+      <div class="doctrine" id="doctrine" aria-label="Coach loop">
+        <span data-step="model">Model authors</span>
+        <span class="dot">·</span>
+        <span data-step="mcp">MCP supplies</span>
+        <span class="dot">·</span>
+        <span data-step="auth">Authority vetoes</span>
+        <span class="dot">·</span>
+        <span data-step="student">Student sees the rest</span>
+      </div>
+
+      <main class="stage">
+        <section class="panel">
+          <div class="panel-h">
+            <h2>1 · Student turn</h2>
+            <span class="hint mono">pick a fixture</span>
+          </div>
+          <div class="panel-body">
+            <div class="presets" id="presets"></div>
+            <p class="note">
+              Fixture walkthrough of the production loop — not a live model call.
+              Russell still has to fetch; he does not get the whole product stuffed into the prompt.
+            </p>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-h">
+            <h2>2 · Site-MCP catalog</h2>
+            <span class="hint mono">pull when needed</span>
+          </div>
+          <div class="panel-body">
+            <div class="planes" id="planes"></div>
+            <div class="tools" id="tools"></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-h">
+            <h2>3 · Coach loop</h2>
+            <span class="hint mono">tokens stripped before render</span>
+          </div>
+          <div class="panel-body">
+            <div class="trace" id="trace">
+              <div class="empty">Pick a student turn.</div>
+            </div>
+            <div class="authority" id="authority">
+              <strong>Authority</strong>
+              <span class="why">waiting</span>
+            </div>
+            <div class="reply" id="reply">
+              <div class="who">Russell · student-visible</div>
+              <p class="empty">The model may emit FOCUS / TURN / ELEMENT tokens. Authority strips or vetoes them. This pane is what the student actually gets.</p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <section class="receipts" aria-label="Production receipts">
+        <article class="receipt">
+          <h3>Product</h3>
+          <p>Live GCSE / A-Level platform with notes, bank, whiteboard, and paid entitlements.</p>
+        </article>
+        <article class="receipt">
+          <h3>Russell</h3>
+          <p>Patient coach. Method before answer. No capability menus, no invented mark schemes.</p>
+        </article>
+        <article class="receipt">
+          <h3>Site-MCP</h3>
+          <p>In-process catalog: bank, diagrams, progress, notebook. Tools attach; they do not teach.</p>
+        </article>
+        <article class="receipt">
+          <h3>Production</h3>
+          <p>Vue client, Azure Functions, Cosmos, Stripe webhooks with idempotent billing queues.</p>
+        </article>
+      </section>
+    </div>
+
+    <div
+      class="intro-modal"
+      id="introModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="introTitle"
+    >
+      <div class="intro-modal__backdrop" aria-hidden="true"></div>
+      <div class="intro-modal__card">
+        <h2 class="intro-modal__title" id="introTitle">Toolbox Maths</h2>
+        <p class="intro-modal__body">
+          Toolbox is the live GCSE and A-Level platform I co-founded. This page is the
+          engineering, not the student marketing site: Russell writes, an internal site-MCP
+          supplies bank / diagrams / progress, and Element Authority vetoes illegal cards.
+          Open toolboxmaths.com for the product.
+        </p>
+        <p class="intro-modal__hint">Click or press any key to continue</p>
+      </div>
+    </div>
+
+    <script>
+      const TOOLS = [
+        { id: "send-element", plane: "ElementAuthority", summary: "Attach a legal card / MS / calendar" },
+        { id: "set-focus", plane: "SessionFocus", summary: "Commit <<FOCUS:skill>>" },
+        { id: "set-turn", plane: "SessionFocus", summary: "Emit <<TURN:move=…>>" },
+        { id: "fetch-bank", plane: "BankCurriculum", summary: "Entitled practice stem" },
+        { id: "fetch-daily-challenge", plane: "BankCurriculum", summary: "Today’s challenge question" },
+        { id: "mark-attempt", plane: "ElementAuthority", summary: "Mark a real attempt" },
+        { id: "lookup-definition", plane: "BankCurriculum", summary: "Curated dictionary only" },
+        { id: "send-diagram", plane: "ElementAuthority", summary: "Catalog SVG — never invent TikZ" },
+        { id: "view-progress", plane: "ProgressChrome", summary: "Mastery + weak topics" },
+        { id: "view-notebook", plane: "Notes", summary: "Notes snippet for Focus" },
+        { id: "calendar.preview", plane: "ProgressChrome", summary: "Revision calendar from Progress" },
+        { id: "view-whiteboard", plane: "Whiteboard", summary: "LaTeX ingest", deferred: true },
+      ];
+
+      const ALWAYS_PLANES = ["MainIdentity", "CurrentChat", "ElementAuthority", "SessionFocus"];
+      const ALL_PLANES = [
+        "MainIdentity",
+        "CurrentChat",
+        "ElementAuthority",
+        "SessionFocus",
+        "ProgressChrome",
+        "BankCurriculum",
+        "Notes",
+        "Whiteboard",
+      ];
+
+      const TANGENT_SVG =
+        '<svg class="diagram" viewBox="0 0 200 86" aria-hidden="true">' +
+        '<path d="M8,70 Q70,8 192,52" fill="none" stroke="#34d399" stroke-width="2"/>' +
+        '<line x1="36" y1="74" x2="150" y2="14" stroke="#fbbf24" stroke-width="2"/>' +
+        '<circle cx="92" cy="38" r="3.5" fill="#ecfdf5"/>' +
+        "</svg>";
+
+      const SCENARIOS = [
+        {
+          id: "tangent",
+          label: "What is a tangent?",
+          why: "definition · catalog diagram",
+          extraPlanes: ["BankCurriculum"],
+          calls: [
+            { tool: "set-turn", detail: "move=teach; closer=soft" },
+            { tool: "set-focus", detail: "<<FOCUS:tangents>>" },
+            { tool: "lookup-definition", detail: "tangent → catalog hit" },
+            { tool: "send-diagram", detail: "diagram.tangent-at-point" },
+          ],
+          authority: {
+            kind: "pass",
+            why: "definition from SSOT · diagram from catalog",
+          },
+          reply: {
+            paragraphs: [
+              "A tangent is the unique line that touches a curve at a point and has the same gradient as the curve there.",
+              "Legal form: at x = a, the tangent is y − f(a) = f'(a)(x − a). The diagram is a catalog figure, not generated TikZ.",
+              "Does that make sense?",
+            ],
+            card: {
+              kind: "diagram",
+              title: "Element · catalog diagram",
+              stem: "Tangent at the point of contact",
+              html: TANGENT_SVG,
+            },
+          },
+        },
+        {
+          id: "practice",
+          label: "Give me a chain-rule question",
+          why: "focus · bank · card",
+          extraPlanes: ["BankCurriculum"],
+          calls: [
+            { tool: "set-turn", detail: "move=practice; closer=card" },
+            { tool: "set-focus", detail: "<<FOCUS:chain-rule>>" },
+            { tool: "fetch-bank", detail: "entitled stem for Focus" },
+            { tool: "send-element", detail: "practice card (legal)" },
+          ],
+          authority: {
+            kind: "pass",
+            why: "invited practice · legal Element",
+          },
+          reply: {
+            paragraphs: [
+              "Staying on chain rule. Differentiate the composite — outer power, then inner.",
+            ],
+            card: {
+              kind: "practice",
+              title: "Element · practice",
+              stem: "Differentiate (3x² + 1)⁵",
+            },
+          },
+        },
+        {
+          id: "plan",
+          label: "Make me a revision plan",
+          why: "progress pull · no invented menu",
+          extraPlanes: ["ProgressChrome"],
+          calls: [
+            { tool: "set-turn", detail: "move=plan; closer=card" },
+            { tool: "view-progress", detail: "weak: chain rule, kinematics" },
+            { tool: "calendar.preview", detail: "from Progress, not a remenu" },
+            { tool: "send-element", detail: "calendar card" },
+          ],
+          authority: {
+            kind: "pass",
+            why: "opt-in plan · evidence from Progress",
+          },
+          reply: {
+            paragraphs: [
+              "Pulled your weak topics rather than inventing a subject list. Two sessions this week, then a retest slot.",
+            ],
+            card: {
+              kind: "calendar",
+              title: "Element · calendar",
+              stem: "Tue chain rule · Thu kinematics · Sat mixed retest",
+            },
+          },
+        },
+        {
+          id: "cheat",
+          label: "Just dump the mark scheme",
+          why: "integrity · Authority veto",
+          extraPlanes: [],
+          calls: [
+            { tool: "set-turn", detail: "move=refuse; closer=refuse" },
+            { tool: "send-element", detail: "model tried full MS", fail: true },
+          ],
+          authority: {
+            kind: "veto",
+            why: "full MS only on attempt or explicit reveal",
+          },
+          reply: {
+            paragraphs: [
+              "I can mark a real attempt, or we can work the method. I will not dump a mark scheme with no working.",
+            ],
+          },
+        },
+        {
+          id: "board",
+          label: "Can you read my whiteboard?",
+          why: "deferred tool · fail closed",
+          extraPlanes: ["Whiteboard"],
+          calls: [
+            { tool: "set-turn", detail: "move=clarify; closer=soft" },
+            { tool: "view-whiteboard", detail: "deferred — CV→LaTeX not wired", fail: true },
+          ],
+          authority: {
+            kind: "pass",
+            why: "honest miss · do not pretend the tool works",
+          },
+          reply: {
+            paragraphs: [
+              "Whiteboard ingest is not wired yet, so I will not pretend I can see the board. Paste the LaTeX or type the line you want help with.",
+            ],
+          },
+        },
+      ];
+
+      const reduceMotion =
+        window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      const els = {
+        presets: document.getElementById("presets"),
+        tools: document.getElementById("tools"),
+        planes: document.getElementById("planes"),
+        trace: document.getElementById("trace"),
+        authority: document.getElementById("authority"),
+        reply: document.getElementById("reply"),
+        doctrine: document.getElementById("doctrine"),
+      };
+
+      let runToken = 0;
+      let activeId = null;
+
+      function sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      }
+
+      function renderTools(state) {
+        els.tools.innerHTML = "";
+        TOOLS.forEach((t) => {
+          const div = document.createElement("div");
+          const st = state[t.id] || "";
+          div.className = "tool" + (t.deferred ? " deferred" : "") + (st ? " " + st : "");
+          div.innerHTML = "<b>" + t.id + "</b>" + t.summary;
+          els.tools.appendChild(div);
+        });
+      }
+
+      function renderPlanes(on) {
+        const set = new Set(on);
+        els.planes.innerHTML = "";
+        ALL_PLANES.forEach((p) => {
+          const span = document.createElement("span");
+          span.className = "plane" + (set.has(p) ? " on" : "");
+          span.textContent = p;
+          els.planes.appendChild(span);
+        });
+      }
+
+      function setDoctrine(step, veto) {
+        els.doctrine.querySelectorAll("[data-step]").forEach((n) => {
+          n.classList.remove("on", "veto");
+          if (n.getAttribute("data-step") === step) {
+            n.classList.add(veto ? "veto" : "on");
+          }
+        });
+      }
+
+      function renderPresets() {
+        els.presets.innerHTML = "";
+        SCENARIOS.forEach((s) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "preset" + (s.id === activeId ? " active" : "");
+          btn.innerHTML = s.label + "<small>" + s.why + "</small>";
+          btn.addEventListener("click", () => runScenario(s.id));
+          els.presets.appendChild(btn);
+        });
+      }
+
+      function cardHtml(card) {
+        if (!card) return "";
+        return (
+          '<div class="card"><div class="k">' +
+          card.title +
+          '</div><div class="stem">' +
+          card.stem +
+          "</div>" +
+          (card.html || "") +
+          "</div>"
+        );
+      }
+
+      function renderReply(s, show) {
+        if (!show) {
+          els.reply.innerHTML =
+            '<div class="who">Russell · student-visible</div><p class="empty">Waiting on Authority…</p>';
+          return;
+        }
+        els.reply.innerHTML =
+          '<div class="who">Russell · student-visible</div>' +
+          s.reply.paragraphs.map((p) => "<p>" + p + "</p>").join("") +
+          cardHtml(s.reply.card);
+      }
+
+      function renderAuthority(s, show) {
+        els.authority.className = "authority" + (show ? " " + s.authority.kind : "");
+        els.authority.innerHTML =
+          "<strong>" +
+          (show ? (s.authority.kind === "veto" ? "VETO" : "PASS") : "Authority") +
+          '</strong><span class="why">' +
+          (show ? s.authority.why : "waiting") +
+          "</span>";
+      }
+
+      async function runScenario(id) {
+        const s = SCENARIOS.find((x) => x.id === id);
+        if (!s) return;
+        const token = ++runToken;
+        activeId = id;
+        renderPresets();
+
+        const toolState = {};
+        TOOLS.forEach((t) => {
+          if (!s.calls.some((c) => c.tool === t.id)) toolState[t.id] = "skip";
+        });
+        renderTools(toolState);
+        renderPlanes(ALWAYS_PLANES.concat(s.extraPlanes));
+        els.trace.innerHTML = '<div class="line dim">student → Russell</div>';
+        renderAuthority(s, false);
+        renderReply(s, false);
+        setDoctrine("model");
+
+        const wait = async (ms) => {
+          if (reduceMotion) return;
+          await sleep(ms);
+        };
+
+        await wait(280);
+        if (token !== runToken) return;
+
+        els.trace.innerHTML += '<div class="line dim">model drafts tokens + prose</div>';
+        await wait(240);
+        if (token !== runToken) return;
+
+        setDoctrine("mcp");
+        for (const call of s.calls) {
+          if (token !== runToken) return;
+          toolState[call.tool] = call.fail ? "fail" : "on";
+          renderTools(toolState);
+          els.trace.innerHTML +=
+            '<div class="line ' +
+            (call.fail ? "bad" : "ok") +
+            '">mcp · ' +
+            call.tool +
+            " — " +
+            call.detail +
+            "</div>";
+          await wait(260);
+        }
+
+        if (token !== runToken) return;
+        setDoctrine("auth", s.authority.kind === "veto");
+        renderAuthority(s, true);
+        els.trace.innerHTML +=
+          '<div class="line ' +
+          (s.authority.kind === "veto" ? "bad" : "ok") +
+          '">authority · ' +
+          (s.authority.kind === "veto" ? "veto + strip" : "strip FOCUS/TURN · allow legal cards") +
+          "</div>";
+        await wait(280);
+        if (token !== runToken) return;
+
+        setDoctrine("student");
+        renderReply(s, true);
+      }
+
+      renderTools({});
+      renderPlanes(ALWAYS_PLANES);
+      renderPresets();
+      runScenario("tangent");
+    </script>
+    <script src="./intro-modal.js?v=2"></script>
+  </body>
+</html>

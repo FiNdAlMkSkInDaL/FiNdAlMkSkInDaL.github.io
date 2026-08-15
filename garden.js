@@ -5,6 +5,13 @@
   "use strict";
 
   const PROJECTS = {
+    toolbox: {
+      title: "TOOLBOX",
+      href: "./demos/toolbox.html?v=1",
+      openHref: "https://toolboxmaths.com/",
+      blurb:
+        "Toolbox is the live GCSE and A-Level platform I co-founded. This walkthrough is the engineering: Russell writes, an internal site-MCP supplies bank / diagrams / progress, and Element Authority vetoes illegal cards. The student product is at toolboxmaths.com.",
+    },
     tickforge: {
       title: "TICKFORGE",
       href: "https://findalmkskindal.github.io/tickforge/explorer/",
@@ -43,6 +50,10 @@
     macrobias: "macro",
     "vector-bot": "vectorbot",
     poly: "polymarket",
+    tbm: "toolbox",
+    russell: "toolbox",
+    "toolbox-maths": "toolbox",
+    toolboxmaths: "toolbox",
   };
 
   const BASE_TITLE = "Finlay Phillips · Pixel Garden";
@@ -424,29 +435,41 @@
     }
     const open = document.querySelector(".modal:not([hidden])");
     if (open) closeModal(open);
-    closeProjectsMenu();
+    closeAllNavMenus();
   });
 
-  /* ─── Projects dropdown ─────────────────────────────────────── */
-  const btnProjects = document.getElementById("btnProjects");
-  const projectsMenu = document.getElementById("projectsMenu");
-
-  function closeProjectsMenu() {
-    if (!projectsMenu || !btnProjects) return;
-    projectsMenu.hidden = true;
-    btnProjects.setAttribute("aria-expanded", "false");
+  /* ─── Nav dropdowns (Projects, CV) ──────────────────────────── */
+  function closeAllNavMenus(exceptDrop) {
+    document.querySelectorAll(".nav-drop").forEach((drop) => {
+      if (drop === exceptDrop) return;
+      const menu = drop.querySelector(".nav-menu");
+      const btn = drop.querySelector(":scope > .nav-btn");
+      if (menu) menu.hidden = true;
+      if (btn) btn.setAttribute("aria-expanded", "false");
+    });
   }
 
-  btnProjects?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const open = projectsMenu.hidden;
-    projectsMenu.hidden = !open;
-    btnProjects.setAttribute("aria-expanded", open ? "true" : "false");
+  function closeProjectsMenu() {
+    closeAllNavMenus();
+  }
+
+  document.querySelectorAll(".nav-drop").forEach((drop) => {
+    const btn = drop.querySelector(":scope > .nav-btn");
+    const menu = drop.querySelector(".nav-menu");
+    if (!btn || !menu) return;
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const willOpen = menu.hidden;
+      closeAllNavMenus();
+      if (willOpen) {
+        menu.hidden = false;
+        btn.setAttribute("aria-expanded", "true");
+      }
+    });
   });
 
   document.addEventListener("click", (e) => {
-    if (!projectsMenu || projectsMenu.hidden) return;
-    if (!e.target.closest(".nav-drop")) closeProjectsMenu();
+    if (!e.target.closest(".nav-drop")) closeAllNavMenus();
   });
 
   /* ─── Project shell (iframe) ────────────────────────────────── */
@@ -546,7 +569,7 @@
 
     activeProjectId = resolved;
     shellTitle.textContent = p.title;
-    shellOpen.href = p.href;
+    shellOpen.href = p.openHref || p.href;
     // Avoid reloading iframe if same href is already showing
     if (shellFrame.getAttribute("data-project") !== resolved) {
       shellFrame.src = p.href;
@@ -671,8 +694,9 @@
   });
   // Close burger after choosing a nav action
   document.getElementById("navLinks")?.addEventListener("click", (e) => {
-    if (e.target.closest("[data-modal], [data-open], .nav-ext, .view-toggle")) {
+    if (e.target.closest("[data-modal], [data-open], .nav-ext, .view-toggle, .nav-menu a")) {
       setNavOpen(false);
+      if (e.target.closest(".nav-menu a")) closeAllNavMenus();
     }
   });
 

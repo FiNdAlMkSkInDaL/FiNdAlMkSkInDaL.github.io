@@ -37,9 +37,10 @@ input[type="range"]::-moz-range-thumb {
 /* Active / press feedback */
 button:active,
 .btn:active,
-.chip:active,
-.sample:active,
-.nav-btn:active {
+  .chip:active,
+  .sample:active,
+  .preset:active,
+  .nav-btn:active {
   transform: scale(0.97);
   filter: brightness(1.08);
 }
@@ -110,6 +111,7 @@ button:active,
   button.btn,
   .chip,
   .sample,
+  .preset,
   .nav-btn {
     min-height: 48px !important;
     min-width: 48px;
@@ -174,7 +176,8 @@ button:active,
   button:active,
   .btn:active,
   .chip:active,
-  .sample:active {
+  .sample:active,
+  .preset:active {
     transform: none;
   }
 }
