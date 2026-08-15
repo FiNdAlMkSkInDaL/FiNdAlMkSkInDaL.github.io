@@ -376,6 +376,15 @@
           card: { stem: "Tangent at the point of contact", html: TANGENT_SVG },
         },
         {
+          id: "board",
+          label: "Can you read my whiteboard?",
+          pulls: [{ label: "whiteboard", fail: true }],
+          authority: { kind: "pass", label: "honest miss" },
+          paragraphs: [
+            "Whiteboard ingest is not wired yet, so I will not pretend I can see the board. Type the line you want help with.",
+          ],
+        },
+        {
           id: "practice",
           label: "Give me a chain-rule question",
           pulls: [
@@ -436,15 +445,6 @@
           authority: { kind: "veto", label: "blocked — no attempt yet" },
           paragraphs: [
             "I can mark a real attempt, or we can work the method. I will not dump a mark scheme with no working.",
-          ],
-        },
-        {
-          id: "board",
-          label: "Can you read my whiteboard?",
-          pulls: [{ label: "whiteboard", fail: true }],
-          authority: { kind: "pass", label: "honest miss" },
-          paragraphs: [
-            "Whiteboard ingest is not wired yet, so I will not pretend I can see the board. Type the line you want help with.",
           ],
         },
       ];
