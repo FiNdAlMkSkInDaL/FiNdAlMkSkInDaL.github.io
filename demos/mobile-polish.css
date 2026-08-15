@@ -40,6 +40,7 @@ button:active,
   .chip:active,
   .sample:active,
   .preset:active,
+  .ask:active,
   .nav-btn:active {
   transform: scale(0.97);
   filter: brightness(1.08);
@@ -112,6 +113,7 @@ button:active,
   .chip,
   .sample,
   .preset,
+  .ask,
   .nav-btn {
     min-height: 48px !important;
     min-width: 48px;
@@ -177,7 +179,8 @@ button:active,
   .btn:active,
   .chip:active,
   .sample:active,
-  .preset:active {
+  .preset:active,
+  .ask:active {
     transform: none;
   }
 }
