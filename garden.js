@@ -395,7 +395,6 @@
       const map = {
         about: "modalAbout",
         skills: "modalSkills",
-        contact: "modalContact",
       };
       const id = map[btn.getAttribute("data-modal")];
       if (id) {
@@ -694,7 +693,7 @@
   });
   // Close burger after choosing a nav action
   document.getElementById("navLinks")?.addEventListener("click", (e) => {
-    if (e.target.closest("[data-modal], [data-open], .nav-ext, .view-toggle, .nav-menu a")) {
+    if (e.target.closest("[data-modal], [data-open], .nav-ext, .nav-linkedin, .view-toggle, .nav-menu a")) {
       setNavOpen(false);
       if (e.target.closest(".nav-menu a")) closeAllNavMenus();
     }

@@ -549,6 +549,18 @@ body.shell-open .world-dim {
   color: #fff;
 }
 
+.nav-linkedin {
+  background: linear-gradient(180deg, #3b82f6, #1d4ed8);
+  color: #fff;
+  border-color: #1e3a8a;
+}
+
+.nav-linkedin:hover,
+.nav-linkedin:focus-visible {
+  background: linear-gradient(180deg, #60a5fa, #2563eb);
+  color: #fff;
+}
+
 .nav-drop {
   position: relative;
 }
@@ -598,10 +610,6 @@ body.shell-open .world-dim {
 
 .nav-menu-cv {
   min-width: 196px;
-}
-
-.contact-cv-label {
-  margin-top: 18px;
 }
 
 .view-toggle {
@@ -1487,6 +1495,19 @@ body.list-mode .hud {
   font-weight: 400;
 }
 
+.about-copy a {
+  color: #1d4ed8;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.about-copy a:hover,
+.about-copy a:focus-visible {
+  color: #1e40af;
+  outline: var(--focus-ring);
+  outline-offset: 2px;
+}
+
 .about-soft {
   color: #5c4a3a !important;
   font-size: 8px !important;
@@ -1556,43 +1577,6 @@ body.list-mode .hud {
   background: linear-gradient(180deg, #dcfce7, #bbf7d0);
   border: 3px solid var(--wood-deep);
   box-shadow: 2px 2px 0 rgba(63, 42, 30, 0.22);
-}
-
-.contact-blurb {
-  font-family: "Press Start 2P", monospace;
-  font-size: 8px;
-  line-height: 1.8;
-  margin: 0 0 14px;
-  color: var(--ink);
-}
-
-.contact-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.contact-list a {
-  display: flex;
-  align-items: center;
-  min-height: 48px;
-  padding: 12px 14px;
-  font-size: 9px;
-  color: var(--ink);
-  text-decoration: none;
-  background: linear-gradient(180deg, #fffef8, #f0e6c8);
-  border: 3px solid var(--wood-deep);
-  box-shadow: 3px 3px 0 rgba(63, 42, 30, 0.22);
-  cursor: var(--pixel-cursor);
-}
-
-.contact-list a:hover,
-.contact-list a:focus-visible {
-  background: #e0f2fe;
-  outline: var(--focus-ring);
 }
 
 /* —— Project iframe shell —— */
